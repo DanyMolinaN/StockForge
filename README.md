@@ -3,22 +3,6 @@
 Aplicación web empresarial para el módulo de registro de productos en un sistema de inventario.
 
 ## Estructura del proyecto
-----------------------------
-/project-root
-├── /frontend
-│   ├── index.html
-│   ├── /css
-│   ├── /js
-│   └── /assets
-├── /backend
-│   ├── server.js
-│   ├── /routes
-│   ├── /controllers
-│   ├── /models
-│   ├── /config
-│   └── /middlewares
-├── package.json
-└── README.md
 ------------------------
 
 ## Instalación
