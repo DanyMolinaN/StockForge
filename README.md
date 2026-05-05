@@ -2,6 +2,10 @@
 
 Aplicación web empresarial para el módulo de registro de productos en un sistema de inventario.
 
+## Integrantes:
+- danny
+- Jose Luis Andino
+
 ## Estructura del proyecto
 ------------------------
 
