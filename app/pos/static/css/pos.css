@@ -1,0 +1,40 @@
+/*
+ * Estilos base para el módulo POS.
+ * Este archivo es una base de diseño ligera para futuras integraciones web.
+ */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f7fb;
+    color: #1f2a37;
+}
+
+.pos-shell {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 20px;
+    padding: 24px;
+    min-height: 100vh;
+}
+
+.pos-search-card,
+.pos-action-card {
+    background: white;
+    border: 1px solid #d7e0eb;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+}
+
+.pos-search-card h1,
+.pos-action-card h2 {
+    margin-top: 0;
+    font-size: 28px;
+}
+
+@media (max-width: 960px) {
+    .pos-shell {
+        grid-template-columns: 1fr;
+    }
+}

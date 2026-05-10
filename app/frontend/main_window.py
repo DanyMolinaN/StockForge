@@ -3,7 +3,8 @@ from app.backend.repository import ProductRepository
 from app.frontend.styles import get_sheet
 from app.frontend.components.sidebar import Sidebar
 from app.frontend.views.inventory_view import InventoryView
-from app.frontend.views.catalog_view import CatalogView # NUEVO IMPORT
+from app.frontend.views.catalog_view import CatalogView
+from app.frontend.views.pos_view import POSView
 
 class MainWindow(QWidget):
     def __init__(self, repository: ProductRepository):
@@ -31,11 +32,11 @@ class MainWindow(QWidget):
         # 1. Registro de Producto (Formulario)
         self.views_container.addWidget(InventoryView(self.repository))
         
-        # 2. Catálogo (Tabla Exclusiva)
-        self.views_container.addWidget(CatalogView(self.repository))
+        # 2. Punto de Venta
+        self.views_container.addWidget(POSView(self.repository))
         
-        # 3. Punto de Venta
-        self.views_container.addWidget(QLabel("Punto de Venta en construcción...", objectName="h1"))
+        # 3. Catálogo (Tabla Exclusiva) - mantiene la vista sin afectar el menú actual
+        self.views_container.addWidget(CatalogView(self.repository))
 
         main_layout.addWidget(self.views_container, 1)
 

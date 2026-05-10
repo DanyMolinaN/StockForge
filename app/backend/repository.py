@@ -13,6 +13,15 @@ class ProductRepository(ABC):
     @abstractmethod
     def get_all(self) -> List[Product]: pass
 
+    @abstractmethod
+    def get_by_id(self, product_id: int) -> Product | None: pass
+
+    @abstractmethod
+    def get_by_sku(self, sku: str) -> Product | None: pass
+
+    @abstractmethod
+    def update(self, product: Product) -> Product: pass
+
 # ==========================================
 # 2. IMPLEMENTACIÓN SQLITE
 # ==========================================
@@ -58,3 +67,49 @@ class SQLiteProductRepository(ProductRepository):
             return [Product(id=r[0], name=r[1], sku=r[2], price=r[3], stock=r[4], 
                            category=r[5], supplier=r[6], expiration_date=r[7], attributes=r[8]) 
                     for r in cursor.fetchall()]
+
+    def get_by_id(self, product_id: int) -> Product | None:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes FROM products WHERE id = ?",
+                (product_id,)
+            )
+            row = cursor.fetchone()
+        if not row:
+            return None
+        return Product(id=row[0], name=row[1], sku=row[2], price=row[3], stock=row[4],
+                       category=row[5], supplier=row[6], expiration_date=row[7], attributes=row[8])
+
+    def get_by_sku(self, sku: str) -> Product | None:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes FROM products WHERE sku = ?",
+                (sku,)
+            )
+            row = cursor.fetchone()
+        if not row:
+            return None
+        return Product(id=row[0], name=row[1], sku=row[2], price=row[3], stock=row[4],
+                       category=row[5], supplier=row[6], expiration_date=row[7], attributes=row[8])
+
+    def update(self, product: Product) -> Product:
+        if product.id is None:
+            raise ValueError("El producto debe tener ID para actualizarse.")
+        with self._get_connection() as conn:
+            conn.execute(
+                "UPDATE products SET name = ?, sku = ?, price = ?, stock = ?, category = ?, supplier = ?, expiration_date = ?, attributes = ? WHERE id = ?",
+                (
+                    product.name,
+                    product.sku,
+                    product.price,
+                    product.stock,
+                    product.category,
+                    product.supplier,
+                    product.expiration_date,
+                    product.attributes,
+                    product.id,
+                )
+            )
+        return product
