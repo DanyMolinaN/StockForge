@@ -35,8 +35,13 @@ class Dims:
     }
 
 class Fonts:
-    """Configuración tipográfica."""
-    family = "Inter, Segoe UI, sans-serif"
+    """Configuración tipográfica (System Font Stack)."""
+    # Windows usará Segoe UI
+    # macOS usará su fuente nativa (San Francisco) o Helvetica Neue
+    # Linux usará Roboto o Ubuntu
+    # Si todo falla, usará una fuente sans-serif genérica y limpia
+    family = "'Segoe UI', 'San Francisco', 'Helvetica Neue', 'Roboto', sans-serif"
+    
     h1 = "24pt"; h2 = "18pt"; h3 = "14pt"; body = "10pt"
 
 # ==========================================

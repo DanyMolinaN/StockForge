@@ -17,7 +17,7 @@ class InventoryView(QWidget):
     def setup_ui(self):
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(32)
+        main_layout.setSpacing(24)
         
         # Insertamos el código exacto de _build_form() y _build_catalog() que teníamos antes
         main_layout.addWidget(self._build_form(), 4)
@@ -26,7 +26,7 @@ class InventoryView(QWidget):
     def _build_form(self) -> QFrame:
         panel = QFrame(); panel.setObjectName("panel")
         panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        layout = QVBoxLayout(panel); layout.setContentsMargins(32, 32, 32, 32); layout.setSpacing(16)
+        layout = QVBoxLayout(panel); layout.setContentsMargins(24, 24, 24, 24); layout.setSpacing(16)
 
         layout.addWidget(QLabel("Módulo de Inventario", objectName="eyebrow"))
         layout.addWidget(QLabel("Nuevo Producto", objectName="h2"))
@@ -57,7 +57,7 @@ class InventoryView(QWidget):
     def _build_catalog(self) -> QFrame:
         panel = QFrame(); panel.setObjectName("panel")
         panel.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        layout = QVBoxLayout(panel); layout.setContentsMargins(32, 32, 32, 32)
+        layout = QVBoxLayout(panel); layout.setContentsMargins(24, 24, 24, 24)
         
         layout.addWidget(QLabel("Catálogo Actual", objectName="h2")); layout.addSpacing(16)
 
