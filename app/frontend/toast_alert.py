@@ -15,7 +15,7 @@ TOAST_CONFIG = {
         "border_radius": 12
     },
     "types": {
-        "success": {"color": Palette.Success, "icon": "check.svg"},
+        "success": {"color": Palette.Success, "icon": "circle-check.svg"},
         "error":   {"color": Palette.Danger,  "icon": "error.svg"},
         "warning": {"color": Palette.status_warning, "icon": "warning.svg"},
         "info":    {"color": Palette.Primary, "icon": "info.svg"}

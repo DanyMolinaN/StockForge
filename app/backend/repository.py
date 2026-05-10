@@ -3,7 +3,9 @@ from abc import ABC, abstractmethod
 from typing import List
 from .models import Product
 
-# Interfaz abstracta
+# ==========================================
+# 1. INTERFAZ ABSTRACTA (Dependency Inversion)
+# ==========================================
 class ProductRepository(ABC):
     @abstractmethod
     def add(self, product: Product) -> Product: pass
@@ -11,7 +13,9 @@ class ProductRepository(ABC):
     @abstractmethod
     def get_all(self) -> List[Product]: pass
 
-# Implementación concreta para SQLite
+# ==========================================
+# 2. IMPLEMENTACIÓN SQLITE
+# ==========================================
 class SQLiteProductRepository(ProductRepository):
     def __init__(self, db_path: str = "stockforge.db"):
         self.db_path = db_path
@@ -28,23 +32,29 @@ class SQLiteProductRepository(ProductRepository):
                     name TEXT NOT NULL,
                     sku TEXT NOT NULL UNIQUE,
                     price REAL NOT NULL,
-                    stock INTEGER NOT NULL
+                    stock INTEGER NOT NULL,
+                    category TEXT NOT NULL,
+                    supplier TEXT NOT NULL,
+                    expiration_date TEXT,
+                    attributes TEXT NOT NULL
                 )
             ''')
 
     def add(self, product: Product) -> Product:
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO products (name, sku, price, stock) VALUES (?, ?, ?, ?)",
-                (product.name, product.sku, product.price, product.stock)
-            )
+            cursor.execute('''
+                INSERT INTO products (name, sku, price, stock, category, supplier, expiration_date, attributes) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (product.name, product.sku, product.price, product.stock, 
+                  product.category, product.supplier, product.expiration_date, product.attributes))
             product.id = cursor.lastrowid
         return product
 
     def get_all(self) -> List[Product]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, name, sku, price, stock FROM products")
-            rows = cursor.fetchall()
-            return [Product(id=row[0], name=row[1], sku=row[2], price=row[3], stock=row[4]) for row in rows]
+            cursor.execute("SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes FROM products")
+            return [Product(id=r[0], name=r[1], sku=r[2], price=r[3], stock=r[4], 
+                           category=r[5], supplier=r[6], expiration_date=r[7], attributes=r[8]) 
+                    for r in cursor.fetchall()]
