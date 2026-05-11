@@ -1,9 +1,9 @@
-# backend/repository.py
+# app/backend/repositories/product_repo.py
 
 import sqlite3
 from abc import ABC, abstractmethod
-from typing import List
-from .models import Product
+from typing import List, Optional
+from app.backend.models.product import Product
 
 # ==========================================
 # 1. INTERFAZ ABSTRACTA (Dependency Inversion)
@@ -16,13 +16,19 @@ class ProductRepository(ABC):
     def get_all(self) -> List[Product]: pass
 
     @abstractmethod
-    def get_by_id(self, product_id: int) -> Product | None: pass
+    def get_by_id(self, product_id: int) -> Optional[Product]: pass
 
     @abstractmethod
-    def get_by_sku(self, sku: str) -> Product | None: pass
+    def get_by_sku(self, sku: str) -> Optional[Product]: pass
 
     @abstractmethod
     def update(self, product: Product) -> Product: pass
+
+    @abstractmethod
+    def search_products(self, query: str) -> List[Product]: pass
+
+    @abstractmethod
+    def update_stock(self, product_id: int, quantity: int) -> None: pass
 
 # ==========================================
 # 2. IMPLEMENTACIÓN SQLITE
@@ -70,7 +76,7 @@ class SQLiteProductRepository(ProductRepository):
                            category=r[5], supplier=r[6], expiration_date=r[7], attributes=r[8]) 
                     for r in cursor.fetchall()]
 
-    def get_by_id(self, product_id: int) -> Product | None:
+    def get_by_id(self, product_id: int) -> Optional[Product]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -83,7 +89,7 @@ class SQLiteProductRepository(ProductRepository):
         return Product(id=row[0], name=row[1], sku=row[2], price=row[3], stock=row[4],
                        category=row[5], supplier=row[6], expiration_date=row[7], attributes=row[8])
 
-    def get_by_sku(self, sku: str) -> Product | None:
+    def get_by_sku(self, sku: str) -> Optional[Product]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -103,15 +109,26 @@ class SQLiteProductRepository(ProductRepository):
             conn.execute(
                 "UPDATE products SET name = ?, sku = ?, price = ?, stock = ?, category = ?, supplier = ?, expiration_date = ?, attributes = ? WHERE id = ?",
                 (
-                    product.name,
-                    product.sku,
-                    product.price,
-                    product.stock,
-                    product.category,
-                    product.supplier,
-                    product.expiration_date,
-                    product.attributes,
-                    product.id,
+                    product.name, product.sku, product.price, product.stock,
+                    product.category, product.supplier, product.expiration_date,
+                    product.attributes, product.id,
                 )
             )
         return product
+
+    def search_products(self, query: str) -> List[Product]:
+        query = f"%{query.strip()}%"
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes "
+                "FROM products WHERE name LIKE ? OR sku LIKE ? OR CAST(id AS TEXT) LIKE ? LIMIT 50",
+                (query, query, query)
+            )
+            return [Product(id=r[0], name=r[1], sku=r[2], price=r[3], stock=r[4], 
+                           category=r[5], supplier=r[6], expiration_date=r[7], attributes=r[8]) 
+                    for r in cursor.fetchall()]
+
+    def update_stock(self, product_id: int, quantity: int) -> None:
+        with self._get_connection() as conn:
+            conn.execute("UPDATE products SET stock = ? WHERE id = ?", (quantity, product_id))

@@ -9,8 +9,8 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDate, Qt
 import random
-from app.backend.models import Product
-from app.backend.inventory_service import InventoryService
+from app.backend.models.product import Product
+from app.backend.services.inventory_service  import InventoryService
 from app.frontend.styles import STYLES
 from app.frontend.components.toast_alert import ToastNotification
 

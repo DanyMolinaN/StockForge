@@ -1,9 +1,4 @@
-/*
- * POS frontend helper para integración futura.
- *
- * Este archivo es un punto de partida para el módulo web de Punto de Venta.
- * La lógica principal de la aplicación se ejecuta en el backend Python.
- */
+// pos/static/js/pos.js
 
 window.StockForgePOS = {
     initialize: function () {

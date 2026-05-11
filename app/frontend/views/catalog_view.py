@@ -1,7 +1,7 @@
 # frontend/views/catalog_view.py
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QFrame, QHeaderView, QHBoxLayout, QPushButton
-from app.backend.repository import ProductRepository
+from app.backend.repositories.product_repo import ProductRepository
 from app.frontend.styles import STYLES
 
 class CatalogView(QWidget):

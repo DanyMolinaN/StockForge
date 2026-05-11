@@ -1,64 +1,25 @@
+# app/backend/repositories/sale_repo.py
+
 import sqlite3
-from typing import List, Optional
-from app.backend.models import Product
-from app.pos.models import Sale, SaleItem
+from abc import ABC, abstractmethod
+from typing import List
+from app.backend.models.sale import Sale, SaleItem
 
-class POSProductRepository:
-    def __init__(self, db_path: str):
-        self.db_path = db_path
+# ==========================================
+# 1. INTERFAZ ABSTRACTA (Dependency Inversion)
+# ==========================================
+class SalesRepository(ABC):
+    @abstractmethod
+    def save_sale(self, sale: Sale) -> Sale: pass
 
-    def _get_connection(self):
-        return sqlite3.connect(self.db_path)
+    @abstractmethod
+    def get_sales(self) -> List[Sale]: pass
 
-    def search_products(self, query: str) -> List[Product]:
-        query = f"%{query.strip()}%"
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes "
-                "FROM products WHERE name LIKE ? OR sku LIKE ? OR CAST(id AS TEXT) LIKE ? LIMIT 50",
-                (query, query, query)
-            )
-            rows = cursor.fetchall()
-        return [self._row_to_product(row) for row in rows]
-
-    def get_product_by_id(self, product_id: int) -> Optional[Product]:
-        with self._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes "
-                "FROM products WHERE id = ?",
-                (product_id,)
-            )
-            row = cursor.fetchone()
-        return self._row_to_product(row) if row else None
-
-    def update_stock(self, product_id: int, quantity: int) -> None:
-        with self._get_connection() as conn:
-            conn.execute("UPDATE products SET stock = ? WHERE id = ?", (quantity, product_id))
-
-    def _row_to_product(self, row):
-        return Product(
-            id=row[0],
-            name=row[1],
-            sku=row[2],
-            price=row[3],
-            stock=row[4],
-            category=row[5],
-            supplier=row[6],
-            expiration_date=row[7],
-            attributes=row[8]
-        )
-
-class SalesRepository:
-    def save_sale(self, sale: Sale) -> Sale:
-        raise NotImplementedError
-
-    def get_sales(self) -> List[Sale]:
-        raise NotImplementedError
-
+# ==========================================
+# 2. IMPLEMENTACIÓN SQLITE
+# ==========================================
 class SQLiteSalesRepository(SalesRepository):
-    def __init__(self, db_path: str):
+    def __init__(self, db_path: str = "stockforge.db"):
         self.db_path = db_path
         self._init_db()
 
@@ -67,8 +28,7 @@ class SQLiteSalesRepository(SalesRepository):
 
     def _init_db(self):
         with self._get_connection() as conn:
-            conn.execute(
-                """
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS sales (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     numero_venta TEXT NOT NULL UNIQUE,
@@ -80,10 +40,8 @@ class SQLiteSalesRepository(SalesRepository):
                     metodo_pago TEXT NOT NULL,
                     estado TEXT NOT NULL
                 )
-                """
-            )
-            conn.execute(
-                """
+            ''')
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS sale_items (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     venta_id INTEGER NOT NULL,
@@ -93,8 +51,7 @@ class SQLiteSalesRepository(SalesRepository):
                     subtotal REAL NOT NULL,
                     FOREIGN KEY(venta_id) REFERENCES sales(id)
                 )
-                """
-            )
+            ''')
 
     def save_sale(self, sale: Sale) -> Sale:
         with self._get_connection() as conn:
@@ -106,6 +63,7 @@ class SQLiteSalesRepository(SalesRepository):
                  sale.impuesto, sale.total, sale.metodo_pago, sale.estado)
             )
             sale.id = cursor.lastrowid
+            
             for item in sale.items:
                 cursor.execute(
                     "INSERT INTO sale_items (venta_id, producto_id, cantidad, precio_unitario, subtotal) "
@@ -119,6 +77,7 @@ class SQLiteSalesRepository(SalesRepository):
             cursor = conn.cursor()
             cursor.execute("SELECT id, numero_venta, fecha, usuario_id, subtotal, impuesto, total, metodo_pago, estado FROM sales ORDER BY fecha DESC")
             sale_rows = cursor.fetchall()
+            
             sales = []
             for row in sale_rows:
                 sale_id = row[0]
@@ -128,6 +87,7 @@ class SQLiteSalesRepository(SalesRepository):
                 )
                 items = [SaleItem(producto_id=item[0], nombre="", sku="", cantidad=item[1], precio_unitario=item[2], subtotal=item[3])
                          for item in cursor.fetchall()]
+                
                 sales.append(Sale(
                     id=sale_id,
                     numero_venta=row[1],

@@ -7,18 +7,19 @@ from PySide6.QtWidgets import (
 )
 from app.frontend.styles import STYLES
 from app.frontend.components.toast_alert import ToastNotification
-from app.pos.repositories import POSProductRepository, SQLiteSalesRepository
-from app.pos.services import POSService
+from app.backend.repositories.sale_repo import SQLiteSalesRepository
+# from app.backend.repositories.product_repo import ProductRepository
+from app.backend.api.pos_routes import POSService
 
 class POSView(QWidget):
     def __init__(self, repository):
         super().__init__()
-        self.product_db_path = repository.db_path
         self.service = POSService(
-            product_repo=POSProductRepository(self.product_db_path),
-            sales_repo=SQLiteSalesRepository(self.product_db_path),
+            product_repo=repository, 
+            sales_repo=SQLiteSalesRepository(repository.db_path),
             tax_rate=0.15
         )
+        
         self.setup_ui()
         self.update_search_results()
         self.update_cart_table()

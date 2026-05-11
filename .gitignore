@@ -1,7 +1,23 @@
-node_modules/
-.env
-.DS_Store
-npm-debug.log
-*__pycache__/
+# Entornos virtuales
 .venv/
+
+# Archivos de cache de Python
+*__pycache__/
+*.pyc
+
+# Variables de entorno
+.env
+
+# Bases de datos locales (Crucial para SoR)
+*.db
+*.sqlite3
+stockforge.db
+
+# Dependencias Node
+node_modules/
+npm-debug.log
+
+# Configuraciones de Sistema Operativo y Editores
+.DS_Store
 .vscode/
+.idea/
