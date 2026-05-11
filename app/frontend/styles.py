@@ -1,3 +1,5 @@
+# frontend/styles.py
+
 import os
 from .utils import resource_path
 

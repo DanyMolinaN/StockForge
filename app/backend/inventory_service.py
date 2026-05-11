@@ -1,3 +1,5 @@
+# backend/inventory_service.py
+
 import json
 from typing import List, Set
 from app.backend.models import Product

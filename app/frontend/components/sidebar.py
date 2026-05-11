@@ -1,4 +1,5 @@
 # app/frontend/components/sidebar.py
+
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QButtonGroup, QSizePolicy, QWidget
 from PySide6.QtCore import Signal, QPropertyAnimation, QEasingCurve, Qt, QParallelAnimationGroup
 from app.frontend.styles import STYLES

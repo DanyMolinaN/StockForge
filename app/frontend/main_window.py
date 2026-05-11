@@ -1,3 +1,5 @@
+# frontend/main_window.py
+
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget, QLabel
 from app.backend.repository import ProductRepository
 from app.frontend.styles import get_sheet

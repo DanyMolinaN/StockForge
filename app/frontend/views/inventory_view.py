@@ -1,3 +1,5 @@
+# frontend/views/inventory_view.py
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QDoubleSpinBox, QSpinBox, QPushButton, QFrame,
@@ -10,7 +12,7 @@ import random
 from app.backend.models import Product
 from app.backend.inventory_service import InventoryService
 from app.frontend.styles import STYLES
-from app.frontend.toast_alert import ToastNotification
+from app.frontend.components.toast_alert import ToastNotification
 
 class InventoryView(QWidget):
     def __init__(self, repository):

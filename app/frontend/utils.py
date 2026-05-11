@@ -1,3 +1,5 @@
+# frontend/utils.py
+
 import sys
 import os
 import logging # <- Añadir este import

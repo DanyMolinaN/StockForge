@@ -1,10 +1,12 @@
+# frontend/views/pos_view.py
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
 from app.frontend.styles import STYLES
-from app.frontend.toast_alert import ToastNotification
+from app.frontend.components.toast_alert import ToastNotification
 from app.pos.repositories import POSProductRepository, SQLiteSalesRepository
 from app.pos.services import POSService
 
