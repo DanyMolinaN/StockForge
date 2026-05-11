@@ -26,7 +26,7 @@ class MainWindow(QWidget):
         main_layout.addWidget(self.sidebar)
 
         self.views_container = QStackedWidget()
-        self.views_container.setContentsMargins(36, 36, 36, 36)
+        self.views_container.setContentsMargins(24, 24, 24, 24)
         
         # 0. Dashboard
         self.views_container.addWidget(QLabel("Dashboard en construcción...", objectName="h1"))

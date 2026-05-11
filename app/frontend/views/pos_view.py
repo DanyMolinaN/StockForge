@@ -32,8 +32,8 @@ class POSView(QWidget):
         left_panel.setObjectName("panel")
         left_panel.setStyleSheet(STYLES["card"])
         left_layout = QVBoxLayout(left_panel)
-        left_layout.setContentsMargins(24, 24, 24, 24)
-        left_layout.setSpacing(16)
+        left_layout.setContentsMargins(18, 18, 18, 18)
+        left_layout.setSpacing(12)
 
         left_layout.addWidget(QLabel("Punto de Venta", objectName="h2"))
         left_layout.addWidget(QLabel("Busque productos por nombre, SKU o código y agréguelos al carrito.", objectName="normal"))
@@ -76,8 +76,8 @@ class POSView(QWidget):
         right_panel.setObjectName("panel")
         right_panel.setStyleSheet(STYLES["card"])
         right_layout = QVBoxLayout(right_panel)
-        right_layout.setContentsMargins(24, 24, 24, 24)
-        right_layout.setSpacing(16)
+        right_layout.setContentsMargins(18, 18, 18, 18)
+        right_layout.setSpacing(12)
 
         right_layout.addWidget(QLabel("Carrito de Compras", objectName="h2"))
 

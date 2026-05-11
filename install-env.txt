@@ -1,7 +1,8 @@
-uv venv env
+uv venv
 
-env\Scripts\activate
-
-uv pip install -r requirements.txt
+.venv\Scripts\activate.bat      Windows
+source .venv/bin/activate       Linux
 
 uv pip freeze > requirements.txt
+uv pip install -r requirements.txt
+

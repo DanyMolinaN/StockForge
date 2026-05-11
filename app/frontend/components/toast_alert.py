@@ -65,7 +65,7 @@ class ToastNotification(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedWidth(320)
         # Borde sutil para modo claro
-        self.setStyleSheet(f"QWidget {{ border: 1px solid {Palette.Border}; border-radius: {self.radius}px; }}")
+        # self.setStyleSheet(f"QWidget {{ border: 1px solid {Palette.Border}; border-radius: {self.radius}px; }}")
 
     def _setup_ui(self):
         main_layout = QHBoxLayout(self)
@@ -75,15 +75,16 @@ class ToastNotification(QWidget):
         main_layout.addWidget(ToastIcon(self.tipo, self), 0, Qt.AlignmentFlag.AlignTop)
 
         text_container = QWidget()
-        text_container.setStyleSheet("border: none; background: transparent;")
+        # FIX: Limpiamos los parches de 'border: none'
+        text_container.setStyleSheet("background: transparent;")
         text_layout = QVBoxLayout(text_container)
         text_layout.setContentsMargins(0, 0, 0, 0)
         
         lbl_title = QLabel(self.titulo_text)
-        lbl_title.setStyleSheet(f"color: {TOAST_CONFIG['global']['text_title']}; font-weight: bold; border: none;")
+        lbl_title.setStyleSheet(f"color: {TOAST_CONFIG['global']['text_title']}; font-weight: bold;")
         
         lbl_msg = QLabel(self.mensaje_text)
-        lbl_msg.setStyleSheet(f"color: {TOAST_CONFIG['global']['text_body']}; border: none;")
+        lbl_msg.setStyleSheet(f"color: {TOAST_CONFIG['global']['text_body']};")
         lbl_msg.setWordWrap(True)
         
         text_layout.addWidget(lbl_title)
@@ -114,6 +115,7 @@ class ToastNotification(QWidget):
         self.anim_pos.setEasingCurve(QEasingCurve.Type.OutCubic)
 
     def get_progress(self): return self._progress
+    
     def set_progress(self, value): 
         self._progress = value
         self.update()
@@ -127,11 +129,21 @@ class ToastNotification(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        rect = QRectF(self.rect())
+        
+        # FIX: Ajustamos el rectángulo por medio píxel para que el trazo del borde 
+        # se dibuje perfectamente dentro de los límites de la ventana
+        rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         path = QPainterPath()
         path.addRoundedRect(rect, self.radius, self.radius)
+        
+        # 1. Dibujar el fondo
         painter.fillPath(path, self.bg_color)
+        
+        # 2. Dibujar el borde
+        painter.setPen(QColor(Palette.Border))
+        painter.drawPath(path)
 
+        # 3. Dibujar la barra de progreso
         if self._progress > 0:
             painter.setClipPath(path)
             bar_height = 4

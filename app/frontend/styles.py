@@ -145,7 +145,8 @@ def get_sheet() -> str:
     }}
     /* --- TABLAS --- */
     QTableWidget {{
-        background-color: {c.Surface}; gridline-color: {c.Surface}; outline: none; border: none;
+        background-color: {c.Surface}; gridline-color: {c.Surface}; 
+        outline: none; border: 1px solid {c.Border};
     }}
     QHeaderView::section {{
         background-color: {c.Surface_Strong}; color: {Palette.Text}; border: none;
@@ -176,9 +177,9 @@ def get_sheet() -> str:
 STYLES = {
     # --- CONTENEDORES ---
     "card": f"""
-        QFrame {{ 
+        .QFrame {{  /* El punto '.' asegura que solo aplique a QFrame, NO a sus hijos como QLabel */
             background-color: {Palette.Surface}; 
-            border: 1px solid {Palette.Border}; 
+            border: 1px solid {Palette.Border}; /* Borde aplicado aquí de forma segura */
             border-radius: {Dims.radius['card']}; 
         }}
     """,
