@@ -1,6 +1,9 @@
 # app/frontend/components/sidebar.py
 
-from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QButtonGroup, QSizePolicy, QWidget
+from PySide6.QtWidgets import (
+    QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
+    QButtonGroup, QWidget
+)
 from PySide6.QtCore import Signal, QPropertyAnimation, QEasingCurve, Qt, QParallelAnimationGroup
 from app.frontend.styles import STYLES
 from app.frontend.utils import get_icon_colored
@@ -10,9 +13,10 @@ class Sidebar(QFrame):
 
     def __init__(self):
         super().__init__()
+        # Configuración de estado y dimensiones
         self.is_collapsed = False
         self.expanded_width = 240
-        self.collapsed_width = 72 # Ancho exacto para que quede solo el icono
+        self.collapsed_width = 72
 
         self.setStyleSheet(STYLES["sidebar_dark"])
         self.setFixedWidth(self.expanded_width)
@@ -31,34 +35,38 @@ class Sidebar(QFrame):
         self.layout.setContentsMargins(12, 24, 12, 24)
         self.layout.setSpacing(8)
 
-        # --- HEADER (Logo + Botón Toggle) ---
+        # Delegar responsabilidades a constructores específicos (SoR)
+        self._build_header()
+        self.layout.addSpacing(24)
+        
+        self._build_menu()
+        self.layout.addStretch()
+        
+        self._build_footer()
+
+    # ==========================================
+    # CONSTRUCCIÓN DE INTERFAZ (Alta Cohesión)
+    # ==========================================
+
+    def _build_header(self):
         self.header_layout = QHBoxLayout()
         self.header_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Logo Principal
         self.lbl_logo = QLabel("StockForge")
-        self.lbl_logo.setStyleSheet("color: white; font-size: 18px; font-weight: bold; padding-left: 6px;")
+        self.lbl_logo.setStyleSheet("color: white; font-size: 16px; font-weight: bold;")
         
-        # EL SECRETO: Usar un QWidget como espaciador en lugar de addStretch()
-        self.header_spacer = QWidget()
-        self.header_spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        self.header_spacer.setStyleSheet("background: transparent; border: none;") # <-- Línea añadida
-        # Botón Toggle (Contraer/Expandir)
         self.btn_toggle = QPushButton()
-        self.btn_toggle.setFixedSize(28, 28) # Un poco más grande para mejor click
+        self.btn_toggle.setFixedSize(28, 28)
         self.btn_toggle.setIcon(get_icon_colored("chevron-left.svg", "#a3a3a3", 18))
         self.btn_toggle.setStyleSheet(STYLES["sidebar_toggle"])
         self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle.clicked.connect(self.toggle_sidebar)
 
         self.header_layout.addWidget(self.lbl_logo)
-        self.header_layout.addWidget(self.header_spacer)
         self.header_layout.addWidget(self.btn_toggle)
-        
         self.layout.addLayout(self.header_layout)
-        self.layout.addSpacing(24)
 
-        # --- MENÚ DE NAVEGACIÓN ---
+    def _build_menu(self):
         self.btn_group = QButtonGroup(self)
         self.btn_group.setExclusive(True)
 
@@ -69,91 +77,90 @@ class Sidebar(QFrame):
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             
-            # Al hacer click, cambia el color del icono del botón activo a blanco
-            btn.toggled.connect(lambda checked, b=btn, icn=icon_name: self.update_btn_icon(b, icn, checked))
+            btn.toggled.connect(lambda checked, b=btn, icn=icon_name: self._update_active_icon(b, icn, checked))
             btn.clicked.connect(lambda checked, idx=i: self.view_changed.emit(idx))
             
             self.btn_group.addButton(btn, i)
             self.menu_btns.append(btn)
             self.layout.addWidget(btn)
 
-        self.btn_group.button(0).setChecked(True) # Activar el primero
-        self.layout.addStretch()
+        if self.menu_btns:
+            self.btn_group.button(0).setChecked(True)
 
-        # --- LOGO DE EMPRESA AL FONDO ---
+    def _build_footer(self):
         self.company_btn = QPushButton("  NovaForge Systems")
         self.company_btn.setIcon(get_icon_colored("company-logo.svg", "#3b82f6", 24))
         self.company_btn.setStyleSheet(STYLES["sidebar_btn_dark"])
-        
-        # 👇 AGREGA ESTA LÍNEA: Hace que el botón sea "fantasma" para el mouse
         self.company_btn.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        
         self.layout.addWidget(self.company_btn)
 
-    def update_btn_icon(self, btn, icon_name, is_checked):
-        """Cambia el color del icono a blanco si está activo, gris si está inactivo."""
+    # ==========================================
+    # LÓGICA DE ESTADO Y ANIMACIONES
+    # ==========================================
+
+    def _update_active_icon(self, btn, icon_name, is_checked):
         color = "#ffffff" if is_checked else "#8e8e93"
         btn.setIcon(get_icon_colored(icon_name, color, 22))
 
     def toggle_sidebar(self):
-        """Lógica de animación para expandir y contraer."""
         self.is_collapsed = not self.is_collapsed
         target_width = self.collapsed_width if self.is_collapsed else self.expanded_width
 
-        # Cambiar el icono del toggle
+        # 1. Actualizar icono del toggle
         toggle_icon = "chevron-right.svg" if self.is_collapsed else "chevron-left.svg"
         self.btn_toggle.setIcon(get_icon_colored(toggle_icon, "#a3a3a3", 18))
 
-        # Configurar animaciones
+        # 2. Configurar y ejecutar animación
+        self._run_width_animation(target_width)
+
+        # 3. Gestionar la UI inmediata o diferida según el estado
+        if self.is_collapsed:
+            self._apply_collapsed_ui()
+        else:
+            # Esperar a que la animación termine para mostrar los textos y evitar cortes visuales
+            self.anim_group.finished.connect(self._apply_expanded_ui)
+
+    def _run_width_animation(self, target_width: int):
         self.anim_min = QPropertyAnimation(self, b"minimumWidth")
         self.anim_min.setDuration(250)
-        self.anim_min.setStartValue(self.width())
         self.anim_min.setEndValue(target_width)
         self.anim_min.setEasingCurve(QEasingCurve.Type.InOutQuad)
 
         self.anim_max = QPropertyAnimation(self, b"maximumWidth")
         self.anim_max.setDuration(250)
-        self.anim_max.setStartValue(self.width())
         self.anim_max.setEndValue(target_width)
         self.anim_max.setEasingCurve(QEasingCurve.Type.InOutQuad)
 
-        self.anim_group = QParallelAnimationGroup()
+        self.anim_group = QParallelAnimationGroup(self)
         self.anim_group.addAnimation(self.anim_min)
         self.anim_group.addAnimation(self.anim_max)
-
-        if self.is_collapsed:
-            # 1. Ocultar el texto y el espaciador
-            self.lbl_logo.hide()
-            self.header_spacer.hide()
-            
-            # 2. Forzar el centrado del botón toggle en su layout
-            self.header_layout.setAlignment(self.btn_toggle, Qt.AlignmentFlag.AlignCenter)
-            
-            # 3. Limpiar texto de empresa y centrar su icono modificando su CSS
-            self.company_btn.setText("")
-            self.company_btn.setStyleSheet(STYLES["sidebar_btn_dark"].replace("text-align: left;", "text-align: center; padding: 10px 0px;"))
-            
-            # 4. Limpiar texto del menú y centrar iconos
-            for btn in self.menu_btns: 
-                btn.setText("")
-                btn.setStyleSheet(STYLES["sidebar_btn_dark"].replace("text-align: left;", "text-align: center; padding: 10px 0px;"))
-        else:
-            # Mostrar textos solo cuando termine de expandirse para que no se corten feo
-            self.anim_group.finished.connect(self.show_texts)
-
         self.anim_group.start()
 
-    def show_texts(self):
-        if not self.is_collapsed:
-            # 1. Restaurar alineación a la derecha (el espaciador lo empujará)
-            self.header_layout.setAlignment(self.btn_toggle, Qt.AlignmentFlag.AlignRight)
-            self.lbl_logo.show()
-            self.header_spacer.show()
-            
-            # 2. Restaurar textos y estilos originales
-            self.company_btn.setText("  NovaForge Systems")
-            self.company_btn.setStyleSheet(STYLES["sidebar_btn_dark"])
-            
-            for i, btn in enumerate(self.menu_btns):
-                btn.setText(f"  {self.menu_items[i][0]}")
-                btn.setStyleSheet(STYLES["sidebar_btn_dark"])
+    # --- Aplicación de Principio DRY para el manejo de estilos ---
+
+    def _apply_collapsed_ui(self):
+        self.lbl_logo.hide()
+        self.header_layout.setAlignment(self.btn_toggle, Qt.AlignmentFlag.AlignCenter)
+        
+        # Centralizar modificación de estilos
+        collapsed_style = STYLES["sidebar_btn_dark"].replace("text-align: left;", "text-align: center; padding: 10px 0px;")
+        
+        self.company_btn.setText("")
+        self.company_btn.setStyleSheet(collapsed_style)
+        
+        for btn in self.menu_btns: 
+            btn.setText("")
+            btn.setStyleSheet(collapsed_style)
+
+    def _apply_expanded_ui(self):
+        if self.is_collapsed: return # Previene ejecuciones fantasma si el usuario hace doble clic rápido
+
+        self.header_layout.setAlignment(self.btn_toggle, Qt.AlignmentFlag.AlignRight)
+        self.lbl_logo.show()
+        
+        self.company_btn.setText("  NovaForge Systems")
+        self.company_btn.setStyleSheet(STYLES["sidebar_btn_dark"])
+        
+        for i, btn in enumerate(self.menu_btns):
+            btn.setText(f"  {self.menu_items[i][0]}")
+            btn.setStyleSheet(STYLES["sidebar_btn_dark"])

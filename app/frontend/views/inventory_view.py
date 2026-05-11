@@ -11,7 +11,7 @@ from PySide6.QtCore import QDate, Qt
 import random
 from app.backend.models.product import Product
 from app.backend.services.inventory_service  import InventoryService
-from app.frontend.styles import STYLES
+from app.frontend.styles import LAYOUT, STYLES
 from app.frontend.components.toast_alert import ToastNotification
 
 class InventoryView(QWidget):
@@ -31,7 +31,7 @@ class InventoryView(QWidget):
 
         # Título General
         header_layout = QHBoxLayout()
-        header_layout.setContentsMargins(18, 18, 18, 0)
+        header_layout.setContentsMargins(16, 16, 16, 0)
         header_layout.addWidget(QLabel("Gestión de Inventario", objectName="h1"))
         header_layout.addStretch()
         outer_layout.addLayout(header_layout)
@@ -58,7 +58,7 @@ class InventoryView(QWidget):
     def _setup_table_tab(self):
         """Configura la pestaña que contiene la tabla de productos."""
         layout = QVBoxLayout(self.tab_table)
-        layout.setContentsMargins(18, 18, 18, 18)
+        layout.setContentsMargins(16, 16, 16, 16)
 
         self.product_table = QTableWidget(0, 9)
         self.product_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -75,14 +75,14 @@ class InventoryView(QWidget):
     def _setup_admin_tab(self):
         """Configura la pestaña con el formulario de registro y edición."""
         tab_layout = QVBoxLayout(self.tab_admin)
-        tab_layout.setContentsMargins(18, 18, 18, 18)
+        tab_layout.setContentsMargins(16, 16, 16, 16)
 
         # Contenedor con estilo de tarjeta para el formulario
         form_container = QFrame()
         form_container.setStyleSheet(STYLES["card"])
         admin_layout = QVBoxLayout(form_container)
-        admin_layout.setContentsMargins(18, 18, 18, 18)
-        admin_layout.setSpacing(12)
+        admin_layout.setContentsMargins(16, 16, 16, 16)
+        admin_layout.setSpacing(LAYOUT["space_01"])
 
         # 1. Identificación y Categoría
         group_id = QGroupBox("Identificacion y Categoria")

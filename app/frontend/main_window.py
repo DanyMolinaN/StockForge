@@ -2,6 +2,11 @@
 
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget, QLabel
 from app.backend.repositories.product_repo import ProductRepository
+
+# 1. Importamos las dependencias necesarias para ensamblar el servicio
+from app.backend.repositories.sale_repo import SQLiteSalesRepository
+from app.backend.api.pos_routes import POSService
+
 from app.frontend.styles import get_sheet
 from app.frontend.components.sidebar import Sidebar
 from app.frontend.views.inventory_view import InventoryView
@@ -26,7 +31,7 @@ class MainWindow(QWidget):
         main_layout.addWidget(self.sidebar)
 
         self.views_container = QStackedWidget()
-        self.views_container.setContentsMargins(24, 24, 24, 24)
+        self.views_container.setContentsMargins(12, 12, 12, 12)
         
         # 0. Dashboard
         self.views_container.addWidget(QLabel("Dashboard en construcción...", objectName="h1"))
@@ -34,10 +39,18 @@ class MainWindow(QWidget):
         # 1. Registro de Producto (Formulario)
         self.views_container.addWidget(InventoryView(self.repository))
         
-        # 2. Punto de Venta
-        self.views_container.addWidget(POSView(self.repository))
+        # 2. Punto de Venta (Ensamblado e Inyección de Dependencias)
+        # Asumimos que self.repository tiene acceso a la ruta de la BD (db_path)
+        sales_repo = SQLiteSalesRepository(self.repository.db_path)
+        pos_service = POSService(
+            product_repo=self.repository,
+            sales_repo=sales_repo,
+            tax_rate=0.15
+        )
+        # Ahora sí, inyectamos el servicio correcto en la vista
+        self.views_container.addWidget(POSView(pos_service))
         
-        # 3. Catálogo (Tabla Exclusiva) - mantiene la vista sin afectar el menú actual
+        # 3. Catálogo (Tabla Exclusiva)
         self.views_container.addWidget(CatalogView(self.repository))
 
         main_layout.addWidget(self.views_container, 1)

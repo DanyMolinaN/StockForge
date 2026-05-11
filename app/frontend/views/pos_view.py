@@ -5,45 +5,52 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
-from app.frontend.styles import STYLES
+from app.frontend.styles import LAYOUT, STYLES
 from app.frontend.components.toast_alert import ToastNotification
-from app.backend.repositories.sale_repo import SQLiteSalesRepository
-# from app.backend.repositories.product_repo import ProductRepository
-from app.backend.api.pos_routes import POSService
+from app.frontend.utils import get_icon_colored
 
 class POSView(QWidget):
-    def __init__(self, repository):
+    # Inyectamos el servicio directamente para respetar Dependency Inversion
+    def __init__(self, pos_service):
         super().__init__()
-        self.service = POSService(
-            product_repo=repository, 
-            sales_repo=SQLiteSalesRepository(repository.db_path),
-            tax_rate=0.15
-        )
+        self.service = pos_service
         
         self.setup_ui()
         self.update_search_results()
         self.update_cart_table()
 
     def setup_ui(self):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(20)
+        main_layout = QHBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(LAYOUT["space_01"])
 
-        left_panel = QFrame()
-        left_panel.setObjectName("panel")
-        left_panel.setStyleSheet(STYLES["card"])
-        left_layout = QVBoxLayout(left_panel)
-        left_layout.setContentsMargins(18, 18, 18, 18)
-        left_layout.setSpacing(12)
+        # Separación de responsabilidades: Paneles independientes
+        left_panel = self._build_search_panel()
+        right_panel = self._build_cart_panel()
 
-        left_layout.addWidget(QLabel("Punto de Venta", objectName="h2"))
-        left_layout.addWidget(QLabel("Busque productos por nombre, SKU o código y agréguelos al carrito.", objectName="normal"))
+        main_layout.addWidget(left_panel, 5) # Proporción 5:4 para dar buen espacio
+        main_layout.addWidget(right_panel, 4)
 
+    # ==========================================
+    # CONSTRUCCIÓN DE INTERFAZ (Modularizada)
+    # ==========================================
+    def _build_search_panel(self) -> QFrame:
+        panel = QFrame()
+        panel.setObjectName("panel")
+        panel.setStyleSheet(STYLES["card"])
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(LAYOUT["space_01"])
+
+        layout.addWidget(QLabel("Punto de Venta", objectName="h2"))
+        layout.addWidget(QLabel("Busque productos por nombre, SKU o código y agréguelos al carrito.", objectName="normal"))
+
+        # Barra de búsqueda
         search_bar = QHBoxLayout()
         self.input_search = QLineEdit(placeholderText="Buscar producto por nombre, SKU o código...")
         self.input_search.textChanged.connect(self.update_search_results)
         self.input_search.setClearButtonEnabled(True)
-        self.input_search.setMinimumWidth(360)
+        self.input_search.setMinimumWidth(300)
 
         self.btn_search = QPushButton("Buscar")
         self.btn_search.setStyleSheet(STYLES["btn_outlined"])
@@ -51,45 +58,57 @@ class POSView(QWidget):
 
         search_bar.addWidget(self.input_search)
         search_bar.addWidget(self.btn_search)
-        left_layout.addLayout(search_bar)
+        layout.addLayout(search_bar)
 
-        self.results_table = QTableWidget(0, 6)
-        self.results_table.setHorizontalHeaderLabels(["Código", "SKU", "Nombre", "Precio", "Stock", "Acción"])
-        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.results_table.verticalHeader().setVisible(False)
-        self.results_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.results_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        left_layout.addWidget(self.results_table)
+        # Tabla de resultados
+        self.results_table = self._create_standard_table(["Código", "SKU", "Nombre", "Precio", "Stock", "Acción"])
+        
+        # 👇 AGREGAR ESTOS AJUSTES DE COLUMNA
+        header = self.results_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        self.results_table.setColumnWidth(5, 130)
+        
+        layout.addWidget(self.results_table)
 
+        # Controles de cantidad
+        qty_layout = QHBoxLayout()
         self.qty_label = QLabel("Cantidad por agregar:")
         self.input_quantity = QSpinBox(minimum=1, maximum=999)
         self.input_quantity.setValue(1)
         self.input_quantity.setFixedWidth(90)
-        qty_layout = QHBoxLayout()
+        
         qty_layout.addWidget(self.qty_label)
         qty_layout.addWidget(self.input_quantity)
         qty_layout.addStretch()
-        left_layout.addLayout(qty_layout)
+        layout.addLayout(qty_layout)
 
-        layout.addWidget(left_panel, 2)
+        return panel
 
-        right_panel = QFrame()
-        right_panel.setObjectName("panel")
-        right_panel.setStyleSheet(STYLES["card"])
-        right_layout = QVBoxLayout(right_panel)
-        right_layout.setContentsMargins(18, 18, 18, 18)
-        right_layout.setSpacing(12)
+    def _build_cart_panel(self) -> QFrame:
+        panel = QFrame()
+        panel.setObjectName("panel")
+        panel.setStyleSheet(STYLES["card"])
+        layout = QVBoxLayout(panel)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(LAYOUT["space_01"])
 
-        right_layout.addWidget(QLabel("Carrito de Compras", objectName="h2"))
+        layout.addWidget(QLabel("Carrito de Compras", objectName="h2"))
 
-        self.cart_table = QTableWidget(0, 6)
-        self.cart_table.setHorizontalHeaderLabels(["Nombre", "SKU", "Cant.", "Precio", "Subtotal", "Eliminar"])
-        self.cart_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.cart_table.verticalHeader().setVisible(False)
-        self.cart_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.cart_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        right_layout.addWidget(self.cart_table)
+        # Tabla de carrito
+        self.cart_table = self._create_standard_table(["Nombre", "SKU", "Cant.", "Precio", "Subtotal", "Eliminar"])
+        
+        # 👇 AGREGAR ESTOS AJUSTES DE COLUMNA
+        header_cart = self.cart_table.horizontalHeader()
+        # Columna 2 (Cantidad): Se ajusta al tamaño del QSpinBox
+        header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        # Columna 5 (Eliminar): Tamaño fijo
+        header_cart.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        self.cart_table.setColumnWidth(5, 120)
+        
+        layout.addWidget(self.cart_table)
 
+        # Resumen financiero
         self.lbl_subtotal = QLabel("Subtotal: $0.00", objectName="normal")
         self.lbl_tax_rate = QLabel("Impuesto fijo: 15%", objectName="normal")
         self.lbl_tax = QLabel("Impuesto: $0.00", objectName="normal")
@@ -100,16 +119,18 @@ class POSView(QWidget):
         summary_layout.addWidget(self.lbl_tax_rate)
         summary_layout.addWidget(self.lbl_tax)
         summary_layout.addWidget(self.lbl_total)
-        right_layout.addLayout(summary_layout)
+        layout.addLayout(summary_layout)
 
+        # Método de pago
         payment_layout = QHBoxLayout()
         payment_layout.addWidget(QLabel("Método de pago:"))
         self.payment_method = QComboBox()
         self.payment_method.addItems(["Efectivo", "Tarjeta", "Mixto"])
-        self.payment_method.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        self.payment_method.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         payment_layout.addWidget(self.payment_method)
-        right_layout.addLayout(payment_layout)
+        layout.addLayout(payment_layout)
 
+        # Botones de acción
         buttons_layout = QHBoxLayout()
         self.btn_confirm = QPushButton("Confirmar Venta")
         self.btn_confirm.setStyleSheet(STYLES["btn_primary"])
@@ -121,10 +142,29 @@ class POSView(QWidget):
 
         buttons_layout.addWidget(self.btn_cancel)
         buttons_layout.addWidget(self.btn_confirm)
-        right_layout.addLayout(buttons_layout)
-        right_layout.addStretch()
+        layout.addLayout(buttons_layout)
 
-        layout.addWidget(right_panel, 1)
+        return panel
+
+    def _create_standard_table(self, headers: list) -> QTableWidget:
+        """Aplica el principio DRY para la creación de tablas."""
+        table = QTableWidget(0, len(headers))
+        table.setHorizontalHeaderLabels(headers)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+        table.verticalHeader().setVisible(False)
+        table.verticalHeader().setDefaultSectionSize(50)
+        
+        table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        
+        table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        table.setMinimumHeight(250) 
+        return table
+
+    # ==========================================
+    # LÓGICA DE NEGOCIO Y EVENTOS
+    # ==========================================
 
     def update_search_results(self):
         query = self.input_search.text().strip()
@@ -139,10 +179,10 @@ class POSView(QWidget):
             self.results_table.setItem(row_index, 3, QTableWidgetItem(f"${product.price:.2f}"))
             self.results_table.setItem(row_index, 4, QTableWidgetItem(str(product.stock)))
 
-            btn_add = QPushButton("Agregar al carrito")
-            btn_add.setStyleSheet(STYLES["btn_outlined"])
-            btn_add.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-            btn_add.setFixedWidth(140)
+            btn_add = QPushButton("Agregar") # Deja un espacio antes del texto para que no quede pegado al ícono
+            btn_add.setIcon(get_icon_colored("plus.svg", "#ffffff", size=18)) 
+            
+            btn_add.setStyleSheet(STYLES["btn_primary"])
             btn_add.clicked.connect(lambda _, pid=product.id: self.add_product_to_cart(pid))
             self.results_table.setCellWidget(row_index, 5, btn_add)
 

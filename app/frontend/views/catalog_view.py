@@ -18,7 +18,7 @@ class CatalogView(QWidget):
         panel = QFrame()
         panel.setObjectName("panel")
         panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(24, 24, 24, 24)
+        panel_layout.setContentsMargins(16, 16, 16, 16)
         
         header_layout = QHBoxLayout()
         header_layout.addWidget(QLabel("Catálogo de Productos", objectName="h2"))
@@ -29,7 +29,7 @@ class CatalogView(QWidget):
         header_layout.addWidget(btn_refresh)
         
         panel_layout.addLayout(header_layout)
-        panel_layout.addSpacing(16)
+        panel_layout.addSpacing(12)
 
         # Ahora tenemos 8 columnas
         self.table = QTableWidget(0, 8)

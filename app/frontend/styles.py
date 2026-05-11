@@ -19,17 +19,14 @@ class Palette:
     Success         = "#10b981"
     Warning         = "#f59e0b"
     Border          = "#d7e0eb"
-    
-    # Colores para estados
     status_error    = "#ef4444"
     status_success  = "#10b981"
     status_warning  = "#f59e0b"
     status_info     = "#3b82f6"
 
 class Dims:
-    """Dimensiones y Espaciados."""
     radius = {
-        "card": "24px", "input": "8px", "btn": "8px", "scroll": "4px"
+        "card": "18px", "input": "8px", "btn": "8px", "scroll": "4px"
     }
     layout = {
         "level_01": (10,10,10,10), "level_02": (16,16,16,16), 
@@ -37,20 +34,13 @@ class Dims:
     }
 
 class Fonts:
-    """Configuración tipográfica (System Font Stack)."""
-    # Windows usará Segoe UI
-    # macOS usará su fuente nativa (San Francisco) o Helvetica Neue
-    # Linux usará Roboto o Ubuntu
-    # Si todo falla, usará una fuente sans-serif genérica y limpia
-    family = "'Segoe UI', 'San Francisco', 'Helvetica Neue', 'Roboto', sans-serif"
-    
+    family = "'Segoe UI', 'San Francisco', 'Helvetica Neue', 'Roboto', sans-serif"    
     h1 = "24pt"; h2 = "18pt"; h3 = "14pt"; body = "10pt"
 
 # ==========================================
 # 2. UTILIDADES DE RUTA PARA ASSETS EN QSS
 # ==========================================
 def asset_url(filename: str) -> str:
-    """Obtiene la ruta absoluta de un asset para su uso directo en QSS."""
     path = resource_path(os.path.join("assets", "icons", filename))
     return path.replace("\\", "/")
 
@@ -58,7 +48,6 @@ def asset_url(filename: str) -> str:
 # 3. HOJA DE ESTILOS GLOBAL (QSS MAESTRO)
 # ==========================================
 def get_sheet() -> str:
-    """Devuelve la hoja de estilos principal optimizada."""
     c = Palette
     r = Dims.radius
     f = Fonts
@@ -84,7 +73,7 @@ def get_sheet() -> str:
     /* --- INPUTS BASE --- */
     QLineEdit, QPlainTextEdit {{ 
         background-color: {c.Surface_Strong}; color: {c.Text}; 
-        border: 1px solid {c.Border}; border-radius: {r['input']}; padding: 10px; 
+        border: 1px solid {c.Border}; border-radius: {r['input']}; padding: 6px; 
     }}
     QLineEdit:focus, QPlainTextEdit:focus {{ 
         border: 1px solid {c.Primary}; background-color: {c.Surface}; 
@@ -127,17 +116,17 @@ def get_sheet() -> str:
     /* --- SPINBOX --- */
     QSpinBox, QDoubleSpinBox {{
             background-color: {Palette.Surface_Strong}; color: {Palette.Text}; 
-            border: 1px solid {Palette.Border}; border-radius: 8px;
-            padding: 6px 10px; padding-right: 25px;
+            border: 1px solid {Palette.Border}; border-radius: {Dims.radius['input']};
+            padding: 6px; padding-right: 25px;
     }}
     QSpinBox::up-button, QDoubleSpinBox::up-button {{
         subcontrol-origin: border; subcontrol-position: top right; width: 16px;
-        border: 1px solid {Palette.Border}; border-top-right-radius: 8px; 
+        border: 1px solid {Palette.Border}; border-top-right-radius: {Dims.radius['input']}; 
         background-color: {Palette.Surface_Strong};
     }}
     QSpinBox::down-button, QDoubleSpinBox::down-button {{
         subcontrol-origin: border; subcontrol-position: bottom right; width: 16px;
-        border: 1px solid {Palette.Border};border-bottom-right-radius: 8px; 
+        border: 1px solid {Palette.Border};border-bottom-right-radius: {Dims.radius['input']}; 
         background-color: {Palette.Surface_Strong};
     }}
     QSpinBox::up-button:hover, QSpinBox::down-button:hover, QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover{{ 
@@ -150,7 +139,7 @@ def get_sheet() -> str:
     }}
     QHeaderView::section {{
         background-color: {c.Surface_Strong}; color: {Palette.Text}; border: none;
-        padding: 8px; font-weight: bold; text-transform: uppercase; font-size: 12px;
+        padding: 6px; font-weight: bold; text-transform: uppercase; font-size: 12px;
     }}
     QTableWidget::item {{ padding: 6px; border-bottom: 1px solid {c.Border}; }}
     QTableWidget::item:selected {{ background-color: {c.Primary}; color: {c.Surface}; }}
@@ -158,7 +147,7 @@ def get_sheet() -> str:
     /* --- COMBOBOX --- */
     QComboBox {{
         background-color: {Palette.Surface_Strong}; color: {Palette.Text}; 
-        border-radius: 8px; padding: 10px; border: 1px solid {Palette.Border};
+        border-radius: 8px; padding: 6px; border: 1px solid {Palette.Border};
     }}
     QComboBox:hover {{ border-color: {Palette.Primary}; }}
     QComboBox::drop-down {{ border: none; }}
@@ -188,7 +177,7 @@ STYLES = {
     "btn_primary": f"""
         QPushButton {{ 
             background-color: {Palette.Primary}; color: white;
-            padding: 12px 20px; border-radius: {Dims.radius['btn']};
+            padding: 6px; border-radius: {Dims.radius['btn']};
             font-weight: bold; border: none;
         }}
         QPushButton:hover {{ background-color: {Palette.Primary_Strong}; }}
@@ -198,7 +187,7 @@ STYLES = {
     "btn_outlined": f"""
         QPushButton {{ 
             background-color: transparent; color: {Palette.Text}; 
-            border: 1px solid {Palette.Border}; padding: 12px 20px; 
+            border: 1px solid {Palette.Border}; padding: 6px; 
             border-radius: {Dims.radius['btn']}; font-weight: bold; 
         }} 
         QPushButton:hover {{ border-color: {Palette.Primary}; color: {Palette.Primary}; }}
@@ -207,33 +196,32 @@ STYLES = {
     "btn_danger_outlined": f"""
         QPushButton {{
             background-color: rgba(239, 68, 68, 0.1); color: {Palette.Danger};
-            padding: 10px 18px; border: 1px solid {Palette.Danger}; border-radius: 8px;
+            padding: 6px; border: 1px solid {Palette.Danger}; border-radius: {Dims.radius['btn']}px;
             font-weight: bold;
         }}
         QPushButton:hover {{ background-color: {Palette.Danger}; color: white; }}
     """,
     
     "btn_icon_ghost": f"""
-        QPushButton {{ background: transparent; border: none; border-radius: 6px; }} 
+        QPushButton {{ background: transparent; border: none; border-radius: {Dims.radius['btn']}px; }} 
         QPushButton:hover {{ background-color: {Palette.Surface_Strong}; }}
     """,
 
     # --- SIDEBAR DARK MODE (Estilo Referencia) ---
     "sidebar_dark": f"""
         QFrame {{
-            background-color: #1a1a1c; /* Fondo oscuro premium */
-            border-right: 1px solid #2c2c2e;
+            background-color: #1a1a1c;
         }}
     """,
+    
     "sidebar_btn_dark": f"""
         QPushButton {{
             background-color: transparent; 
             color: #8e8e93; /* Texto gris inactivo */
-            padding: 10px 14px; 
+            padding: 6px; 
             border: none; 
             border-radius: 12px; 
-            text-align: left; 
-            font-weight: 600; 
+            text-align: left;
             font-size: 14px;
         }}
         QPushButton:hover {{ 
@@ -245,6 +233,7 @@ STYLES = {
             color: #ffffff; 
         }}
     """,
+    
     "sidebar_toggle": f"""
         QPushButton {{
             background-color: #2c2c2e; 
