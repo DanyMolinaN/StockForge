@@ -132,6 +132,9 @@ def get_sheet() -> str:
     QSpinBox::up-button:hover, QSpinBox::down-button:hover, QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover{{ 
         background-color: {Palette.Border}; 
     }}
+    /* --- TABS --- */
+    QTabWidget::pane {{ border: 1px solid #ccc; }}
+    QTabBar::tab {{ border-top-right-radius: 8px; border-top-left-radius: 8px;border: 1px solid #ccc; padding: 10px; }}
     /* --- TABLAS --- */
     QTableWidget {{
         background-color: {c.Surface}; gridline-color: {c.Surface}; 

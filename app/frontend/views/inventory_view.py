@@ -38,11 +38,6 @@ class InventoryView(QWidget):
 
         # Sistema de Pestañas
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet("""
-            QTabWidget::pane { border: 1px solid #ccc; }
-            QTabBar::tab { border-top-right-radius: 8px; border-top-left-radius: 8px;border: 1px solid #ccc; padding: 10px 20px; }
-        """)
-        
         self.tab_table = QWidget()
         self.tab_admin = QWidget()
 
@@ -69,7 +64,6 @@ class InventoryView(QWidget):
         self.product_table.verticalHeader().setVisible(False)
         self.product_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.product_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        
         layout.addWidget(self.product_table)
 
     def _setup_admin_tab(self):
@@ -214,7 +208,7 @@ class InventoryView(QWidget):
             self.product_table.setItem(row_index, 7, QTableWidgetItem(product.expiration_date or "N/A"))
             
             btn_edit = QPushButton("Editar")
-            btn_edit.setStyleSheet(STYLES["btn_outlined"])
+            btn_edit.setStyleSheet(STYLES["btn_icon_ghost"])
             btn_edit.clicked.connect(lambda _, pid=product.id: self.load_product_for_edit(pid))
             self.product_table.setCellWidget(row_index, 8, btn_edit)
             

@@ -64,8 +64,6 @@ class ToastNotification(QWidget):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.ToolTip | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setFixedWidth(320)
-        # Borde sutil para modo claro
-        # self.setStyleSheet(f"QWidget {{ border: 1px solid {Palette.Border}; border-radius: {self.radius}px; }}")
 
     def _setup_ui(self):
         main_layout = QHBoxLayout(self)
@@ -129,9 +127,7 @@ class ToastNotification(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        
-        # FIX: Ajustamos el rectángulo por medio píxel para que el trazo del borde 
-        # se dibuje perfectamente dentro de los límites de la ventana
+
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         path = QPainterPath()
         path.addRoundedRect(rect, self.radius, self.radius)
