@@ -63,7 +63,6 @@ class POSView(QWidget):
         # Tabla de resultados
         self.results_table = self._create_standard_table(["Código", "SKU", "Nombre", "Precio", "Stock", "Acción"])
         
-        # 👇 AGREGAR ESTOS AJUSTES DE COLUMNA
         header = self.results_table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
@@ -98,7 +97,6 @@ class POSView(QWidget):
         # Tabla de carrito
         self.cart_table = self._create_standard_table(["Nombre", "SKU", "Cant.", "Precio", "Subtotal", "Eliminar"])
         
-        # 👇 AGREGAR ESTOS AJUSTES DE COLUMNA
         header_cart = self.cart_table.horizontalHeader()
         # Columna 2 (Cantidad): Se ajusta al tamaño del QSpinBox
         header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
@@ -153,7 +151,7 @@ class POSView(QWidget):
         table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
         table.verticalHeader().setVisible(False)
-        table.verticalHeader().setDefaultSectionSize(50)
+        table.verticalHeader().setDefaultSectionSize(32)
         
         table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -180,9 +178,9 @@ class POSView(QWidget):
             self.results_table.setItem(row_index, 4, QTableWidgetItem(str(product.stock)))
 
             btn_add = QPushButton("Agregar") # Deja un espacio antes del texto para que no quede pegado al ícono
-            btn_add.setIcon(get_icon_colored("plus.svg", "#ffffff", size=18)) 
+            btn_add.setIcon(get_icon_colored("plus.svg", "#ffffff", size=16)) 
             
-            btn_add.setStyleSheet(STYLES["btn_primary"])
+            btn_add.setStyleSheet(STYLES["btn_icon_ghost"])
             btn_add.clicked.connect(lambda _, pid=product.id: self.add_product_to_cart(pid))
             self.results_table.setCellWidget(row_index, 5, btn_add)
 

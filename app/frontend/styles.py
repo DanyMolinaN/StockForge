@@ -132,20 +132,65 @@ def get_sheet() -> str:
     QSpinBox::up-button:hover, QSpinBox::down-button:hover, QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover{{ 
         background-color: {Palette.Border}; 
     }}
-    /* --- TABS --- */
-    QTabWidget::pane {{ border: 1px solid #ccc; }}
-    QTabBar::tab {{ border-top-right-radius: 8px; border-top-left-radius: 8px;border: 1px solid #ccc; padding: 10px; }}
-    /* --- TABLAS --- */
+    /* --- TABS (Modernas y Minimalistas) --- */
+    QTabWidget::pane {{ 
+        border: 1px solid {c.Border}; 
+        top: -1px; /* Une la pestaña con el panel */
+        background-color: {c.Surface};
+    }}
+
+    QTabBar::tab {{ 
+        background-color: {c.Surface_Strong};
+        color: {Palette.Text};
+        border: 1px solid {c.Border};
+        border-bottom: none;
+        border-top-right-radius: 6px; 
+        border-top-left-radius: 6px;
+        padding: 8px 16px;
+        margin-right: 2px;
+    }}
+
+    QTabBar::tab:selected {{ 
+        background-color: {c.Surface};
+        color: {c.Primary}; /* Resalta el nombre de la pestaña activa */
+        font-weight: bold;
+        border-bottom: 2px solid {c.Primary}; /* Línea de acento inferior */
+    }}
+
+    QTabBar::tab:hover:!selected {{
+        background-color: {c.Surface}; /* Feedback al pasar el mouse */
+    }}
+
+    /* --- TABLAS (Estilo Clean/Flat) --- */
     QTableWidget {{
-        background-color: {c.Surface}; gridline-color: {c.Surface}; 
-        outline: none; border: 1px solid {c.Border};
+        background-color: {c.Surface};
+        gridline-color: transparent; /* Ocultar líneas internas para un look más moderno */
+        outline: none;
+        border: 1px solid {c.Border};
+        border-radius: 4px;
     }}
+
     QHeaderView::section {{
-        background-color: {c.Surface_Strong}; color: {Palette.Text}; border: none;
-        padding: 6px; font-weight: bold; text-transform: uppercase; font-size: 12px;
+        background-color: {c.Surface_Strong};
+        color: {Palette.Text};
+        padding: 10px;
+        border: none;
+        border-bottom: 2px solid {c.Border}; /* Línea sutil bajo el encabezado */
+        font-weight: bold;
+        font-size: 11px;
+        text-transform: uppercase;
     }}
-    QTableWidget::item {{ padding: 6px; border-bottom: 1px solid {c.Border}; }}
-    QTableWidget::item:selected {{ background-color: {c.Primary}; color: {c.Surface}; }}
+
+    QTableWidget::item {{
+        padding: 6px; /* Más aire entre celdas */
+        border-bottom: 1px solid {c.Border};
+    }}
+
+    QTableWidget::item:selected {{
+        background-color: {c.Primary}; /* Un color más suave para no ocultar el texto */
+        color: {c.Text}; 
+        border-left: 3px solid {c.Primary}; /* Indicador lateral de selección */
+    }}
 
     /* --- COMBOBOX --- */
     QComboBox {{
@@ -199,14 +244,14 @@ STYLES = {
     "btn_danger_outlined": f"""
         QPushButton {{
             background-color: rgba(239, 68, 68, 0.1); color: {Palette.Danger};
-            padding: 6px; border: 1px solid {Palette.Danger}; border-radius: {Dims.radius['btn']}px;
+            padding: 6px; border: 1px solid {Palette.Danger}; border-radius: {Dims.radius['btn']};
             font-weight: bold;
         }}
         QPushButton:hover {{ background-color: {Palette.Danger}; color: white; }}
     """,
     
     "btn_icon_ghost": f"""
-        QPushButton {{ background: transparent; border: none; border-radius: {Dims.radius['btn']}px; }} 
+        QPushButton {{ background: transparent; border: none; border-radius: {Dims.radius['btn']}; }} 
         QPushButton:hover {{ background-color: {Palette.Surface_Strong}; }}
     """,
 
