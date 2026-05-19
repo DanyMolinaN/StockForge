@@ -5,6 +5,8 @@ Aplicación web empresarial para el módulo de registro de productos en un siste
 ## Integrantes:
 - danny
 - Jose Luis Andino
+- David Puga
+- Joseph Jimenez
 
 ## Estructura del proyecto
 ------------------------

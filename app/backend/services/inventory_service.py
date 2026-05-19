@@ -51,6 +51,8 @@ class InventoryService:
             raise ValueError("El precio debe ser mayor a cero.")
         if product.stock < 0:
             raise ValueError("El stock no puede ser negativo.")
+        if product.min_stock < 0: # NUEVA VALIDACIÓN
+            raise ValueError("El stock mínimo no puede ser negativo.")
 
     def parse_attributes(self, attribute_text: str) -> str:
         """Convierte texto plano de atributos a formato JSON para la DB."""

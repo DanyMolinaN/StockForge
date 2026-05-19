@@ -13,6 +13,8 @@ from app.backend.models.product import Product
 from app.backend.services.inventory_service  import InventoryService
 from app.frontend.styles import LAYOUT, STYLES
 from app.frontend.components.toast_alert import ToastNotification
+from PySide6.QtGui import QColor
+from app.frontend.styles import Palette
 
 class InventoryView(QWidget):
     def __init__(self, repository):
@@ -55,11 +57,11 @@ class InventoryView(QWidget):
         layout = QVBoxLayout(self.tab_table)
         layout.setContentsMargins(16, 16, 16, 16)
 
-        self.product_table = QTableWidget(0, 9)
+        self.product_table = QTableWidget(0, 10) # 🔹 Cambiado de 9 a 10
         self.product_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.product_table.setHorizontalHeaderLabels([
-            "ID", "Categoria", "Nombre", "SKU", "Precio", "Stock", "Proveedor", "Caducidad", "Accion"
-        ])
+            "ID", "Categoria", "Nombre", "SKU", "Precio", "Stock", "Stock Mín.", "Proveedor", "Caducidad", "Accion"
+        ]) # 🔹 Añadido "Stock Mín."
         self.product_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.product_table.verticalHeader().setVisible(False)
         self.product_table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -156,10 +158,15 @@ class InventoryView(QWidget):
         self.input_stock = QSpinBox(maximum=999999)
         self.input_stock.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
+        self.input_min_stock = QSpinBox(maximum=999999)
+        self.input_min_stock.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        
         val_row.addWidget(QLabel("Precio:"))
         val_row.addWidget(self.input_price)
         val_row.addWidget(QLabel("Stock:"))
         val_row.addWidget(self.input_stock)
+        val_row.addWidget(QLabel("Stock Mínimo:")) 
+        val_row.addWidget(self.input_min_stock) 
         
         self.input_attr = QLineEdit(placeholderText="Ej. Color:Rojo, Talla:XL, Material:Acero")
         self.input_attr.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -167,7 +174,7 @@ class InventoryView(QWidget):
         custom_layout.addLayout(val_row)
         custom_layout.addWidget(QLabel("Atributos personalizados (Campo:Valor, ... )"))
         custom_layout.addWidget(self.input_attr)
-        admin_layout.addWidget(group_custom)
+        admin_layout.addWidget(group_custom) # 🔹 Corregido: Añade el grupo al formulario
 
         # 4. Acciones
         action_row = QHBoxLayout()
@@ -185,7 +192,6 @@ class InventoryView(QWidget):
 
         tab_layout.addWidget(form_container)
         
-        # Un ScrollArea interno solo para el formulario, en caso de pantallas pequeñas
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
@@ -204,13 +210,21 @@ class InventoryView(QWidget):
             self.product_table.setItem(row_index, 3, QTableWidgetItem(product.sku))
             self.product_table.setItem(row_index, 4, QTableWidgetItem(f"${product.price:.2f}"))
             self.product_table.setItem(row_index, 5, QTableWidgetItem(str(product.stock)))
-            self.product_table.setItem(row_index, 6, QTableWidgetItem(product.supplier))
-            self.product_table.setItem(row_index, 7, QTableWidgetItem(product.expiration_date or "N/A"))
+            self.product_table.setItem(row_index, 6, QTableWidgetItem(str(product.min_stock)))
+            self.product_table.setItem(row_index, 7, QTableWidgetItem(product.supplier))
+            self.product_table.setItem(row_index, 8, QTableWidgetItem(product.expiration_date or "N/A"))
             
             btn_edit = QPushButton("Editar")
             btn_edit.setStyleSheet(STYLES["btn_icon_ghost"])
             btn_edit.clicked.connect(lambda _, pid=product.id: self.load_product_for_edit(pid))
-            self.product_table.setCellWidget(row_index, 8, btn_edit)
+            self.product_table.setCellWidget(row_index, 9, btn_edit)
+
+            # 🔹 NUEVA LÓGICA DE ALERTA: Resaltar texto si el stock es crítico
+            if product.stock <= product.min_stock:
+                for col in range(9): # Pintamos de rojo las celdas de texto
+                    item = self.product_table.item(row_index, col)
+                    if item:
+                        item.setForeground(QColor(Palette.Danger))
             
         self.update_comboboxes()
 
@@ -276,7 +290,8 @@ class InventoryView(QWidget):
             category=self.input_category.currentText().strip(),
             supplier=self.input_supplier.currentText().strip(),
             expiration_date=self.input_date.date().toString(Qt.ISODate) if self.check_exp.isChecked() else None,
-            attributes=attrs
+            attributes=attrs,
+            min_stock=self.input_min_stock.value() # 🔹 NUEVO: Extrae el valor de la interfaz
         )
 
     def load_product_for_edit(self, product_id: int):
@@ -291,14 +306,13 @@ class InventoryView(QWidget):
         self.input_sku.setText(product.sku)
         self.input_price.setValue(product.price)
         self.input_stock.setValue(product.stock)
+        self.input_min_stock.setValue(product.min_stock) # 🔹 NUEVO: Carga el valor al editar
         self.input_supplier.setCurrentText(product.supplier)
         self.check_exp.setChecked(bool(product.expiration_date))
         if product.expiration_date:
             self.input_date.setDate(QDate.fromString(product.expiration_date, Qt.ISODate))
         self.input_attr.setText(product.attributes or "")
         self.btn_save.setText("Actualizar producto")
-        
-        # Mueve la vista a la pestaña de administración automáticamente
         self.tabs.setCurrentIndex(1)
 
     def clear_form(self):
@@ -308,6 +322,7 @@ class InventoryView(QWidget):
         self.input_sku.clear()
         self.input_price.setValue(0)
         self.input_stock.setValue(0)
+        self.input_min_stock.setValue(0) # 🔹 NUEVO: Limpia el valor del campo
         self.input_supplier.setCurrentText("")
         self.check_exp.setChecked(False)
         self.input_attr.clear()

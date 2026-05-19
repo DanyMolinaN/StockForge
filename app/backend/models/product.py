@@ -14,4 +14,5 @@ class Product:
     supplier: str
     attributes: str
     expiration_date: Optional[str] = None
+    min_stock: int = 0  # 🔹 NUEVO: Criterio 1 (Campo Configurable)
     id: Optional[int] = None
