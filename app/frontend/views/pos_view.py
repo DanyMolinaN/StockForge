@@ -63,9 +63,14 @@ class POSView(QWidget):
         # Tabla de resultados
         self.results_table = self._create_standard_table(["Código", "SKU", "Nombre", "Precio", "Stock", "Acción"])
         
+        # Ajuste de distribución de columnas para mejor legibilidad
         header = self.results_table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # Código (Pequeño)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # SKU (Pequeño)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)          # Nombre (Toma todo el espacio libre)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # Precio (Pequeño)
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # Stock (Pequeño)
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)            # Acción (Fijo para el botón)
         self.results_table.setColumnWidth(5, 130)
         
         layout.addWidget(self.results_table)
@@ -97,11 +102,14 @@ class POSView(QWidget):
         # Tabla de carrito
         self.cart_table = self._create_standard_table(["Nombre", "SKU", "Cant.", "Precio", "Subtotal", "Eliminar"])
         
+        # Ajuste de distribución de columnas para mejor legibilidad
         header_cart = self.cart_table.horizontalHeader()
-        # Columna 2 (Cantidad): Se ajusta al tamaño del QSpinBox
-        header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        # Columna 5 (Eliminar): Tamaño fijo
-        header_cart.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
+        header_cart.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)          # Nombre (Toma todo el espacio libre)
+        header_cart.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # SKU
+        header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents) # Cant. (Se ajusta al QSpinBox)
+        header_cart.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # Precio
+        header_cart.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # Subtotal
+        header_cart.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)            # Eliminar (Fijo para el botón)
         self.cart_table.setColumnWidth(5, 120)
         
         layout.addWidget(self.cart_table)
@@ -148,10 +156,12 @@ class POSView(QWidget):
         """Aplica el principio DRY para la creación de tablas."""
         table = QTableWidget(0, len(headers))
         table.setHorizontalHeaderLabels(headers)
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+        # Eliminamos el setSectionResizeMode(Stretch) global de aquí.
+        # Ahora lo controlamos específicamente en la creación de cada panel para mayor precisión.
         
         table.verticalHeader().setVisible(False)
-        table.verticalHeader().setDefaultSectionSize(32)
+        table.verticalHeader().setDefaultSectionSize(44) # Aumentado de 32 a 44 para que los botones tengan respiro vertical
         
         table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
