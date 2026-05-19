@@ -2,10 +2,10 @@
   "name": "inventario-productos",
   "version": "1.0.0",
   "description": "Aplicación web de inventario para el registro de productos con backend en Express y frontend moderno.",
-  "main": "backend/server.js",
+  "main": "web/backend/server.js",
   "scripts": {
-    "start": "node backend/server.js",
-    "dev": "nodemon backend/server.js"
+    "start": "node web/backend/server.js",
+    "dev": "nodemon web/backend/server.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

@@ -53,7 +53,8 @@ class SQLiteProductRepository(ProductRepository):
                     category TEXT NOT NULL,
                     supplier TEXT NOT NULL,
                     expiration_date TEXT,
-                    attributes TEXT NOT NULL
+                    attributes TEXT NOT NULL,
+                    min_stock INTEGER NOT NULL DEFAULT 0
                 )
             ''')
 
@@ -107,11 +108,11 @@ class SQLiteProductRepository(ProductRepository):
             raise ValueError("El producto debe tener ID para actualizarse.")
         with self._get_connection() as conn:
             conn.execute(
-                "UPDATE products SET name = ?, sku = ?, price = ?, stock = ?, category = ?, supplier = ?, expiration_date = ?, attributes = ? WHERE id = ?",
+                "UPDATE products SET name = ?, sku = ?, price = ?, stock = ?, category = ?, supplier = ?, expiration_date = ?, attributes = ?, min_stock = ? WHERE id = ?",
                 (
                     product.name, product.sku, product.price, product.stock,
                     product.category, product.supplier, product.expiration_date,
-                    product.attributes, product.id,
+                    product.attributes, product.min_stock, product.id,
                 )
             )
         return product

@@ -244,8 +244,26 @@ class POSView(QWidget):
     def confirm_sale(self):
         try:
             metodo_pago = self.payment_method.currentText()
+            
+            # 1. Guardamos qué productos se van a vender antes de limpiar el carrito
+            items_vendidos = list(self.service.cart.items())
+            
+            # 2. Confirmamos la venta (esto descuenta el stock en la base de datos)
             receipt = self.service.confirm_sale(usuario_id=1, metodo_pago=metodo_pago)
             self.show_message(f"Venta {receipt.numero_venta} registrada correctamente.", "success")
+            
+            # 3. 🔹 NUEVA LÓGICA DE ALERTA: Evaluamos cómo quedó el stock tras la venta
+            for item in items_vendidos:
+                product = self.service.product_repo.get_by_id(item.producto_id)
+                # Si el stock remanente es menor o igual al mínimo configurado, disparamos alerta
+                if product and product.stock <= product.min_stock:
+                    ToastNotification(
+                        self, 
+                        "⚠️ Alerta de Stock", 
+                        f"El producto '{product.name}' alcanzó su stock mínimo (Quedan: {product.stock}).", 
+                        "warning"
+                    ).show_toast()
+
             self.update_cart_table()
             self.input_search.clear()
         except Exception as error:
