@@ -12,6 +12,8 @@ from app.frontend.components.sidebar import Sidebar
 from app.frontend.views.inventory_view import InventoryView
 from app.frontend.views.catalog_view import CatalogView
 from app.frontend.views.pos_view import POSView
+# Importamos el DashboardView para mostrar las alertas de stock mínimo
+from app.frontend.views.dashboard_view import DashboardView
 
 class MainWindow(QWidget):
     def __init__(self, repository: ProductRepository):
@@ -33,11 +35,13 @@ class MainWindow(QWidget):
         self.views_container = QStackedWidget()
         self.views_container.setContentsMargins(12, 12, 12, 12)
         
-        # 0. Dashboard
-        self.views_container.addWidget(QLabel("Dashboard en construcción...", objectName="h1"))
+        # 0. Dashboard (¡NUEVO!)
+        self.dashboard_view = DashboardView(self.repository)
+        self.views_container.addWidget(self.dashboard_view)
         
         # 1. Registro de Producto (Formulario)
-        self.views_container.addWidget(InventoryView(self.repository))
+        self.inventory_view = InventoryView(self.repository)
+        self.views_container.addWidget(self.inventory_view)
         
         # 2. Punto de Venta (Ensamblado e Inyección de Dependencias)
         # Asumimos que self.repository tiene acceso a la ruta de la BD (db_path)
@@ -55,4 +59,20 @@ class MainWindow(QWidget):
 
         main_layout.addWidget(self.views_container, 1)
 
+        # Conectar el sidebar
         self.sidebar.view_changed.connect(self.views_container.setCurrentIndex)
+        
+        # NUEVO: Refrescar vistas cuando cambian (CRITERIO 3)
+        self.views_container.currentChanged.connect(self.on_view_changed)
+        
+        # Forzar la carga inicial
+        self.on_view_changed(0)
+
+    def on_view_changed(self, index: int):
+        """Disparador inteligente para refrescar datos según la vista activa."""
+        if index == 0:
+            # Si el usuario entra al Dashboard, actualizamos las alertas
+            self.dashboard_view.refresh_data()
+        elif index == 1:
+            # Opcional: Si vuelve al inventario, podemos refrescar su tabla también
+            self.inventory_view.reload_inventory()

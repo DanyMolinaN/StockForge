@@ -78,3 +78,7 @@ class InventoryService:
             if product.supplier:
                 suppliers.add(product.supplier.strip())
         return sorted(suppliers)
+    
+    def get_low_stock_alerts(self) -> List[Product]:
+        """Retorna la lista de productos en estado crítico de stock."""
+        return self.repository.get_low_stock_products()
