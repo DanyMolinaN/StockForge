@@ -86,12 +86,18 @@ class InventoryTableTab(QWidget):
             
             # --- NUEVA COLUMNA DE ACCIONES ---
             actions_widget = QWidget()
+            actions_widget.setStyleSheet("background-color: transparent;")
+            
             actions_layout = QHBoxLayout(actions_widget)
             actions_layout.setContentsMargins(4, 0, 4, 0)
             actions_layout.setSpacing(8)
 
             btn_edit = QPushButton()
-            btn_edit.setIcon(get_icon_colored("edit.svg", Palette.Primary, 18))
+            # Usando otro color de tu Paleta (ej. Warning/Precaución)
+            btn_edit.setIcon(get_icon_colored("edit.svg", Palette.Warning, 18))
+
+            # O usando un color Hexadecimal directo (ej. un tono morado)
+            btn_edit.setIcon(get_icon_colored("edit.svg", "#8E44AD", 18))
             btn_edit.setToolTip("Editar Producto")
             btn_edit.setStyleSheet(STYLES["btn_icon_ghost"])
             btn_edit.clicked.connect(lambda _, pid=prod.id: self.edit_requested.emit(pid))

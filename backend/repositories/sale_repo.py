@@ -101,3 +101,18 @@ class SQLiteSalesRepository(SalesRepository):
                     items=items
                 ))
         return sales
+    
+    def get_sales_history(self) -> List[dict]:
+        """Obtiene las ventas agrupadas por día (Últimos 7 días activos)."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            # Se extrae la porción YYYY-MM-DD de la fecha ISO
+            cursor.execute('''
+                SELECT substr(fecha, 1, 10) as dia, SUM(total) as total_venta 
+                FROM sales 
+                GROUP BY dia 
+                ORDER BY dia DESC 
+                LIMIT 7
+            ''')
+            # Se invierte la lista para graficar cronológicamente de izquierda a derecha
+            return [{"fecha": row[0], "total": row[1]} for row in reversed(cursor.fetchall())]

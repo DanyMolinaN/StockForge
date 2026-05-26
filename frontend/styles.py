@@ -13,7 +13,7 @@ class Palette:
     Surface_Strong  = "#f1f5fb"
     Text            = "#1f2a37"
     Muted           = "#6d7a8d"
-    Primary         = "#3b82f6"
+    Primary         = "#79a5ec"
     Primary_Strong  = "#2f6ad8"
     Danger          = "#ef4444"
     Success         = "#10b981"

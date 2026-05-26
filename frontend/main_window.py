@@ -35,23 +35,24 @@ class MainWindow(QWidget):
         self.views_container = QStackedWidget()
         self.views_container.setContentsMargins(12, 12, 12, 12)
         
-        # 0. Dashboard (¡NUEVO!)
-        self.dashboard_view = DashboardView(self.repository)
+        # 1. CREACIÓN DE DEPENDENCIAS (Inversión de Dependencias)
+        # Asumimos que self.repository tiene acceso a la ruta de la BD (db_path)
+        sales_repo = SQLiteSalesRepository(self.repository.db_path)
+        
+        # 0. Dashboard (Ahora inyectamos el sales_repo correctamente)
+        self.dashboard_view = DashboardView(self.repository, sales_repo)
         self.views_container.addWidget(self.dashboard_view)
         
         # 1. Registro de Producto (Formulario)
         self.inventory_view = InventoryView(self.repository)
         self.views_container.addWidget(self.inventory_view)
         
-        # 2. Punto de Venta (Ensamblado e Inyección de Dependencias)
-        # Asumimos que self.repository tiene acceso a la ruta de la BD (db_path)
-        sales_repo = SQLiteSalesRepository(self.repository.db_path)
+        # 2. Punto de Venta (Ensamblado e Inyección)
         pos_service = POSService(
             product_repo=self.repository,
             sales_repo=sales_repo,
             tax_rate=0.15
         )
-        # Ahora sí, inyectamos el servicio correcto en la vista
         self.views_container.addWidget(POSView(pos_service))
         
         # 3. Catálogo (Tabla Exclusiva)
@@ -62,7 +63,7 @@ class MainWindow(QWidget):
         # Conectar el sidebar
         self.sidebar.view_changed.connect(self.views_container.setCurrentIndex)
         
-        # NUEVO: Refrescar vistas cuando cambian (CRITERIO 3)
+        # Refrescar vistas cuando cambian
         self.views_container.currentChanged.connect(self.on_view_changed)
         
         # Forzar la carga inicial
