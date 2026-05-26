@@ -3,8 +3,8 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QTableWidget, 
                                QTableWidgetItem, QHeaderView, QFrame, QHBoxLayout)
 from PySide6.QtGui import QColor
-from app.frontend.styles import STYLES, Palette
-from app.backend.services.inventory_service import InventoryService
+from frontend.styles import STYLES, Palette
+from backend.services.inventory_service import InventoryService
 
 class DashboardView(QWidget):
     def __init__(self, repository):

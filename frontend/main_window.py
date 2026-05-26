@@ -7,21 +7,13 @@ from backend.repositories.product_repo import ProductRepository
 from backend.repositories.sale_repo import SQLiteSalesRepository
 from backend.api.pos_routes import POSService
 
-<<<<<<< HEAD:frontend/main_window.py
 from frontend.styles import get_sheet
 from frontend.components.sidebar import Sidebar
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
 from frontend.views.pos_view import POSView
-=======
-from app.frontend.styles import get_sheet
-from app.frontend.components.sidebar import Sidebar
-from app.frontend.views.inventory_view import InventoryView
-from app.frontend.views.catalog_view import CatalogView
-from app.frontend.views.pos_view import POSView
 # Importamos el DashboardView para mostrar las alertas de stock mínimo
-from app.frontend.views.dashboard_view import DashboardView
->>>>>>> 19d67d753b2764c654073003e7854cdc3d6365b5:app/frontend/main_window.py
+from frontend.views.dashboard_view import DashboardView
 
 class MainWindow(QWidget):
     def __init__(self, repository: ProductRepository):
