@@ -82,3 +82,8 @@ class InventoryService:
     def get_low_stock_alerts(self) -> List[Product]:
         """Retorna la lista de productos en estado crítico de stock."""
         return self.repository.get_low_stock_products()
+    
+    def delete_product(self, product_id: int) -> None:
+        if not self.repository.get_by_id(product_id):
+            raise ValueError("El producto no existe o ya fue eliminado.")
+        self.repository.delete(product_id)
