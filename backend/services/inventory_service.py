@@ -1,9 +1,9 @@
-# app/backend/services/inventory_service.py
+# backend/services/inventory_service.py
 
 import json
 from typing import List, Set
-from app.backend.models.product import Product
-from app.backend.repositories.product_repo import ProductRepository
+from backend.models.product import Product
+from backend.repositories.product_repo import ProductRepository
 
 DEFAULT_CATEGORIES = ["Electrónica", "Ropa", "Medicina", "Alimentos", "Ferretería"]
 DEFAULT_SUPPLIERS = ["Distribuidor Local", "Importación Directa", "Logitech", "Pfizer"]

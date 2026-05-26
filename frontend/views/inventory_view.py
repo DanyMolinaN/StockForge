@@ -9,12 +9,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDate, Qt
 import random
-from app.backend.models.product import Product
-from app.backend.services.inventory_service  import InventoryService
-from app.frontend.styles import LAYOUT, STYLES
-from app.frontend.components.toast_alert import ToastNotification
+from backend.models.product import Product
+from backend.services.inventory_service  import InventoryService
+from frontend.styles import LAYOUT, STYLES
+from frontend.components.toast_alert import ToastNotification
 from PySide6.QtGui import QColor
-from app.frontend.styles import Palette
+from frontend.styles import Palette
 
 class InventoryView(QWidget):
     def __init__(self, repository):

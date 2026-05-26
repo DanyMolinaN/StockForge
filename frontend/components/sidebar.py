@@ -2,11 +2,11 @@
 
 from PySide6.QtWidgets import (
     QFrame, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, 
-    QButtonGroup, QWidget
+    QButtonGroup
 )
 from PySide6.QtCore import Signal, QPropertyAnimation, QEasingCurve, Qt, QParallelAnimationGroup
-from app.frontend.styles import STYLES
-from app.frontend.utils import get_icon_colored
+from frontend.styles import STYLES
+from frontend.utils import get_icon_colored
 
 class Sidebar(QFrame):
     view_changed = Signal(int)

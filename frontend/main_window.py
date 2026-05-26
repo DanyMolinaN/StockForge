@@ -1,17 +1,17 @@
 # frontend/main_window.py
 
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget, QLabel
-from app.backend.repositories.product_repo import ProductRepository
+from backend.repositories.product_repo import ProductRepository
 
 # 1. Importamos las dependencias necesarias para ensamblar el servicio
-from app.backend.repositories.sale_repo import SQLiteSalesRepository
-from app.backend.api.pos_routes import POSService
+from backend.repositories.sale_repo import SQLiteSalesRepository
+from backend.api.pos_routes import POSService
 
-from app.frontend.styles import get_sheet
-from app.frontend.components.sidebar import Sidebar
-from app.frontend.views.inventory_view import InventoryView
-from app.frontend.views.catalog_view import CatalogView
-from app.frontend.views.pos_view import POSView
+from frontend.styles import get_sheet
+from frontend.components.sidebar import Sidebar
+from frontend.views.inventory_view import InventoryView
+from frontend.views.catalog_view import CatalogView
+from frontend.views.pos_view import POSView
 
 class MainWindow(QWidget):
     def __init__(self, repository: ProductRepository):

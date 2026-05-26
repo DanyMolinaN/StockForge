@@ -5,9 +5,9 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
-from app.frontend.styles import LAYOUT, STYLES
-from app.frontend.components.toast_alert import ToastNotification
-from app.frontend.utils import get_icon_colored
+from frontend.styles import LAYOUT, STYLES
+from frontend.components.toast_alert import ToastNotification
+from frontend.utils import get_icon_colored
 
 class POSView(QWidget):
     # Inyectamos el servicio directamente para respetar Dependency Inversion

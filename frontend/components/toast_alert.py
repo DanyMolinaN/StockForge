@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import (Qt, QPropertyAnimation, Property, 
                           QRectF, QPoint, QEvent, QEasingCurve)
 from PySide6.QtGui import QColor, QPainter, QPainterPath
-from app.frontend.styles import LAYOUT, STYLES, Palette
-from app.frontend.utils import get_icon_colored
+from frontend.styles import LAYOUT, STYLES, Palette
+from frontend.utils import get_icon_colored
 
 TOAST_CONFIG = {
     "global": {

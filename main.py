@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import QApplication
-from app.backend.repositories.product_repo import SQLiteProductRepository
-from app.frontend.main_window import MainWindow
+from backend.repositories.product_repo import SQLiteProductRepository
+from frontend.main_window import MainWindow
 # Codigo Nuevo
 if __name__ == "__main__":
     app = QApplication(sys.argv)

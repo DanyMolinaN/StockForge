@@ -1,7 +1,7 @@
-# app/backend/api/pos_routes.py
+# backend/api/pos_routes.py
 
 from flask import Blueprint, request, jsonify
-from app.backend.services.pos_service import POSService
+from backend.services.pos_service import POSService
 
 def create_pos_blueprint(pos_service: POSService) -> Blueprint:
     """

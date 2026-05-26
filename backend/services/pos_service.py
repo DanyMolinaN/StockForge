@@ -1,14 +1,14 @@
-# app/backend/services/pos_service.py
+# backend/services/pos_service.py
 
 import random
 from datetime import datetime
 from dataclasses import dataclass
-from typing import List, Dict, Optional
+from typing import List, Dict
 
-from app.backend.models.product import Product
-from app.backend.models.sale import Sale, SaleItem
-from app.backend.repositories.product_repo import ProductRepository
-from app.backend.repositories.sale_repo import SalesRepository
+from backend.models.product import Product
+from backend.models.sale import Sale, SaleItem
+from backend.repositories.product_repo import ProductRepository
+from backend.repositories.sale_repo import SalesRepository
 
 @dataclass
 class POSCartItem:

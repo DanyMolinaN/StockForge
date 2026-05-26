@@ -1,9 +1,9 @@
-# app/backend/repositories/product_repo.py
+# backend/repositories/product_repo.py
 
 import sqlite3
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from app.backend.models.product import Product
+from backend.models.product import Product
 
 # ==========================================
 # 1. INTERFAZ ABSTRACTA (Dependency Inversion)

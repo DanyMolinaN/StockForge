@@ -1,9 +1,9 @@
-# app/backend/repositories/sale_repo.py
+# backend/repositories/sale_repo.py
 
 import sqlite3
 from abc import ABC, abstractmethod
 from typing import List
-from app.backend.models.sale import Sale, SaleItem
+from backend.models.sale import Sale, SaleItem
 
 # ==========================================
 # 1. INTERFAZ ABSTRACTA (Dependency Inversion)
