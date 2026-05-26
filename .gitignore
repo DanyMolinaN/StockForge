@@ -9,7 +9,8 @@
 .env
 
 # Bases de datos locales (Crucial para SoR)
-*.db
+stockforge.db
+
 *.sqlite3
 stockforge.db
 

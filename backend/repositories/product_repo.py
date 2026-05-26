@@ -30,6 +30,9 @@ class ProductRepository(ABC):
     @abstractmethod
     def update_stock(self, product_id: int, quantity: int) -> None: pass
 
+    @abstractmethod
+    def get_low_stock_products(self) -> List[Product]: pass
+
 # ==========================================
 # 2. IMPLEMENTACIÓN SQLITE
 # ==========================================
@@ -154,3 +157,11 @@ class SQLiteProductRepository(ProductRepository):
     def update_stock(self, product_id: int, quantity: int) -> None:
         with self._get_connection() as conn:
             conn.execute("UPDATE products SET stock = ? WHERE id = ?", (quantity, product_id))
+    
+    def get_low_stock_products(self) -> List[Product]:
+        """Obtiene productos cuyo stock actual es menor o igual al mínimo."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            # Usamos el _SELECT_BASE para mantener el principio DRY
+            cursor.execute(f"{self._SELECT_BASE} WHERE stock <= min_stock")
+            return [self._map_row_to_product(row) for row in cursor.fetchall()]
