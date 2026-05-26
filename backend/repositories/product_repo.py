@@ -164,6 +164,8 @@ class SQLiteProductRepository(ProductRepository):
             cursor = conn.cursor()
             # Usamos el _SELECT_BASE para mantener el principio DRY
             cursor.execute(f"{self._SELECT_BASE} WHERE stock <= min_stock")
+            # LÍNEA RESTAURADA: Necesaria para cumplir el contrato de la interfaz
+            return [self._map_row_to_product(row) for row in cursor.fetchall()]
             
     def delete(self, product_id: int) -> None:
         with self._get_connection() as conn:
