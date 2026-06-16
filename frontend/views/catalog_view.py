@@ -1,18 +1,12 @@
 # frontend/views/catalog_view.py
 
-from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, 
-    QFrame, QHeaderView, QHBoxLayout, QPushButton
-)
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableWidgetItem, QPushButton
 from PySide6.QtCore import Qt
 from backend.repositories.product_repo import ProductRepository
 from frontend.utils import get_icon_colored
+from frontend.components.ui_core import CardPanel, PageHeader, StandardTable # Inyectamos los componentes
 
 class CatalogView(QWidget):
-    """
-    Vista de Catálogo:
-    Proporciona una visualización de solo lectura de todos los productos.
-    """
     def __init__(self, repository: ProductRepository):
         super().__init__()
         self.repository = repository
@@ -22,43 +16,23 @@ class CatalogView(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-
-        panel = QFrame()
-        panel.setProperty("role", "card")
         
-        panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(12, 12, 12, 12)
-        
-        header_layout = QHBoxLayout()
-        
-        lbl_title = QLabel("Catálogo de Productos")
-        lbl_title.setProperty("role", "title")
-        header_layout.addWidget(lbl_title)
-        
-        header_layout.addStretch()
+        panel = CardPanel()
+        header = PageHeader("Catálogo de Productos")
         
         self.btn_refresh = QPushButton(" Actualizar")
         self.btn_refresh.setIcon(get_icon_colored("cloud-download.svg", "#3B82F6", 18))
         self.btn_refresh.setProperty("role", "action_outlined")
         self.btn_refresh.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_refresh.clicked.connect(self.load_data)
-        header_layout.addWidget(self.btn_refresh)
         
-        panel_layout.addLayout(header_layout)
-        panel_layout.addSpacing(12)
+        header.add_action(self.btn_refresh)
+        panel.add_widget(header)
 
-        self.table = QTableWidget(0, 9)
-        self.table.setHorizontalHeaderLabels([
-            "Categoría", "Nombre", "SKU", "Precio", "Stock", "Stock Mín.", 
-            "Proveedor", "Caducidad", "Atributos"
-        ])
-
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        self.table.verticalHeader().setVisible(False)
-        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        headers = ["Categoría", "Nombre", "SKU", "Precio", "Stock", "Stock Mín.", "Proveedor", "Caducidad", "Atributos"]
+        self.table = StandardTable(headers)
         
-        panel_layout.addWidget(self.table)
+        panel.add_widget(self.table)
         layout.addWidget(panel)
 
     def load_data(self):

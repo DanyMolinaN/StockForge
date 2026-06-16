@@ -1,22 +1,22 @@
 # frontend/views/dashboard_view.py
 
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QLabel, QTableWidget, 
-    QTableWidgetItem, QHeaderView, QFrame, QHBoxLayout
+    QScrollArea, QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
+    QTableWidgetItem, QHeaderView
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
+
 from frontend.styles import Palette
 from backend.services.inventory_service import InventoryService
 from frontend.utils import get_icon_colored
+from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
 
-class KPICard(QFrame):
-    """Componente reutilizable para métricas clave (Aplicación de DRY y Alta Cohesión)"""
+class KPICard(CardPanel):
     def __init__(self, title: str, icon_name: str, color: str):
-        super().__init__()
-        self.setProperty("role", "card")
-        
+        super().__init__(margins=12, spacing=0)
+        QWidget().setLayout(self.content_layout)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         
@@ -50,26 +50,33 @@ class DashboardView(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(12)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(0, 0, 0, 0)
         
-        main_layout.addWidget(self._build_header())
-        main_layout.addWidget(self._build_kpi_section())
-        main_layout.addWidget(self._build_alerts_section(), 1)
-        main_layout.addWidget(self._build_sales_chart_section(), 1)
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
+        scroll_area.setStyleSheet("background: transparent;") 
 
-    def _build_header(self) -> QWidget:
-        header = QWidget()
-        layout = QHBoxLayout(header)
-        layout.setContentsMargins(16, 16, 16, 0)
+        content_widget = QWidget()
+        content_widget.setStyleSheet("background: transparent;")
         
-        lbl_title = QLabel("Dashboard Principal")
-        lbl_title.setProperty("role", "title")
-        layout.addWidget(lbl_title)
+        main_layout = QVBoxLayout(content_widget)
+        main_layout.setContentsMargins(24, 24, 24, 24) 
+        main_layout.setSpacing(20) 
+
+        header = PageHeader("Dashboard Principal", "Resumen general de operaciones")
+        main_layout.addWidget(header)
+        main_layout.addWidget(self._build_kpi_section())
         
-        layout.addStretch()
-        return header
+        alerts_panel = self._build_alerts_section()
+        alerts_panel.setMinimumHeight(300)
+        main_layout.addWidget(alerts_panel)
+        chart_panel = self._build_sales_chart_section()
+        chart_panel.setMinimumHeight(350)
+        main_layout.addWidget(chart_panel)
+        scroll_area.setWidget(content_widget)
+        outer_layout.addWidget(scroll_area)
 
     def _build_kpi_section(self) -> QWidget:
         kpi_container = QWidget()
@@ -87,56 +94,39 @@ class DashboardView(QWidget):
 
         return kpi_container
 
-    def _build_alerts_section(self) -> QFrame:
-        panel = QFrame()
-        panel.setProperty("role", "card")
-        
-        layout = QVBoxLayout(panel)
-        layout.setContentsMargins(12, 12, 12, 12)
+    def _build_alerts_section(self) -> CardPanel:
+        panel = CardPanel()
         
         lbl_section = QLabel("Productos que requieren reabastecimiento")
         lbl_section.setProperty("role", "section")
-        layout.addWidget(lbl_section)
-        
-        layout.addSpacing(12)
+        panel.add_widget(lbl_section)
 
-        self.table = QTableWidget(0, 5)
-        self.table.setHorizontalHeaderLabels(["SKU", "Producto", "Categoría", "Stock Actual", "Stock Mín."])
-        
-        header = self.table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
+        headers = ["SKU", "Producto", "Categoría", "Stock Actual", "Stock Mín."]
+        self.table = StandardTable(headers)
+        header_view = self.table.horizontalHeader()
+        header_view.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header_view.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header_view.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header_view.setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
+        header_view.setSectionResizeMode(4, QHeaderView.ResizeMode.Fixed)
         self.table.setColumnWidth(3, 120)
         self.table.setColumnWidth(4, 120)
         
-        self.table.verticalHeader().setVisible(False)
-        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        
-        layout.addWidget(self.table)
+        panel.add_widget(self.table)
         return panel
 
-    def _build_sales_chart_section(self) -> QFrame:
-        panel = QFrame()
-        panel.setProperty("role", "card")
-        
-        layout = QVBoxLayout(panel)
-        layout.setContentsMargins(12, 12, 12, 12)
+    def _build_sales_chart_section(self) -> CardPanel:
+        panel = CardPanel()
         
         lbl_section = QLabel("Ventas de los Últimos 7 Días")
         lbl_section.setProperty("role", "section")
-        layout.addWidget(lbl_section)
+        panel.add_widget(lbl_section)
         
-        layout.addSpacing(12)
-
         self.chart_view = QChartView()
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.chart_view.setStyleSheet("background: transparent;") 
         
-        layout.addWidget(self.chart_view)
+        panel.add_widget(self.chart_view)
         return panel
 
     def refresh_data(self):

@@ -63,8 +63,8 @@ RADIUS_MD = 8
 RADIUS_LG = 18
 RADIUS_XL = 26
 
-PADDING_INPUT   = "8px 12px"
-PADDING_BUTTON  = "8px 16px"
+PADDING_INPUT   = "5px"
+PADDING_BUTTON  = "5px 8px"
 
 def asset_url(filename: str) -> str:
     path = resource_path(os.path.join("assets", "icons", filename))
@@ -171,13 +171,13 @@ QCheckBox::indicator:checked {{
 QTableWidget {{
     background-color: {COLOR_BG_SURFACE};
     border: 1px solid {COLOR_BORDER_SVELTE};
-    border-radius: {RADIUS_MD}px;
+    border-radius: 0px 0px {RADIUS_MD}px {RADIUS_MD}px;
     gridline-color: transparent;
     color: {COLOR_TEXT_PRIMARY};
     outline: none;
 }}
 QTableWidget::item {{
-    padding: 8px;
+    padding: 6px;
     border-bottom: 1px solid {COLOR_BORDER_SVELTE};
 }}
 QTableWidget::item:selected {{
@@ -189,7 +189,7 @@ QHeaderView::section {{
     background-color: {COLOR_BG_INPUT};
     color: {COLOR_TEXT_SECONDARY};
     font-weight: bold; font-size: 11px; text-transform: uppercase;
-    padding: 10px 12px; border: none;
+    padding: 6px 12px; border: none;
     border-bottom: 2px solid {COLOR_BORDER_SVELTE}; text-align: left;
 }}
 QHeaderView {{ background-color: transparent; border: none; }}
@@ -205,9 +205,9 @@ QComboBox::drop-down {{ subcontrol-origin: padding; subcontrol-position: top rig
 QComboBox::down-arrow {{ image: url({asset_url("chevron-down.svg")}); width: 14px; height: 14px; }}
 QComboBox QAbstractItemView {{
     background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY};
-    border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; outline: none; padding: 4px;
+    border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; outline: none; padding: 3px;
 }}
-QComboBox QAbstractItemView::item {{ border-radius: {RADIUS_SM}px; padding: 6px; }}
+QComboBox QAbstractItemView::item {{ border-radius: {RADIUS_SM}px; padding: 3px; }}
 QComboBox QAbstractItemView::item:selected {{ background-color: {COLOR_ACCENT}; color: {COLOR_TEXT_INVERSE}; }}
 
 /* --- SpinBoxes --- */
@@ -218,14 +218,14 @@ QSpinBox, QDoubleSpinBox {{
 QSpinBox:focus, QDoubleSpinBox:focus {{ border-color: {COLOR_ACCENT}; background-color: {COLOR_BG_SURFACE}; }}
 QSpinBox::up-button, QDoubleSpinBox::up-button {{
     subcontrol-origin: border; subcontrol-position: top right; width: 18px;
-    border-top-right-radius: {RADIUS_MD}px; background-color: transparent; margin-top: 2px;
+    border-top-right-radius: {RADIUS_MD}px; background-color: {COLOR_ACCENT}; margin-top: 2px;
 }}
 QSpinBox::down-button, QDoubleSpinBox::down-button {{
     subcontrol-origin: border; subcontrol-position: bottom right; width: 18px;
-    border-bottom-right-radius: {RADIUS_MD}px; background-color: transparent; margin-bottom: 2px;
+    border-bottom-right-radius: {RADIUS_MD}px; background-color: {COLOR_ACCENT}; margin-bottom: 2px;
 }}
 QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
-QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{ background-color: {COLOR_BG_HOVER}; }}
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{ background-color: {Palette.Primary_Light}; }}
 
 /* --- ScrollBars Premium (Estilo Píldora Flotante) --- */
 QScrollBar:vertical {{ border: none; background: transparent; width: 12px; margin: 2px 2px 2px 0px; }}

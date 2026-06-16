@@ -7,9 +7,9 @@ from typing import Optional
 class User:
     """
     Entidad de dominio que representa a un usuario del sistema.
-    Contiene únicamente los datos de identidad y lógica directa sobre sus atributos.
     """
     username: str
+    email: str
     password_hash: str
     role: str
     full_name: str

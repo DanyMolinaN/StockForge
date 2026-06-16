@@ -28,23 +28,34 @@ class AuthService:
         self.current_user = None
 
     def _hash_password(self, password: str) -> str:
-        """Cifra la contraseña usando SHA-256."""
         return hashlib.sha256(password.encode()).hexdigest()
 
-    def register_user(self, username: str, password: str, role: str, full_name: str) -> User:
+    def register_user(self, username: str, email: str, password: str, role: str, full_name: str) -> User:
         if self.user_repo.get_by_username(username):
             raise ValueError("El nombre de usuario ya existe.")
         
         new_user = User(
             username=username,
+            email=email,
             password_hash=self._hash_password(password),
             role=role,
             full_name=full_name
         )
         return self.user_repo.add(new_user)
+        
+    def update_user_role(self, user_id: int, new_role: str) -> None:
+        """Soporte para el botón 'Edit Role' de la UI."""
+        users = self.user_repo.get_all()
+        user_to_update = next((u for u in users if u.id == user_id), None)
+        if user_to_update:
+            user_to_update.role = new_role
+            self.user_repo.update(user_to_update)
+            
+    def revoke_access(self, user_id: int) -> None:
+        """Soporte para el botón 'Revoke Access' de la UI."""
+        self.user_repo.delete(user_id)
     
     def has_permission(self, module_name: str) -> bool:
-        """Verifica si el usuario actual tiene acceso al módulo solicitado."""
         if not self.current_user or not self.permission_repo:
             return False
             

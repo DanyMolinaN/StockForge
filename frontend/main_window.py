@@ -6,11 +6,11 @@ from backend.repositories.sale_repo import SQLiteSalesRepository
 from backend.services.pos_service import POSService
 from frontend.styles import get_sheet
 from frontend.components.sidebar import Sidebar
-from frontend.views.admin_permissions_view import AdminPermissionsView
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
 from frontend.views.pos_view import POSView
 from frontend.views.dashboard_view import DashboardView
+from frontend.views.user_management_view import UserManagementView
 
 class MainWindow(QWidget):
     def __init__(self, repository: ProductRepository, auth_service):
@@ -79,9 +79,8 @@ class MainWindow(QWidget):
         )
         self.views_container.addWidget(POSView(pos_service))
         self.views_container.addWidget(CatalogView(self.repository))
-
-        self.admin_permissions_view = AdminPermissionsView(self.auth_service.permission_repo)
-        self.views_container.addWidget(self.admin_permissions_view)
+        self.user_management_view = UserManagementView(self.auth_service)
+        self.views_container.addWidget(self.user_management_view)
 
         app_layout.addWidget(self.views_container, 1)
         self.views_container.currentChanged.connect(self.on_view_changed)
@@ -97,6 +96,8 @@ class MainWindow(QWidget):
             self.dashboard_view.refresh_data()
         elif index == 1:
             self.inventory_view.reload_inventory()
+        elif index == 4:
+            self.user_management_view.load_data()
 
 
     def _handle_navigation(self, view_name: str):

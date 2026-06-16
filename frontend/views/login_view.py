@@ -5,17 +5,10 @@ from PySide6.QtWidgets import (
     QPushButton, QFrame, QComboBox, QCheckBox
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont
-
 from frontend.components.toast_alert import ToastNotification
 from frontend.utils import get_icon_colored
 
 class LoginView(QWidget):
-    """
-    Vista de Login Enterprise SaaS.
-    Diseño Split-Screen asimétrico (Left: Branding, Right: Auth Form).
-    Altamente cohesionado mediante propiedades CSS globales (Roles).
-    """
     login_success = Signal(object)
 
     def __init__(self, auth_service):

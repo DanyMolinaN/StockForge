@@ -3,30 +3,33 @@
 import sqlite3
 
 class DatabaseManager:
-    """
-    Clase unificada para gestionar el ciclo de vida de la base de datos SQLite.
-    Centraliza la conexión, la creación inicial de tablas y asegura el principio DRY.
-    """
     def __init__(self, db_path: str = "stockforge.db"):
         self.db_path = db_path
         self.initialize_schema()
 
     def get_connection(self) -> sqlite3.Connection:
-        """Retorna una nueva conexión lista para usar con soporte de claves foráneas."""
         conn = sqlite3.connect(self.db_path)
         conn.execute("PRAGMA foreign_keys = ON;")
         return conn
 
     def initialize_schema(self) -> None:
-        """Crea todas las tablas del sistema si no existen y aplica la configuración inicial."""
         with self.get_connection() as conn:
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT NOT NULL UNIQUE,
+                    email TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
                     role TEXT NOT NULL,
                     full_name TEXT NOT NULL
+                )
+            ''')
+
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS roles_permissions (
+                    role TEXT NOT NULL,
+                    module TEXT NOT NULL,
+                    PRIMARY KEY (role, module)
                 )
             ''')
 
@@ -74,18 +77,31 @@ class DatabaseManager:
             ''')
             
             self._seed_default_admin(conn)
+            self._seed_default_permissions(conn)
 
     def _seed_default_admin(self, conn: sqlite3.Connection) -> None:
-        """Inserta el administrador por defecto si la tabla está vacía."""
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
             conn.execute('''
-                INSERT INTO users (username, password_hash, role, full_name)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO users (username, email, password_hash, role, full_name)
+                VALUES (?, ?, ?, ?, ?)
             ''', (
                 "admin", 
+                "admin@stockforge.com",
                 "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918", 
-                "Admin", 
+                "admin", 
                 "Administrador del Sistema"
             ))
+
+    def _seed_default_permissions(self, conn: sqlite3.Connection) -> None:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM roles_permissions")
+        if cursor.fetchone()[0] == 0:
+            defaults = [
+                ("admin", "Dashboard"), ("admin", "Inventario"), 
+                ("admin", "Punto de Venta"), ("admin", "Gestión de Accesos"),
+                ("dueño", "Dashboard"), ("dueño", "Inventario"), ("dueño", "Punto de Venta"),
+                ("cajero", "Punto de Venta")
+            ]
+            cursor.executemany("INSERT INTO roles_permissions (role, module) VALUES (?, ?)", defaults)
