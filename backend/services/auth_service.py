@@ -3,12 +3,14 @@
 import hashlib
 from typing import Optional
 from backend.models.user_model import User
+from backend.repositories.permission_repo import PermissionRepository
 from backend.repositories.user_repo import UserRepository
 
 class AuthService:
     """Servicio encargado de la lógica de autenticación y sesión."""
-    def __init__(self, user_repo: UserRepository):
+    def __init__(self, user_repo: UserRepository, permission_repo: PermissionRepository): # Inyectamos el nuevo repo
         self.user_repo = user_repo
+        self.permission_repo = permission_repo
         self.current_user: Optional[User] = None
 
     def login(self, username: str, password: str) -> bool:
@@ -42,6 +44,14 @@ class AuthService:
         return self.user_repo.add(new_user)
     
     def has_permission(self, module_name: str) -> bool:
-        if not self.current_user:
+        """Verifica si el usuario actual tiene acceso al módulo solicitado."""
+        if not self.current_user or not self.permission_repo:
             return False
-        return self.current_user.can_access(module_name)
+            
+        role = self.current_user.role.lower()
+        
+        # Obtenemos el diccionario de permisos desde la base de datos
+        all_permissions = self.permission_repo.get_permissions()
+        allowed_modules = all_permissions.get(role, [])
+        
+        return module_name in allowed_modules

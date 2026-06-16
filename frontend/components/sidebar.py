@@ -88,7 +88,7 @@ class Sidebar(QFrame):
             ("Dashboard", "dashboard.svg", "top"),
             ("Inventario", "box.svg", "top"),
             ("Punto de Venta", "shopping-cart.svg", "top"),
-            ("Gestión de Accesos", "users.svg", "bottom") # Futuro módulo del admin
+            ("Gestión de Accesos", "users.svg", "bottom")
         ]
 
         first_button = None

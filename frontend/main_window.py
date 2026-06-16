@@ -6,6 +6,7 @@ from backend.repositories.sale_repo import SQLiteSalesRepository
 from backend.services.pos_service import POSService
 from frontend.styles import get_sheet
 from frontend.components.sidebar import Sidebar
+from frontend.views.admin_permissions_view import AdminPermissionsView
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
 from frontend.views.pos_view import POSView
@@ -66,27 +67,27 @@ class MainWindow(QWidget):
         sales_repo = SQLiteSalesRepository(self.repository.db_manager)
 
         self.dashboard_view = DashboardView(self.repository, sales_repo)
-        self.views_container.addWidget(self.dashboard_view)
+        self.views_container.addWidget(self.dashboard_view) # Índice 0
         
         self.inventory_view = InventoryView(self.repository)
-        self.views_container.addWidget(self.inventory_view)
+        self.views_container.addWidget(self.inventory_view) # Índice 1
         
         pos_service = POSService(
             product_repo=self.repository,
             sales_repo=sales_repo,
             tax_rate=0.15
         )
-        self.views_container.addWidget(POSView(pos_service))
-        self.views_container.addWidget(CatalogView(self.repository))
+        self.views_container.addWidget(POSView(pos_service)) # Índice 2
+        self.views_container.addWidget(CatalogView(self.repository)) # Índice 3
+
+        # 2. AGREGAR LA VISTA DE GESTIÓN DE ACCESOS (Índice 4)
+        # Extraemos el permission_repo directamente del auth_service
+        self.admin_permissions_view = AdminPermissionsView(self.auth_service.permission_repo)
+        self.views_container.addWidget(self.admin_permissions_view)
 
         app_layout.addWidget(self.views_container, 1)
 
-        if user.role.lower() != "admin":
-            pass
-
-        self.sidebar.view_selected.connect(self._handle_navigation)
-        self.sidebar.logout_requested.connect(self._handle_logout)
-        self.views_container.currentChanged.connect(self.on_view_changed)
+        # Limpieza de conexiones duplicadas que tenías en esta sección:
         self.views_container.currentChanged.connect(self.on_view_changed)
 
         self.stack.addWidget(app_widget)
@@ -108,7 +109,8 @@ class MainWindow(QWidget):
             "Dashboard": 0,
             "Inventario": 1,
             "Punto de Venta": 2,
-            "Catálogo": 3
+            "Catálogo": 3,
+            "Gestión de Accesos": 4  # 3. AGREGAR EL MAPEO EXACTO DEL BOTÓN
         }
         
         target_index = mapping.get(view_name)

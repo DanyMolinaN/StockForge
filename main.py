@@ -7,27 +7,30 @@ from backend.repositories.user_repo import SQLiteUserRepository
 from backend.services.auth_service import AuthService
 from frontend.main_window import MainWindow
 
+# 1. IMPORTAR EL NUEVO REPOSITORIO
+from backend.repositories.permission_repo import SQLitePermissionRepository
+
 if __name__ == "__main__":
     try:
         print("✓ Iniciando aplicación...")
         app = QApplication(sys.argv)
-        print("✓ QApplication creado")
+        
         db_path = "stockforge.db"
-        print(f"✓ Cargando base de datos: {db_path}")
         db_manager = DatabaseManager(db_path)
-        print("✓ DatabaseManager inicializado")
+        
         product_repo = SQLiteProductRepository(db_manager)
-        print("✓ ProductRepository inicializado")       
         user_repo = SQLiteUserRepository(db_manager)
-        print("✓ UserRepository inicializado")       
-        auth_service = AuthService(user_repo)
+        
+        # 2. INICIALIZAR EL REPOSITORIO DE PERMISOS
+        permission_repo = SQLitePermissionRepository(db_path)
+        print("✓ PermissionRepository inicializado")       
+        
+        # 3. INYECTAR AMBOS REPOSITORIOS EN AUTH_SERVICE
+        auth_service = AuthService(user_repo, permission_repo)
         print("✓ AuthService inicializado")       
-        print("✓ Creando MainWindow...")
+        
         window = MainWindow(product_repo, auth_service)
-        print("✓ MainWindow creado")        
-        print("✓ Mostrando ventana...")
         window.show()
-        print("✓ Ventana visible - Iniciando event loop...")      
         sys.exit(app.exec())
     except Exception as e:
         print(f"❌ ERROR: {e}")
