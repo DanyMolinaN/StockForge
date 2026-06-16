@@ -21,6 +21,18 @@ class Palette:
     Warning         = "#F59E0B"
     Border          = "#D7E0EB"
 
+class LoginPalette:
+    Bg_Brand_Start  = "#0B1120"
+    Bg_Brand_End    = "#172554"
+    Bg_Area         = "#0F172A"
+    Text_Title      = "#FFFFFF"
+    Text_Muted      = "#94A3B8"
+    Text_Label      = "#E2E8F0"
+    Input_Bg        = "#F8FAFC"
+    Input_Text      = "#0F172A"
+    Btn_Primary     = "#2F4C9B"
+    Btn_Hover       = "#233A7A"
+    Link            = "#60A5FA"
 # ============================================================================
 # 2. CONSTANTES DE TEMA (Estilo theme.py)
 # ============================================================================
@@ -253,8 +265,110 @@ QTabBar::tab:selected {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_ACC
    ============================================================================ */
 
 /* --- Sidebar --- */
-QFrame#Sidebar {{ background-color: #1a1a1c; }} /* Manteniendo tu estilo Dark para el sidebar */
+QFrame#Sidebar {{ background-color: #1a1a1c; }}
 QPushButton#NavButton {{ background: transparent; border-radius: {RADIUS_MD}px; padding: 10px; text-align: left; color: #8e8e93; font-weight: 600; font-size: 14px; }}
 QPushButton#NavButton:hover {{ background-color: #2c2c2e; color: #ffffff; }}
 QPushButton#NavButton:checked {{ background-color: #2c2c2e; color: #ffffff; }}
+
+/* ============================================================================
+   5. VISTA DE LOGIN (Dark Premium SaaS)
+   ============================================================================ */
+   
+/* Paneles Principales */
+QFrame#LoginBrandingPanel {{
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {LoginPalette.Bg_Brand_Start}, stop:1 {LoginPalette.Bg_Brand_End});
+    border-right: 1px solid #1E293B;
+}}
+QFrame#LoginArea {{
+    background-color: {LoginPalette.Bg_Area};
+}}
+
+/* Solución al fondo blanco del formulario */
+QFrame#LoginFormContainer {{
+    background-color: transparent;
+}}
+
+QFrame[role="login_field_wrapper"] {{
+    background-color: transparent;
+}}
+
+/* Textos del Branding (Izquierda) */
+QLabel[role="login_brand_title"] {{ color: {LoginPalette.Text_Title}; font-size: 40px; font-weight: 800; letter-spacing: -1.5px; background: transparent; }}
+QLabel[role="login_brand_desc"] {{ color: {LoginPalette.Text_Muted}; font-size: 16px; line-height: 1.5; background: transparent; }}
+
+/* Textos del Formulario (Derecha) */
+QLabel[role="login_title"] {{ color: {LoginPalette.Text_Title}; font-size: 32px; font-weight: bold; letter-spacing: -0.5px; background: transparent; }}
+QLabel[role="login_subtitle"] {{ color: {LoginPalette.Text_Muted}; font-size: 15px; background: transparent; }}
+QLabel[role="login_label"] {{ color: {LoginPalette.Text_Label}; font-weight: 600; font-size: 13px; margin-bottom: 4px; background: transparent; }}
+
+/* Inputs Blancos (Estilo de la imagen) */
+QLineEdit[role="login_input"], QComboBox[role="login_input"] {{
+    background-color: {LoginPalette.Input_Bg};
+    color: {LoginPalette.Input_Text};
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+}}
+QLineEdit[role="login_input"]:focus, QComboBox[role="login_input"]:focus {{
+    border: 2px solid {Palette.Primary_Strong};
+    background-color: {Palette.Surface};
+}}
+
+/* Ajustes específicos para el combobox y el campo de contraseña acoplado */
+QComboBox[role="login_input"]::drop-down {{ border: none; width: 30px; }}
+QComboBox[role="login_input"]::down-arrow {{ image: url({asset_url("chevron-down.svg")}); width: 16px; height: 16px; }}
+
+/* Input de contraseña (Mitad izquierda) */
+QLineEdit#LoginPassInput {{
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-right: none;
+}}
+
+/* Prevenir doble borde en el medio cuando se hace click (focus) */
+QLineEdit#LoginPassInput:focus {{
+    border-right: none; 
+}}
+
+/* Botón de visibilidad de contraseña (Mitad derecha) */
+QPushButton#TogglePassBtn {{
+    background-color: {LoginPalette.Input_Bg};
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 15px 16px 16px 8px; 
+}}
+
+QPushButton#TogglePassBtn:hover {{ 
+    background-color: #E2E8F0; 
+}}
+
+/* Botón de Acción Principal */
+QPushButton[role="login_btn"] {{
+    background-color: {LoginPalette.Btn_Primary};
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 14px;
+}}
+QPushButton[role="login_btn"]:hover {{ background-color: {LoginPalette.Btn_Hover}; }}
+QPushButton[role="login_btn"]:disabled {{ background-color: #475569; color: {LoginPalette.Text_Muted}; }}
+
+/* Botón fantasma (Olvide mi contraseña) */
+QPushButton[role="login_link"] {{
+    background: transparent;
+    color: {LoginPalette.Link};
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+}}
+QPushButton[role="login_link"]:hover {{ color: {Palette.Primary}; text-decoration: underline; }}
+
+/* Checkbox (Remember me) */
+QCheckBox[role="login_check"] {{ color: {LoginPalette.Text_Muted}; font-size: 13px; font-weight: 500; spacing: 8px; background: transparent; }}
+QCheckBox[role="login_check"]::indicator {{ width: 16px; height: 16px; border-radius: 4px; border: 2px solid #475569; background: transparent; }}
+QCheckBox[role="login_check"]::indicator:checked {{ background-color: {LoginPalette.Btn_Primary}; border-color: {LoginPalette.Btn_Primary}; image: url({asset_url("check.svg")}); }}
 """

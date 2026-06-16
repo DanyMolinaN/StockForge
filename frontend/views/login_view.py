@@ -2,40 +2,19 @@
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, 
-    QPushButton, QFrame, QComboBox, QGraphicsDropShadowEffect
+    QPushButton, QFrame, QComboBox, QCheckBox
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QFont, QColor
+from PySide6.QtGui import QFont
 
-from frontend.styles import Palette
 from frontend.components.toast_alert import ToastNotification
 from frontend.utils import get_icon_colored
 
-
-class FeatureItem(QWidget):
-    """Sub-componente de Alta Cohesión para los checks de características."""
-    def __init__(self, text: str):
-        super().__init__()
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(12)
-        
-        icon = QLabel("✓")
-        icon.setStyleSheet(f"color: {Palette.Primary_Light}; font-weight: bold; font-size: 18px;")
-        
-        label = QLabel(text)
-        label.setStyleSheet("color: #E2E8F0; font-size: 14px; font-weight: 500;")
-        
-        layout.addWidget(icon)
-        layout.addWidget(label)
-        layout.addStretch()
-
-
 class LoginView(QWidget):
     """
-    Vista de Login Enterprise SaaS con diseño 60/40.
-    Conserva su propio ámbito de estilos oscuros (Dark Theme) para no 
-    entrar en conflicto con la paleta clara de la aplicación principal.
+    Vista de Login Enterprise SaaS.
+    Diseño Split-Screen asimétrico (Left: Branding, Right: Auth Form).
+    Altamente cohesionado mediante propiedades CSS globales (Roles).
     """
     login_success = Signal(object)
 
@@ -56,230 +35,166 @@ class LoginView(QWidget):
         self.main_layout.setSpacing(0)
         
         # ==========================================
-        # 1. PANEL BRANDING (IZQUIERDA - 60%)
+        # 1. PANEL BRANDING (IZQUIERDA)
         # ==========================================
         self.branding_panel = QFrame()
-        self.branding_panel.setStyleSheet("""
-            QFrame {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, 
-                    stop:0 #0F172A, stop:0.5 #111827, stop:1 #1E293B);
-                border-right: 1px solid #1E293B;
-            }
-        """)
+        self.branding_panel.setObjectName("LoginBrandingPanel")
         
         left_layout = QVBoxLayout(self.branding_panel)
-        left_layout.setContentsMargins(80, 80, 80, 80)
-        left_layout.setSpacing(25)
+        left_layout.setContentsMargins(60, 60, 60, 80)
         
-        # Logo y Marca
-        logo_large = QLabel()
+        # Logo Superior
+        logo_layout = QHBoxLayout()
+        logo_icon = QLabel()
         try:
-            pixmap = get_icon_colored("company-logo.svg", Palette.Primary, 100).pixmap(100, 100)
-            logo_large.setPixmap(pixmap)
+            # Usando un SVG de tu paquete de iconos
+            pixmap = get_icon_colored("box.svg", "#FFFFFF", 28).pixmap(28, 28)
+            logo_icon.setPixmap(pixmap)
         except Exception:
-            logo_large.setText("📦")
-            logo_large.setFont(QFont("Segoe UI", 64))
+            pass
             
-        left_layout.addWidget(logo_large)
+        logo_text = QLabel(" STOCKFORGE")
+        logo_text.setStyleSheet("color: white; font-weight: bold; font-size: 18px; letter-spacing: 2px;")
         
-        brand_title = QLabel("StockForge")
-        brand_title.setStyleSheet("color: #FFFFFF; font-size: 52px; font-weight: 800; letter-spacing: -2px; background: transparent;")
+        logo_layout.addWidget(logo_icon)
+        logo_layout.addWidget(logo_text)
+        logo_layout.addStretch()
+        left_layout.addLayout(logo_layout)
+        
+        left_layout.addStretch() # Empuja el texto principal hacia abajo
+        
+        # Textos Inferiores (Igual a la imagen)
+        brand_title = QLabel("Optimiza tu Flujo.")
+        brand_title.setProperty("role", "login_brand_title")
         left_layout.addWidget(brand_title)
         
-        slogan = QLabel("Inventory Management Platform")
-        slogan.setStyleSheet(f"color: {Palette.Primary_Light}; font-size: 20px; font-weight: 600; background: transparent;")
-        left_layout.addWidget(slogan)
+        left_layout.addSpacing(10)
         
-        desc = QLabel("La solución definitiva para el control de stock, ventas y analítica empresarial en tiempo real.")
-        desc.setStyleSheet("color: #94A3B8; font-size: 16px; line-height: 1.6; background: transparent;")
+        desc = QLabel("Un espacio de trabajo unificado y sin interrupciones diseñado para brindar claridad y ejecución ilimitada en su inventario.")
+        desc.setProperty("role", "login_brand_desc")
         desc.setWordWrap(True)
         left_layout.addWidget(desc)
-        
-        # Checkbox de características
-        left_layout.addSpacing(20)
-        features = [
-            "Gestión centralizada de múltiples almacenes",
-            "Análisis predictivo de stock y demanda",
-            "Terminal de punto de venta (POS) ultra-rápido",
-            "Seguridad de nivel bancario y auditoría"
-        ]
-        for f in features:
-            left_layout.addWidget(FeatureItem(f))
-            
-        left_layout.addStretch()
-        
-        # UI Decorativa inferior
-        ui_decor = QFrame()
-        ui_decor.setFixedHeight(180)
-        ui_decor.setStyleSheet("background: rgba(59, 130, 246, 0.03); border: 1px dashed rgba(59, 130, 246, 0.15); border-radius: 20px;")
-        left_layout.addWidget(ui_decor)
 
         # ==========================================
-        # 2. PANEL LOGIN (DERECHA - 40%)
+        # 2. PANEL FORMULARIO (DERECHA)
         # ==========================================
         self.login_area = QFrame()
-        self.login_area.setStyleSheet("background-color: #0F172A;")
+        self.login_area.setObjectName("LoginArea")
         right_layout = QVBoxLayout(self.login_area)
         right_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Usamos QFrame en lugar de QWidget para mejor soporte del motor QSS
+        form_container = QFrame()
+        form_container.setObjectName("LoginFormContainer") # Se enlaza con styles.py
+        form_container.setFixedWidth(400)
         
-        # Card de Login
-        self.login_card = QFrame()
-        self.login_card.setFixedWidth(420)
-        self.login_card.setStyleSheet("""
-            QFrame {
-                background-color: #1E293B;
-                border: 1px solid #334155;
-                border-radius: 24px;
-            }
-        """)
+        form_layout = QVBoxLayout(form_container)
+        form_layout.setContentsMargins(0, 0, 0, 0)
+        form_layout.setSpacing(24)
         
-        # Efecto de sombra para el Card
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(40)
-        shadow.setXOffset(0)
-        shadow.setYOffset(15)
-        shadow.setColor(QColor(0, 0, 0, 160))
-        self.login_card.setGraphicsEffect(shadow)
+        # --- Cabecera del Formulario ---
+        header_layout = QVBoxLayout()
+        header_layout.setSpacing(8)
         
-        card_layout = QVBoxLayout(self.login_card)
-        card_layout.setContentsMargins(40, 45, 40, 45)
-        card_layout.setSpacing(24)
+        welcome = QLabel("Welcome Back!")
+        welcome.setProperty("role", "login_title")
+        header_layout.addWidget(welcome)
         
-        # Header Card
-        header_card = QVBoxLayout()
-        header_card.setSpacing(8)
+        subtitle = QLabel("¡Bienvenido! Por favor ingrese sus detalles.")
+        subtitle.setProperty("role", "login_subtitle")
+        header_layout.addWidget(subtitle)
+        form_layout.addLayout(header_layout)
         
-        welcome = QLabel("Bienvenido")
-        welcome.setStyleSheet("color: #F8FAFC; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; border: none;")
-        welcome.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header_card.addWidget(welcome)
+        # --- Campos de Input ---
+        inputs_layout = QVBoxLayout()
+        inputs_layout.setSpacing(16)
         
-        subtitle = QLabel("Acceda a su terminal de gestión")
-        subtitle.setStyleSheet("color: #94A3B8; font-size: 14px; border: none;")
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        header_card.addWidget(subtitle)
-        
-        card_layout.addLayout(header_card)
-        
-        # Formularios (DRY Aplicado vía helpers)
-        form_layout = QVBoxLayout()
-        form_layout.setSpacing(18)
-        
-        self.combo_role = self._create_input_styled(QComboBox())
+        # Rol (Agregado para mantener tu lógica de backend)
+        self.combo_role = QComboBox()
+        self.combo_role.setProperty("role", "login_input")
         self.combo_role.addItems(["Administrador", "Cajero", "Dueño"])
-        form_layout.addWidget(self._wrap_field("Rol de Usuario", self.combo_role))
+        inputs_layout.addWidget(self._wrap_field("Role", self.combo_role))
         
-        self.input_user = self._create_input_styled(QLineEdit())
-        self.input_user.setPlaceholderText("Nombre de usuario")
-        form_layout.addWidget(self._wrap_field("Usuario", self.input_user))
+        # Usuario / Email
+        self.input_user = QLineEdit()
+        self.input_user.setProperty("role", "login_input")
+        self.input_user.setPlaceholderText("Enter your username or email")
+        inputs_layout.addWidget(self._wrap_field("Username", self.input_user))
         
-        # Input de Contraseña con Toggle de visibilidad
-        pass_container = QWidget()
-        pass_container.setStyleSheet("border: none; background: transparent;")
+        # Contraseña con Toggle (Ensamblado visualmente)
+        pass_container = QFrame()  # Cambiar de QWidget a QFrame
+        pass_container.setProperty("role", "login_field_wrapper") # Añadir rol
         pass_h_layout = QHBoxLayout(pass_container)
         pass_h_layout.setContentsMargins(0, 0, 0, 0)
         pass_h_layout.setSpacing(0)
         
-        self.input_pass = self._create_input_styled(QLineEdit())
-        self.input_pass.setPlaceholderText("••••••••")
+        self.input_pass = QLineEdit()
+        self.input_pass.setObjectName("LoginPassInput")
+        self.input_pass.setProperty("role", "login_input")
+        self.input_pass.setPlaceholderText("Input password")
         self.input_pass.setEchoMode(QLineEdit.EchoMode.Password)
         self.input_pass.returnPressed.connect(self.handle_login)
-        # Acoplamos el input con el botón visualmente
-        self.input_pass.setStyleSheet(self.input_pass.styleSheet() + "border-top-right-radius: 0px; border-bottom-right-radius: 0px; border-right: none;")
         
-        self.btn_toggle = QPushButton("👁️")
-        self.btn_toggle.setFixedSize(45, 48)
+        self.btn_toggle = QPushButton()
+        self.btn_toggle.setObjectName("TogglePassBtn")
+        self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20)) # SVG Ojo cerrado
         self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_toggle.setStyleSheet("""
-            QPushButton {
-                background-color: #0F172A;
-                border: 2px solid #334155;
-                border-left: none;
-                border-top-right-radius: 12px;
-                border-bottom-right-radius: 12px;
-                color: #94A3B8;
-                font-size: 16px;
-            }
-            QPushButton:hover { background-color: #1E293B; }
-        """)
         self.btn_toggle.clicked.connect(self.toggle_pass)
         
         pass_h_layout.addWidget(self.input_pass)
         pass_h_layout.addWidget(self.btn_toggle)
         
-        form_layout.addWidget(self._wrap_field("Contraseña", pass_container))
-        card_layout.addLayout(form_layout)
+        inputs_layout.addWidget(self._wrap_field("Password", pass_container))
+        form_layout.addLayout(inputs_layout)
         
-        # Botón Acceso Principal
-        self.btn_login = QPushButton("Iniciar Sesión")
-        self.btn_login.setMinimumHeight(52)
+        # --- Opciones Extras (Remember me & Forgot password) ---
+        options_layout = QHBoxLayout()
+        
+        self.check_remember = QCheckBox("Remember me")
+        self.check_remember.setProperty("role", "login_check")
+        options_layout.addWidget(self.check_remember)
+        
+        options_layout.addStretch()
+        
+        btn_forgot = QPushButton("Forgot password?")
+        btn_forgot.setProperty("role", "login_link")
+        btn_forgot.setCursor(Qt.CursorShape.PointingHandCursor)
+        options_layout.addWidget(btn_forgot)
+        
+        form_layout.addLayout(options_layout)
+        
+        # --- Botón de Login ---
+        self.btn_login = QPushButton("Log In")
+        self.btn_login.setProperty("role", "login_btn")
         self.btn_login.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_login.setStyleSheet(f"""
-            QPushButton {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {Palette.Primary}, stop:1 {Palette.Primary_Light});
-                color: white;
-                border: none;
-                border-radius: 12px;
-                font-size: 16px;
-                font-weight: 700;
-            }}
-            QPushButton:hover {{
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {Palette.Primary_Strong}, stop:1 {Palette.Primary});
-            }}
-            QPushButton:pressed {{ margin-top: 2px; }}
-        """)
         self.btn_login.clicked.connect(self.handle_login)
-        card_layout.addWidget(self.btn_login)
+        form_layout.addWidget(self.btn_login)
         
-        # Estado y Footer
+        # Estado de Error
         self.status_lbl = QLabel("")
-        self.status_lbl.setStyleSheet("color: #F87171; font-size: 12px; font-weight: bold; border: none;")
+        self.status_lbl.setStyleSheet("color: #EF4444; font-size: 13px; font-weight: bold; background: transparent;")
         self.status_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_lbl.hide()
-        card_layout.addWidget(self.status_lbl)
-        
-        footer_card = QHBoxLayout()
-        footer_card.addWidget(QLabel("🔒 Secure Encryption", styleSheet="color: #64748B; font-size: 11px; border: none;"))
-        footer_card.addStretch()
-        footer_card.addWidget(QLabel("v1.2", styleSheet="color: #64748B; font-size: 11px; font-weight: bold; border: none;"))
-        card_layout.addLayout(footer_card)
+        form_layout.addWidget(self.status_lbl)
 
-        right_layout.addWidget(self.login_card)
+        right_layout.addWidget(form_container)
 
-        # Ensamble final de mitades
-        self.main_layout.addWidget(self.branding_panel, 60)
-        self.main_layout.addWidget(self.login_area, 40)
+        # Ensamble final asimétrico
+        self.main_layout.addWidget(self.branding_panel, 50) # Mitad y mitad, o puedes ajustar a 55/45
+        self.main_layout.addWidget(self.login_area, 50)
 
     # ==========================================
     # UTILERÍAS DRY PARA FORMULARIOS
     # ==========================================
-    def _create_input_styled(self, widget):
-        widget.setMinimumHeight(48)
-        widget.setStyleSheet("""
-            QLineEdit, QComboBox {
-                background-color: #0F172A;
-                color: #F8FAFC;
-                border: 2px solid #334155;
-                border-radius: 12px;
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-            QLineEdit:focus, QComboBox:hover {
-                border-color: #3B82F6;
-            }
-            QComboBox::drop-down { border: none; }
-        """)
-        return widget
-
     def _wrap_field(self, title: str, widget: QWidget) -> QWidget:
-        container = QWidget()
-        container.setStyleSheet("border: none; background: transparent;")
+        container = QFrame()  # Cambiar de QWidget a QFrame
+        container.setProperty("role", "login_field_wrapper") # Añadir rol
         vbox = QVBoxLayout(container)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(6)
         
         lbl = QLabel(title)
-        lbl.setStyleSheet("color: #CBD5E1; font-weight: 600; font-size: 13px; border: none;")
+        lbl.setProperty("role", "login_label")
         
         vbox.addWidget(lbl)
         vbox.addWidget(widget)
@@ -291,10 +206,10 @@ class LoginView(QWidget):
     def toggle_pass(self):
         if self.input_pass.echoMode() == QLineEdit.EchoMode.Password:
             self.input_pass.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.btn_toggle.setText("🙈")
+            self.btn_toggle.setIcon(get_icon_colored("eye-off.svg", "#475569", 20)) # SVG Ojo Abierto / Tachado
         else:
             self.input_pass.setEchoMode(QLineEdit.EchoMode.Password)
-            self.btn_toggle.setText("👁️")
+            self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20)) # SVG Ojo Cerrado
 
     def start_animations(self):
         self.setWindowOpacity(0)
