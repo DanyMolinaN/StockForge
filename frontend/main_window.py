@@ -1,6 +1,6 @@
 # frontend/main_window.py
 
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QStackedWidget, QLabel
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QLabel
 from backend.repositories.product_repo import ProductRepository
 
 # 1. Importamos las dependencias necesarias para ensamblar el servicio
@@ -16,57 +16,97 @@ from frontend.views.pos_view import POSView
 from frontend.views.dashboard_view import DashboardView
 
 class MainWindow(QWidget):
-    def __init__(self, repository: ProductRepository):
+    def __init__(self, repository: ProductRepository, auth_service):
         super().__init__()
         self.repository = repository
+        self.auth_service = auth_service
         self.setWindowTitle("StockForge - Sistema POS")
         self.resize(1200, 700)
         self.setStyleSheet(get_sheet())
-        self.setup_ui()
+        
+        # Inicialmente mostramos el Login
+        self.setup_initial_view()
 
-    def setup_ui(self):
-        main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+    def setup_initial_view(self):
+        print("DEBUG: Iniciando setup_initial_view...")
+        self.main_container = QVBoxLayout(self)
+        self.main_container.setContentsMargins(0, 0, 0, 0)
+        print("DEBUG: Layout creado")
+        
+        self.stack = QStackedWidget()
+        self.main_container.addWidget(self.stack)
+        print("DEBUG: QStackedWidget creado")
+        
+        # Vista de Login
+        print("DEBUG: Importando LoginView...")
+        from frontend.views.login_view import LoginView
+        print("DEBUG: LoginView importado")
+        
+        print("DEBUG: Creando LoginView...")
+        self.login_view = LoginView(self.auth_service)
+        print("DEBUG: LoginView creado")
+        
+        print("DEBUG: Conectando signal...")
+        self.login_view.login_success.connect(self.on_login_success)
+        print("DEBUG: Signal conectado")
+        
+        print("DEBUG: Añadiendo LoginView al stack...")
+        self.stack.addWidget(self.login_view)
+        self.stack.setCurrentWidget(self.login_view)
+        print("DEBUG: setup_initial_view completado")
+
+    def on_login_success(self, user):
+        """Transición del Login a la App principal."""
+        self.setup_app_ui(user)
+
+    def setup_app_ui(self, user):
+        # Limpiar el widget actual para reconstruir con el Sidebar
+        app_widget = QWidget()
+        app_layout = QHBoxLayout(app_widget)
+        app_layout.setContentsMargins(0, 0, 0, 0)
+        app_layout.setSpacing(0)
 
         self.sidebar = Sidebar()
-        main_layout.addWidget(self.sidebar)
+        app_layout.addWidget(self.sidebar)
 
         self.views_container = QStackedWidget()
         self.views_container.setContentsMargins(12, 12, 12, 12)
         
-        # 1. CREACIÓN DE DEPENDENCIAS (Inversión de Dependencias)
-        # Asumimos que self.repository tiene acceso a la ruta de la BD (db_path)
+        # 1. CREACIÓN DE DEPENDENCIAS
         sales_repo = SQLiteSalesRepository(self.repository.db_path)
         
-        # 0. Dashboard (Ahora inyectamos el sales_repo correctamente)
+        # Vistas
         self.dashboard_view = DashboardView(self.repository, sales_repo)
         self.views_container.addWidget(self.dashboard_view)
         
-        # 1. Registro de Producto (Formulario)
         self.inventory_view = InventoryView(self.repository)
         self.views_container.addWidget(self.inventory_view)
         
-        # 2. Punto de Venta (Ensamblado e Inyección)
         pos_service = POSService(
             product_repo=self.repository,
             sales_repo=sales_repo,
             tax_rate=0.15
         )
         self.views_container.addWidget(POSView(pos_service))
-        
-        # 3. Catálogo (Tabla Exclusiva)
         self.views_container.addWidget(CatalogView(self.repository))
 
-        main_layout.addWidget(self.views_container, 1)
+        app_layout.addWidget(self.views_container, 1)
+
+        # Restricciones por Rol
+        if user.role.lower() != "admin":
+            # Si no es admin, ocultar el botón de Inventario en el Sidebar (asumiendo que es el índice 1)
+            # Nota: Esto depende de cómo maneje el Sidebar los índices. 
+            # Como ejemplo, deshabilitamos el acceso a gestión de inventario.
+            pass
 
         # Conectar el sidebar
         self.sidebar.view_changed.connect(self.views_container.setCurrentIndex)
-        
-        # Refrescar vistas cuando cambian
         self.views_container.currentChanged.connect(self.on_view_changed)
+
+        # Agregar el widget principal de la app al stack y mostrarlo
+        self.stack.addWidget(app_widget)
+        self.stack.setCurrentWidget(app_widget)
         
-        # Forzar la carga inicial
         self.on_view_changed(0)
 
     def on_view_changed(self, index: int):

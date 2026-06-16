@@ -13,8 +13,9 @@ class Palette:
     Surface_Strong  = "#f1f5fb"
     Text            = "#1f2a37"
     Muted           = "#6d7a8d"
-    Primary         = "#79a5ec"
-    Primary_Strong  = "#2f6ad8"
+    Primary         = "#3B82F6" # Azul principal moderno
+    Primary_Strong  = "#2563EB"
+    Primary_Light   = "#60A5FA" # Añadido para branding
     Danger          = "#ef4444"
     Success         = "#10b981"
     Warning         = "#f59e0b"
