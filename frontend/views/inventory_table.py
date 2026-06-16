@@ -1,3 +1,5 @@
+# frontend\views\inventory_table.py
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QComboBox, QTableWidget, QTableWidgetItem, QHeaderView, 
@@ -5,7 +7,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
-from frontend.styles import LAYOUT, STYLES, Palette
+
+# Eliminamos STYLES, solo importamos LAYOUT y Palette
+from frontend.styles import LAYOUT, Palette
 from frontend.utils import get_icon_colored
 from frontend.components.toast_alert import ToastNotification
 
@@ -93,19 +97,17 @@ class InventoryTableTab(QWidget):
             actions_layout.setSpacing(8)
 
             btn_edit = QPushButton()
-            # Usando otro color de tu Paleta (ej. Warning/Precaución)
             btn_edit.setIcon(get_icon_colored("edit.svg", Palette.Warning, 18))
-
-            # O usando un color Hexadecimal directo (ej. un tono morado)
-            btn_edit.setIcon(get_icon_colored("edit.svg", "#8E44AD", 18))
             btn_edit.setToolTip("Editar Producto")
-            btn_edit.setStyleSheet(STYLES["btn_icon_ghost"])
+            # Aplicamos el nuevo rol transparente ("ghost")
+            btn_edit.setProperty("role", "action_ghost")
             btn_edit.clicked.connect(lambda _, pid=prod.id: self.edit_requested.emit(pid))
 
             btn_delete = QPushButton()
             btn_delete.setIcon(get_icon_colored("trash.svg", Palette.Danger, 18))
             btn_delete.setToolTip("Eliminar Producto")
-            btn_delete.setStyleSheet(STYLES["btn_icon_ghost"])
+            # Aplicamos el nuevo rol transparente ("ghost")
+            btn_delete.setProperty("role", "action_ghost")
             btn_delete.clicked.connect(lambda _, pid=prod.id, pname=prod.name: self.confirm_delete(pid, pname))
 
             actions_layout.addWidget(btn_edit)

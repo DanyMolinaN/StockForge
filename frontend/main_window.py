@@ -1,12 +1,12 @@
 # frontend/main_window.py
 
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget, QLabel
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from backend.repositories.product_repo import ProductRepository
 
 # 1. Importamos las dependencias necesarias para ensamblar el servicio
 from backend.repositories.sale_repo import SQLiteSalesRepository
-from backend.api.pos_routes import POSService
 
+from backend.services.pos_service import POSService
 from frontend.styles import get_sheet
 from frontend.components.sidebar import Sidebar
 from frontend.views.inventory_view import InventoryView
@@ -71,11 +71,9 @@ class MainWindow(QWidget):
 
         self.views_container = QStackedWidget()
         self.views_container.setContentsMargins(12, 12, 12, 12)
-        
-        # 1. CREACIÓN DE DEPENDENCIAS
-        sales_repo = SQLiteSalesRepository(self.repository.db_path)
-        
-        # Vistas
+
+        sales_repo = SQLiteSalesRepository(self.repository.db_manager)
+
         self.dashboard_view = DashboardView(self.repository, sales_repo)
         self.views_container.addWidget(self.dashboard_view)
         
@@ -92,18 +90,12 @@ class MainWindow(QWidget):
 
         app_layout.addWidget(self.views_container, 1)
 
-        # Restricciones por Rol
         if user.role.lower() != "admin":
-            # Si no es admin, ocultar el botón de Inventario en el Sidebar (asumiendo que es el índice 1)
-            # Nota: Esto depende de cómo maneje el Sidebar los índices. 
-            # Como ejemplo, deshabilitamos el acceso a gestión de inventario.
             pass
 
-        # Conectar el sidebar
         self.sidebar.view_changed.connect(self.views_container.setCurrentIndex)
         self.views_container.currentChanged.connect(self.on_view_changed)
 
-        # Agregar el widget principal de la app al stack y mostrarlo
         self.stack.addWidget(app_widget)
         self.stack.setCurrentWidget(app_widget)
         
@@ -112,8 +104,6 @@ class MainWindow(QWidget):
     def on_view_changed(self, index: int):
         """Disparador inteligente para refrescar datos según la vista activa."""
         if index == 0:
-            # Si el usuario entra al Dashboard, actualizamos las alertas
             self.dashboard_view.refresh_data()
         elif index == 1:
-            # Opcional: Si vuelve al inventario, podemos refrescar su tabla también
             self.inventory_view.reload_inventory()

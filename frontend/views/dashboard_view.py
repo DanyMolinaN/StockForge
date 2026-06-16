@@ -7,7 +7,9 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
-from frontend.styles import STYLES, Palette
+
+# Importamos solo Palette, STYLES ya no existe
+from frontend.styles import Palette
 from backend.services.inventory_service import InventoryService
 from frontend.utils import get_icon_colored
 
@@ -15,7 +17,9 @@ class KPICard(QFrame):
     """Componente reutilizable para métricas clave (Aplicación de DRY y Alta Cohesión)"""
     def __init__(self, title: str, icon_name: str, color: str):
         super().__init__()
-        self.setStyleSheet(STYLES["card"])
+        # 1. Aplicamos el rol de tarjeta
+        self.setProperty("role", "card")
+        
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         
@@ -28,9 +32,13 @@ class KPICard(QFrame):
         # Textos (Valor y Título)
         text_layout = QVBoxLayout()
         text_layout.setSpacing(2)
-        self.lbl_value = QLabel("0", objectName="h1")
-        self.lbl_value.setStyleSheet(f"color: {color}; font-size: 24px;")
-        lbl_title = QLabel(title, objectName="normal")
+        
+        self.lbl_value = QLabel("0")
+        # Estilo en línea justificado aquí porque el color depende del parámetro dinámico
+        self.lbl_value.setStyleSheet(f"color: {color}; font-size: 28px; font-weight: bold;") 
+        
+        lbl_title = QLabel(title)
+        lbl_title.setProperty("role", "subtitle")
         
         text_layout.addWidget(self.lbl_value)
         text_layout.addWidget(lbl_title)
@@ -45,7 +53,7 @@ class DashboardView(QWidget):
     def __init__(self, product_repo, sales_repo=None):
         super().__init__()
         self.inventory_service = InventoryService(product_repo)
-        self.sales_repo = sales_repo  # Inyectado opcionalmente para evitar romper código existente
+        self.sales_repo = sales_repo  
         self.setup_ui()
 
     def setup_ui(self):
@@ -55,10 +63,6 @@ class DashboardView(QWidget):
         
         main_layout.addWidget(self._build_header())
         main_layout.addWidget(self._build_kpi_section())
-        
-        # CORRECCIÓN: Eliminamos el QHBoxLayout. 
-        # Al añadir las secciones directamente al main_layout (que es vertical),
-        # cada componente tomará automáticamente su propia fila de ancho completo.
         main_layout.addWidget(self._build_alerts_section(), 1)
         main_layout.addWidget(self._build_sales_chart_section(), 1)
 
@@ -66,7 +70,11 @@ class DashboardView(QWidget):
         header = QWidget()
         layout = QHBoxLayout(header)
         layout.setContentsMargins(16, 16, 16, 0)
-        layout.addWidget(QLabel("Dashboard Principal", objectName="h1"))
+        
+        lbl_title = QLabel("Dashboard Principal")
+        lbl_title.setProperty("role", "title")
+        layout.addWidget(lbl_title)
+        
         layout.addStretch()
         return header
 
@@ -76,7 +84,6 @@ class DashboardView(QWidget):
         layout.setContentsMargins(16, 0, 16, 0)
         layout.setSpacing(16)
 
-        # Reutilización del componente KPICard (DRY)
         self.kpi_products = KPICard("Total Productos", "box.svg", Palette.Primary)
         self.kpi_alerts = KPICard("Alertas de Stock", "warning.svg", Palette.Danger)
         self.kpi_sales = KPICard("Ventas Históricas", "shopping-cart.svg", Palette.Success)
@@ -89,12 +96,15 @@ class DashboardView(QWidget):
 
     def _build_alerts_section(self) -> QFrame:
         panel = QFrame()
-        panel.setObjectName("panel")
-        panel.setStyleSheet(STYLES["card"])
+        panel.setProperty("role", "card")
+        
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(16, 16, 16, 16)
         
-        layout.addWidget(QLabel("Productos que requieren reabastecimiento", objectName="h2"))
+        lbl_section = QLabel("Productos que requieren reabastecimiento")
+        lbl_section.setProperty("role", "section")
+        layout.addWidget(lbl_section)
+        
         layout.addSpacing(12)
 
         self.table = QTableWidget(0, 5)
@@ -117,19 +127,21 @@ class DashboardView(QWidget):
         return panel
 
     def _build_sales_chart_section(self) -> QFrame:
-        """Nuevo módulo altamente cohesivo exclusivo para estructurar el gráfico."""
         panel = QFrame()
-        panel.setObjectName("panel")
-        panel.setStyleSheet(STYLES["card"])
+        panel.setProperty("role", "card")
+        
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(16, 16, 16, 16)
         
-        layout.addWidget(QLabel("Ventas de los Últimos 7 Días", objectName="h2"))
+        lbl_section = QLabel("Ventas de los Últimos 7 Días")
+        lbl_section.setProperty("role", "section")
+        layout.addWidget(lbl_section)
+        
         layout.addSpacing(12)
 
         self.chart_view = QChartView()
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.chart_view.setStyleSheet("background: transparent;") # Mantiene la consistencia del tema
+        self.chart_view.setStyleSheet("background: transparent;") 
         
         layout.addWidget(self.chart_view)
         return panel
@@ -158,15 +170,13 @@ class DashboardView(QWidget):
         if self.sales_repo:
             sales_list = self.sales_repo.get_sales()
             self.kpi_sales.set_value(str(len(sales_list) if sales_list else 0))
-            
-            # 3. Refrescar Gráfico
             self._update_sales_chart()
 
     def _update_sales_chart(self):
-        """Consume el historial y actualiza el QChart (Inversión de Dependencias)."""
-        if not hasattr(self.sales_repo, 'get_sales_history'): return
+        # 2. CORRECCIÓN ARQUITECTÓNICA: Ajuste al nuevo método del repositorio (get_sales_history_raw)
+        if not hasattr(self.sales_repo, 'get_sales_history_raw'): return
         
-        history = self.sales_repo.get_sales_history()
+        history = self.sales_repo.get_sales_history_raw()
         if not history: return
         
         series = QBarSeries()
@@ -176,9 +186,10 @@ class DashboardView(QWidget):
         categories = []
         max_value = 0
         
-        for item in history:
-            categories.append(item["fecha"])
-            val = float(item["total"])
+        # Ahora el historial desempaqueta las tuplas directamente
+        for fecha, total in history:
+            categories.append(fecha)
+            val = float(total)
             bar_set.append(val)
             if val > max_value: max_value = val
             
@@ -190,15 +201,13 @@ class DashboardView(QWidget):
         chart.legend().setVisible(False)
         chart.setBackgroundVisible(False)
         
-        # Configuración de Eje X (Fechas)
         axisX = QBarCategoryAxis()
         axisX.append(categories)
         chart.addAxis(axisX, Qt.AlignmentFlag.AlignBottom)
         series.attachAxis(axisX)
         
-        # Configuración de Eje Y (Valores)
         axisY = QValueAxis()
-        axisY.setRange(0, max_value * 1.2) # 20% de aire visual en la parte superior
+        axisY.setRange(0, max_value * 1.2) 
         axisY.setLabelFormat("$%.0f")
         chart.addAxis(axisY, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(axisY)

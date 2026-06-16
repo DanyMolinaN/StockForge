@@ -1,3 +1,5 @@
+#frontend\views\inventory_form.py
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit,
     QDoubleSpinBox, QSpinBox, QPushButton, QFrame,
@@ -5,12 +7,12 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QDate, Qt, Signal
 import random
-from backend.models.product import Product
-from frontend.styles import LAYOUT, STYLES
+from backend.models.product_model import Product
+from frontend.styles import LAYOUT
 from frontend.components.toast_alert import ToastNotification
 
 class InventoryFormTab(QWidget):
-    product_saved = Signal() # Señal para avisarle a la tabla que debe recargarse
+    product_saved = Signal()
 
     def __init__(self, service):
         super().__init__()
@@ -23,7 +25,9 @@ class InventoryFormTab(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
 
         form_container = QFrame()
-        form_container.setStyleSheet(STYLES["card"])
+        # 1. Aplicación de rol para contenedores
+        form_container.setProperty("role", "card")
+        
         admin_layout = QVBoxLayout(form_container)
         admin_layout.setSpacing(LAYOUT["space_01"])
 
@@ -34,7 +38,9 @@ class InventoryFormTab(QWidget):
         self.input_category = QComboBox()
         self.input_category.setEditable(True)
         self.btn_add_category = QPushButton("Agregar categoría")
-        self.btn_add_category.setStyleSheet(STYLES["btn_outlined"])
+        
+        # 2. Aplicación de roles para botones secundarios
+        self.btn_add_category.setProperty("role", "action_outlined")
         self.btn_add_category.clicked.connect(self.add_category)
         
         self.input_name = QLineEdit(placeholderText="Nombre del producto...")
@@ -42,8 +48,9 @@ class InventoryFormTab(QWidget):
         sku_row = QHBoxLayout()
         self.input_sku = QLineEdit(placeholderText="SKU de inventario")
         btn_gen = QPushButton("Autogenerar")
-        btn_gen.setStyleSheet(STYLES["btn_outlined"])
+        btn_gen.setProperty("role", "action_outlined")
         btn_gen.clicked.connect(self.generate_sku)
+        
         sku_row.addWidget(self.input_sku)
         sku_row.addWidget(btn_gen)
         
@@ -63,7 +70,7 @@ class InventoryFormTab(QWidget):
         self.input_supplier = QComboBox()
         self.input_supplier.setEditable(True)
         self.btn_add_supplier = QPushButton("Agregar proveedor")
-        self.btn_add_supplier.setStyleSheet(STYLES["btn_outlined"])
+        self.btn_add_supplier.setProperty("role", "action_outlined")
         self.btn_add_supplier.clicked.connect(self.add_supplier)
         
         exp_layout = QHBoxLayout()
@@ -72,6 +79,7 @@ class InventoryFormTab(QWidget):
         self.input_date.setEnabled(False)
         self.input_date.setCalendarPopup(True)
         self.check_exp.toggled.connect(self.input_date.setEnabled)
+        
         exp_layout.addWidget(self.check_exp)
         exp_layout.addWidget(self.input_date)
         
@@ -85,9 +93,11 @@ class InventoryFormTab(QWidget):
         group_custom = QGroupBox("Valores y Personalización")
         custom_layout = QVBoxLayout(group_custom)
         val_row = QHBoxLayout()
+        
         self.input_price = QDoubleSpinBox(prefix="$ ", maximum=999999.99)
         self.input_stock = QSpinBox(maximum=999999)
         self.input_min_stock = QSpinBox(maximum=999999)
+        
         val_row.addWidget(QLabel("Precio:"))
         val_row.addWidget(self.input_price)
         val_row.addWidget(QLabel("Stock:"))
@@ -104,12 +114,15 @@ class InventoryFormTab(QWidget):
         # Acciones
         action_row = QHBoxLayout()
         self.btn_save = QPushButton("Registrar en Inventario")
-        self.btn_save.setStyleSheet(STYLES["btn_primary"])
+        
+        # 3. Aplicación de roles para botones principales de acción
+        self.btn_save.setProperty("role", "action_accent")
         self.btn_save.clicked.connect(self.save_product)
         
         self.btn_clear = QPushButton("Limpiar formulario")
-        self.btn_clear.setStyleSheet(STYLES["btn_outlined"])
+        self.btn_clear.setProperty("role", "action_outlined")
         self.btn_clear.clicked.connect(self.clear_form)
+        
         action_row.addWidget(self.btn_clear)
         action_row.addWidget(self.btn_save)
         admin_layout.addLayout(action_row)
@@ -119,6 +132,7 @@ class InventoryFormTab(QWidget):
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setWidget(form_container)
         layout.addWidget(scroll_area)
+        
         self.update_comboboxes()
 
     def update_comboboxes(self):
@@ -131,26 +145,35 @@ class InventoryFormTab(QWidget):
 
     def add_category(self):
         text, ok = QInputDialog.getText(self, "Nueva", "Categoría:")
-        if ok and text: self.input_category.addItem(text.strip()); self.input_category.setCurrentText(text.strip())
+        if ok and text: 
+            self.input_category.addItem(text.strip())
+            self.input_category.setCurrentText(text.strip())
 
     def add_supplier(self):
         text, ok = QInputDialog.getText(self, "Nuevo", "Proveedor:")
-        if ok and text: self.input_supplier.addItem(text.strip()); self.input_supplier.setCurrentText(text.strip())
+        if ok and text: 
+            self.input_supplier.addItem(text.strip())
+            self.input_supplier.setCurrentText(text.strip())
 
     def generate_sku(self):
         cat = self.input_category.currentText()[:3].upper()
         name = self.input_name.text()[:3].upper()
-        if cat and name: self.input_sku.setText(f"{cat}-{name}-{random.randint(1000, 9999)}")
+        if cat and name: 
+            self.input_sku.setText(f"{cat}-{name}-{random.randint(1000, 9999)}")
 
     def save_product(self):
         try:
             attrs = self.service.parse_attributes(self.input_attr.text())
             product = Product(
-                name=self.input_name.text().strip(), sku=self.input_sku.text().strip(),
-                price=self.input_price.value(), stock=self.input_stock.value(),
-                category=self.input_category.currentText().strip(), supplier=self.input_supplier.currentText().strip(),
+                name=self.input_name.text().strip(), 
+                sku=self.input_sku.text().strip(),
+                price=self.input_price.value(), 
+                stock=self.input_stock.value(),
+                category=self.input_category.currentText().strip(), 
+                supplier=self.input_supplier.currentText().strip(),
                 expiration_date=self.input_date.date().toString(Qt.ISODate) if self.check_exp.isChecked() else None,
-                attributes=attrs, min_stock=self.input_min_stock.value(),
+                attributes=attrs, 
+                min_stock=self.input_min_stock.value(),
                 id=self.editing_product.id if self.editing_product else None
             )
             
@@ -162,7 +185,7 @@ class InventoryFormTab(QWidget):
                 ToastNotification(self.window(), "Éxito", "Registrado.", "success").show_toast()
             
             self.clear_form()
-            self.product_saved.emit() # Avisamos al orquestador que hubo cambios
+            self.product_saved.emit() 
         except Exception as e:
             ToastNotification(self.window(), "Error", str(e), "error").show_toast()
 
@@ -178,7 +201,10 @@ class InventoryFormTab(QWidget):
             self.input_min_stock.setValue(product.min_stock)
             self.input_supplier.setCurrentText(product.supplier)
             self.check_exp.setChecked(bool(product.expiration_date))
-            if product.expiration_date: self.input_date.setDate(QDate.fromString(product.expiration_date, Qt.ISODate))
+            
+            if product.expiration_date: 
+                self.input_date.setDate(QDate.fromString(product.expiration_date, Qt.ISODate))
+            
             self.input_attr.setText(product.attributes or "")
             self.btn_save.setText("Actualizar producto")
 

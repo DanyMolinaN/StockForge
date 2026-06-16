@@ -1,15 +1,19 @@
 # backend/services/inventory_service.py
 
-import json
 from typing import List, Set
-from backend.models.product import Product
+from backend.models.product_model import Product
 from backend.repositories.product_repo import ProductRepository
 
 DEFAULT_CATEGORIES = ["Electrónica", "Ropa", "Medicina", "Alimentos", "Ferretería"]
 DEFAULT_SUPPLIERS = ["Distribuidor Local", "Importación Directa", "Logitech", "Pfizer"]
 
 class InventoryService:
+    """
+    Servicio de dominio para la gestión de inventario.
+    Orquesta las reglas de negocio y delegaciones al repositorio.
+    """
     def __init__(self, repository: ProductRepository):
+        # Inyección de dependencias
         self.repository = repository
 
     def list_products(self) -> List[Product]:
@@ -38,7 +42,7 @@ class InventoryService:
         return self.repository.update(product)
 
     def _validate_product(self, product: Product) -> None:
-        """Validaciones de integridad de negocio."""
+        """Validaciones de integridad de negocio puras."""
         if not product.name.strip():
             raise ValueError("El nombre del producto es obligatorio.")
         if not product.sku.strip():
@@ -51,19 +55,8 @@ class InventoryService:
             raise ValueError("El precio debe ser mayor a cero.")
         if product.stock < 0:
             raise ValueError("El stock no puede ser negativo.")
-        if product.min_stock < 0: # NUEVA VALIDACIÓN
+        if product.min_stock < 0:
             raise ValueError("El stock mínimo no puede ser negativo.")
-
-    def parse_attributes(self, attribute_text: str) -> str:
-        """Convierte texto plano de atributos a formato JSON para la DB."""
-        attrs = {}
-        for pair in attribute_text.split(","):
-            if ":" in pair:
-                key, value = pair.split(":", 1)
-                key, value = key.strip(), value.strip()
-                if key and value:
-                    attrs[key] = value
-        return json.dumps(attrs)
 
     def get_category_suggestions(self) -> List[str]:
         categories: Set[str] = set(DEFAULT_CATEGORIES)
@@ -80,7 +73,7 @@ class InventoryService:
         return sorted(suppliers)
     
     def get_low_stock_alerts(self) -> List[Product]:
-        """Retorna la lista de productos en estado crítico de stock."""
+        """Delega la búsqueda de productos críticos al repositorio."""
         return self.repository.get_low_stock_products()
     
     def delete_product(self, product_id: int) -> None:

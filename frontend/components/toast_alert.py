@@ -1,11 +1,13 @@
-# frontend/toast_alert.py
+# frontend/components/toast_alert.py
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QGraphicsOpacityEffect, QPushButton)
 from PySide6.QtCore import (Qt, QPropertyAnimation, Property, 
                           QRectF, QPoint, QEvent, QEasingCurve)
 from PySide6.QtGui import QColor, QPainter, QPainterPath
-from frontend.styles import LAYOUT, STYLES, Palette
+
+# Eliminamos STYLES, solo mantenemos LAYOUT y Palette
+from frontend.styles import LAYOUT, Palette
 from frontend.utils import get_icon_colored
 
 TOAST_CONFIG = {
@@ -18,7 +20,7 @@ TOAST_CONFIG = {
     "types": {
         "success": {"color": Palette.Success, "icon": "circle-check.svg"},
         "error":   {"color": Palette.Danger,  "icon": "error.svg"},
-        "warning": {"color": Palette.status_warning, "icon": "warning.svg"},
+        "warning": {"color": Palette.Warning, "icon": "warning.svg"},
         "info":    {"color": Palette.Primary, "icon": "info.svg"}
     }
 }
@@ -73,7 +75,6 @@ class ToastNotification(QWidget):
         main_layout.addWidget(ToastIcon(self.tipo, self), 0, Qt.AlignmentFlag.AlignTop)
 
         text_container = QWidget()
-        # FIX: Limpiamos los parches de 'border: none'
         text_container.setStyleSheet("background: transparent;")
         text_layout = QVBoxLayout(text_container)
         text_layout.setContentsMargins(0, 0, 0, 0)
@@ -92,7 +93,10 @@ class ToastNotification(QWidget):
         btn_close = QPushButton("✕")
         btn_close.setFixedSize(20, 20)
         btn_close.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_close.setStyleSheet(STYLES["btn_icon_ghost"])
+        
+        # Aplicación estricta de SoR mediante sistema de roles
+        btn_close.setProperty("role", "action_ghost")
+        
         btn_close.clicked.connect(self.close_toast)
         main_layout.addWidget(btn_close, 0, Qt.AlignmentFlag.AlignTop)
 

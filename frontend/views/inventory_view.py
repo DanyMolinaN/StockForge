@@ -3,7 +3,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget
 from backend.services.inventory_service import InventoryService
 
-# Importamos las piezas que acabamos de crear (asegúrate de que las rutas coincidan con donde las guardes)
 from frontend.views.inventory_table import InventoryTableTab
 from frontend.views.inventory_form import InventoryFormTab
 
@@ -20,7 +19,12 @@ class InventoryView(QWidget):
         # Header
         header_layout = QHBoxLayout()
         header_layout.setContentsMargins(16, 16, 16, 0)
-        header_layout.addWidget(QLabel("Gestión de Inventario", objectName="h1"))
+        
+        # Aplicación del nuevo rol de tema para el título principal
+        lbl_title = QLabel("Gestión de Inventario")
+        lbl_title.setProperty("role", "title")
+        header_layout.addWidget(lbl_title)
+        
         header_layout.addStretch()
         outer_layout.addLayout(header_layout)
 
@@ -50,11 +54,11 @@ class InventoryView(QWidget):
 
     def _handle_edit_request(self, product_id: int):
         self.tab_form.load_product_for_edit(product_id)
-        self.tabs.setCurrentIndex(1) # Cambia a la pestaña del formulario
+        self.tabs.setCurrentIndex(1)
 
     def _handle_product_saved(self):
         self.tab_table.reload_data()
-        self.tabs.setCurrentIndex(0) # Regresa a la lista
+        self.tabs.setCurrentIndex(0)
         
     def reload_inventory(self):
         """Punto de entrada externo (ej. llamado desde main_window al cambiar vistas)"""

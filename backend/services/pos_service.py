@@ -2,74 +2,29 @@
 
 import random
 from datetime import datetime
-from dataclasses import dataclass
-from typing import List, Dict
+from typing import List
 
-from backend.models.product import Product
-from backend.models.sale import Sale, SaleItem
+from backend.models.product_model import Product
+from backend.models.sale_model import Sale, SaleItem
+from backend.models.cart_model import ShoppingCart
 from backend.repositories.product_repo import ProductRepository
 from backend.repositories.sale_repo import SalesRepository
 
-@dataclass
-class POSCartItem:
-    """Representación temporal de un item en el carrito."""
-    producto_id: int
-    nombre: str
-    sku: str
-    cantidad: int
-    precio_unitario: float
-    subtotal: float
-
-    def update_quantity(self, nuevo_valor: int) -> None:
-        self.cantidad = max(1, nuevo_valor)
-        self.subtotal = round(self.cantidad * self.precio_unitario, 2)
-
-class ShoppingCart:
-    """Lógica de gestión de items en memoria durante una venta."""
-    def __init__(self):
-        self._items: Dict[int, POSCartItem] = {}
-
-    def add_product(self, product: Product, quantity: int = 1) -> None:
-        if product.id in self._items:
-            self._items[product.id].update_quantity(self._items[product.id].cantidad + quantity)
-        else:
-            self._items[product.id] = POSCartItem(
-                producto_id=product.id,
-                nombre=product.name,
-                sku=product.sku,
-                cantidad=max(1, quantity),
-                precio_unitario=product.price,
-                subtotal=round(product.price * max(1, quantity), 2)
-            )
-
-    def set_quantity(self, product_id: int, quantity: int) -> None:
-        if product_id in self._items:
-            if quantity <= 0:
-                self.remove_product(product_id)
-            else:
-                self._items[product_id].update_quantity(quantity)
-
-    def remove_product(self, product_id: int) -> None:
-        self._items.pop(product_id, None)
-
-    def clear(self) -> None:
-        self._items.clear()
-
-    def items(self) -> List[POSCartItem]:
-        return list(self._items.values())
-
-    @property
-    def subtotal(self) -> float:
-        return round(sum(item.subtotal for item in self._items.values()), 2)
-
 class POSService:
+    """
+    Servicio de dominio que orquesta las operaciones del Punto de Venta (POS).
+    Coordina el estado del carrito, las validaciones de inventario y el registro de ventas.
+    """
     def __init__(self, product_repo: ProductRepository, sales_repo: SalesRepository, tax_rate: float = 0.15):
+        # Inyección de dependencias
         self.product_repo = product_repo
         self.sales_repo = sales_repo
         self.tax_rate = tax_rate
+        # Instanciamos el modelo de dominio para el carrito
         self.cart = ShoppingCart()
 
     def search_products(self, term: str) -> List[Product]:
+        """Delega la búsqueda al repositorio de productos."""
         return self.product_repo.search_products(term) if term.strip() else []
 
     def add_to_cart(self, product_id: int, quantity: int = 1) -> None:
@@ -77,7 +32,7 @@ class POSService:
         if not product:
             raise ValueError("El producto no existe.")
         
-        # Validar stock disponible
+        # Validar stock disponible considerando lo que ya está en el carrito
         current_in_cart = 0
         item_in_cart = next((i for i in self.cart.items() if i.producto_id == product_id), None)
         if item_in_cart:
@@ -132,13 +87,19 @@ class POSService:
             ]
         )
 
-        # Actualizar stock y guardar venta
+        # Actualizar stock en la base de datos
         for item in venta.items:
             product = self.product_repo.get_by_id(item.producto_id)
+            if not product:
+                raise ValueError(f"Producto {item.nombre} no encontrado durante la confirmación.")
             self.product_repo.update_stock(item.producto_id, product.stock - item.cantidad)
 
+        # Persistir la venta
         saved_sale = self.sales_repo.save_sale(venta)
+        
+        # Limpiar el estado de la memoria
         self.cart.clear()
+        
         return saved_sale
 
     def _generate_sale_number(self) -> str:

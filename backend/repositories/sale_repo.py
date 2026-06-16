@@ -1,9 +1,9 @@
 # backend/repositories/sale_repo.py
 
-import sqlite3
 from abc import ABC, abstractmethod
-from typing import List
-from backend.models.sale import Sale, SaleItem
+from typing import List, Tuple
+from backend.models.sale_model import Sale, SaleItem
+from backend.core.database import DatabaseManager
 
 # ==========================================
 # 1. INTERFAZ ABSTRACTA (Dependency Inversion)
@@ -15,46 +15,19 @@ class SalesRepository(ABC):
     @abstractmethod
     def get_sales(self) -> List[Sale]: pass
 
+    @abstractmethod
+    def get_sales_history_raw(self) -> List[Tuple[str, float]]: pass
+
 # ==========================================
 # 2. IMPLEMENTACIÓN SQLITE
 # ==========================================
 class SQLiteSalesRepository(SalesRepository):
-    def __init__(self, db_path: str = "stockforge.db"):
-        self.db_path = db_path
-        self._init_db()
-
-    def _get_connection(self):
-        return sqlite3.connect(self.db_path)
-
-    def _init_db(self):
-        with self._get_connection() as conn:
-            conn.execute('''
-                CREATE TABLE IF NOT EXISTS sales (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    numero_venta TEXT NOT NULL UNIQUE,
-                    fecha TEXT NOT NULL,
-                    usuario_id INTEGER NOT NULL,
-                    subtotal REAL NOT NULL,
-                    impuesto REAL NOT NULL,
-                    total REAL NOT NULL,
-                    metodo_pago TEXT NOT NULL,
-                    estado TEXT NOT NULL
-                )
-            ''')
-            conn.execute('''
-                CREATE TABLE IF NOT EXISTS sale_items (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    venta_id INTEGER NOT NULL,
-                    producto_id INTEGER NOT NULL,
-                    cantidad INTEGER NOT NULL,
-                    precio_unitario REAL NOT NULL,
-                    subtotal REAL NOT NULL,
-                    FOREIGN KEY(venta_id) REFERENCES sales(id)
-                )
-            ''')
+    def __init__(self, db_manager: DatabaseManager):
+        # Inyección de dependencias
+        self.db_manager = db_manager
 
     def save_sale(self, sale: Sale) -> Sale:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO sales (numero_venta, fecha, usuario_id, subtotal, impuesto, total, metodo_pago, estado) "
@@ -73,7 +46,7 @@ class SQLiteSalesRepository(SalesRepository):
         return sale
 
     def get_sales(self) -> List[Sale]:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT id, numero_venta, fecha, usuario_id, subtotal, impuesto, total, metodo_pago, estado FROM sales ORDER BY fecha DESC")
             sale_rows = cursor.fetchall()
@@ -102,11 +75,13 @@ class SQLiteSalesRepository(SalesRepository):
                 ))
         return sales
     
-    def get_sales_history(self) -> List[dict]:
-        """Obtiene las ventas agrupadas por día (Últimos 7 días activos)."""
-        with self._get_connection() as conn:
+    def get_sales_history_raw(self) -> List[Tuple[str, float]]:
+        """
+        Obtiene el histórico agrupado por día (Últimos 7 días activos).
+        Devuelve tuplas puras de datos (fecha, total_venta).
+        """
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
-            # Se extrae la porción YYYY-MM-DD de la fecha ISO
             cursor.execute('''
                 SELECT substr(fecha, 1, 10) as dia, SUM(total) as total_venta 
                 FROM sales 
@@ -114,5 +89,4 @@ class SQLiteSalesRepository(SalesRepository):
                 ORDER BY dia DESC 
                 LIMIT 7
             ''')
-            # Se invierte la lista para graficar cronológicamente de izquierda a derecha
-            return [{"fecha": row[0], "total": row[1]} for row in reversed(cursor.fetchall())]
+            return [(row[0], row[1]) for row in cursor.fetchall()]

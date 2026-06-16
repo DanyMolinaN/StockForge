@@ -1,11 +1,14 @@
-# app/backend/models/sale.py
+# backend/models/sale_model.py
 
 from dataclasses import dataclass, field
 from typing import List, Optional
 
 @dataclass
 class SaleItem:
-    """Entidad de valor que representa una línea de detalle en una venta."""
+    """
+    Objeto de valor que representa una línea de detalle específica 
+    dentro de una transacción de venta.
+    """
     producto_id: int
     nombre: str
     sku: str
@@ -15,7 +18,10 @@ class SaleItem:
 
 @dataclass
 class Sale:
-    """Entidad principal (Agregado) del dominio de Punto de Venta."""
+    """
+    Entidad principal (Agregado) que representa una venta consolidada 
+    en el Punto de Venta.
+    """
     numero_venta: str
     fecha: str
     usuario_id: int

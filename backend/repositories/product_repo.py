@@ -1,9 +1,9 @@
 # backend/repositories/product_repo.py
 
-import sqlite3
 from abc import ABC, abstractmethod
 from typing import List, Optional
-from backend.models.product import Product
+from backend.models.product_model import Product
+from backend.core.database import DatabaseManager
 
 # ==========================================
 # 1. INTERFAZ ABSTRACTA (Dependency Inversion)
@@ -33,6 +33,9 @@ class ProductRepository(ABC):
     @abstractmethod
     def get_low_stock_products(self) -> List[Product]: pass
 
+    @abstractmethod
+    def delete(self, product_id: int) -> None: pass
+
 # ==========================================
 # 2. IMPLEMENTACIÓN SQLITE
 # ==========================================
@@ -43,49 +46,9 @@ class SQLiteProductRepository(ProductRepository):
         FROM products
     """
 
-    def __init__(self, db_path: str = "stockforge.db"):
-        self.db_path = db_path
-        self._init_db()
-
-    def _get_connection(self):
-        return sqlite3.connect(self.db_path)
-
-    def _init_db(self):
-        """Inicializa y auto-migra la estructura de la base de datos."""
-        with self._get_connection() as conn:
-            # 1. Creación de la tabla base (si no existe)
-            conn.execute('''
-                CREATE TABLE IF NOT EXISTS products (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    sku TEXT NOT NULL UNIQUE,
-                    price REAL NOT NULL,
-                    stock INTEGER NOT NULL,
-                    category TEXT NOT NULL,
-                    supplier TEXT NOT NULL,
-                    expiration_date TEXT,
-                    attributes TEXT NOT NULL
-                )
-            ''')
-            
-            # 2. Auto-Migración Ligera: Agrega columnas nuevas si no existen
-            self._ensure_schema_updated(conn)
-
-    def _ensure_schema_updated(self, conn: sqlite3.Connection):
-        """Verifica las columnas existentes y añade las faltantes dinámicamente."""
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(products)")
-        existing_columns = {row[1] for row in cursor.fetchall()}
-
-        # Diccionario de evolución de esquema: {"nombre_columna": "DEFINICIÓN SQL"}
-        # Si decides agregar nuevas columnas en el futuro, solo añádelas a este diccionario.
-        schema_evolution = {
-            "min_stock": "INTEGER NOT NULL DEFAULT 0"
-        }
-
-        for col_name, col_def in schema_evolution.items():
-            if col_name not in existing_columns:
-                conn.execute(f"ALTER TABLE products ADD COLUMN {col_name} {col_def}")
+    def __init__(self, db_manager: DatabaseManager):
+        # Inyección de dependencias: Recibimos el gestor, no lo creamos aquí.
+        self.db_manager = db_manager
 
     def _map_row_to_product(self, row: tuple) -> Product:
         """DRY: Centraliza la conversión de Fila SQL a Objeto Product."""
@@ -96,7 +59,7 @@ class SQLiteProductRepository(ProductRepository):
         )
 
     def add(self, product: Product) -> Product:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 INSERT INTO products (name, sku, price, stock, category, supplier, expiration_date, attributes, min_stock) 
@@ -107,13 +70,13 @@ class SQLiteProductRepository(ProductRepository):
         return product
 
     def get_all(self) -> List[Product]:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(self._SELECT_BASE)
             return [self._map_row_to_product(row) for row in cursor.fetchall()]
 
     def get_by_id(self, product_id: int) -> Optional[Product]:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(f"{self._SELECT_BASE} WHERE id = ?", (product_id,))
             row = cursor.fetchone()
@@ -121,7 +84,7 @@ class SQLiteProductRepository(ProductRepository):
         return self._map_row_to_product(row) if row else None
 
     def get_by_sku(self, sku: str) -> Optional[Product]:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(f"{self._SELECT_BASE} WHERE sku = ?", (sku,))
             row = cursor.fetchone()
@@ -131,7 +94,7 @@ class SQLiteProductRepository(ProductRepository):
     def update(self, product: Product) -> Product:
         if product.id is None:
             raise ValueError("El producto debe tener ID para actualizarse.")
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             conn.execute('''
                 UPDATE products 
                 SET name = ?, sku = ?, price = ?, stock = ?, category = ?, 
@@ -146,7 +109,7 @@ class SQLiteProductRepository(ProductRepository):
 
     def search_products(self, query: str) -> List[Product]:
         query_str = f"%{query.strip()}%"
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(f"""
                 {self._SELECT_BASE} 
@@ -155,18 +118,15 @@ class SQLiteProductRepository(ProductRepository):
             return [self._map_row_to_product(row) for row in cursor.fetchall()]
 
     def update_stock(self, product_id: int, quantity: int) -> None:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             conn.execute("UPDATE products SET stock = ? WHERE id = ?", (quantity, product_id))
     
     def get_low_stock_products(self) -> List[Product]:
-        """Obtiene productos cuyo stock actual es menor o igual al mínimo."""
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
-            # Usamos el _SELECT_BASE para mantener el principio DRY
             cursor.execute(f"{self._SELECT_BASE} WHERE stock <= min_stock")
-            # LÍNEA RESTAURADA: Necesaria para cumplir el contrato de la interfaz
             return [self._map_row_to_product(row) for row in cursor.fetchall()]
             
     def delete(self, product_id: int) -> None:
-        with self._get_connection() as conn:
+        with self.db_manager.get_connection() as conn:
             conn.execute("DELETE FROM products WHERE id = ?", (product_id,))
