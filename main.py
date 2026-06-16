@@ -1,8 +1,6 @@
 import sys
 import traceback
 from PySide6.QtWidgets import QApplication
-
-# 1. Importamos nuestro nuevo DatabaseManager
 from backend.core.database import DatabaseManager
 from backend.repositories.product_repo import SQLiteProductRepository
 from backend.repositories.user_repo import SQLiteUserRepository

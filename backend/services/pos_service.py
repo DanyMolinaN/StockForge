@@ -16,11 +16,9 @@ class POSService:
     Coordina el estado del carrito, las validaciones de inventario y el registro de ventas.
     """
     def __init__(self, product_repo: ProductRepository, sales_repo: SalesRepository, tax_rate: float = 0.15):
-        # Inyección de dependencias
         self.product_repo = product_repo
         self.sales_repo = sales_repo
         self.tax_rate = tax_rate
-        # Instanciamos el modelo de dominio para el carrito
         self.cart = ShoppingCart()
 
     def search_products(self, term: str) -> List[Product]:
@@ -31,8 +29,7 @@ class POSService:
         product = self.product_repo.get_by_id(product_id)
         if not product:
             raise ValueError("El producto no existe.")
-        
-        # Validar stock disponible considerando lo que ya está en el carrito
+
         current_in_cart = 0
         item_in_cart = next((i for i in self.cart.items() if i.producto_id == product_id), None)
         if item_in_cart:
@@ -87,17 +84,14 @@ class POSService:
             ]
         )
 
-        # Actualizar stock en la base de datos
         for item in venta.items:
             product = self.product_repo.get_by_id(item.producto_id)
             if not product:
                 raise ValueError(f"Producto {item.nombre} no encontrado durante la confirmación.")
             self.product_repo.update_stock(item.producto_id, product.stock - item.cantidad)
 
-        # Persistir la venta
         saved_sale = self.sales_repo.save_sale(venta)
         
-        # Limpiar el estado de la memoria
         self.cart.clear()
         
         return saved_sale

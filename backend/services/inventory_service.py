@@ -13,7 +13,6 @@ class InventoryService:
     Orquesta las reglas de negocio y delegaciones al repositorio.
     """
     def __init__(self, repository: ProductRepository):
-        # Inyección de dependencias
         self.repository = repository
 
     def list_products(self) -> List[Product]:

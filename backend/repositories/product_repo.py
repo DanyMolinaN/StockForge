@@ -5,9 +5,6 @@ from typing import List, Optional
 from backend.models.product_model import Product
 from backend.core.database import DatabaseManager
 
-# ==========================================
-# 1. INTERFAZ ABSTRACTA (Dependency Inversion)
-# ==========================================
 class ProductRepository(ABC):
     @abstractmethod
     def add(self, product: Product) -> Product: pass
@@ -36,18 +33,13 @@ class ProductRepository(ABC):
     @abstractmethod
     def delete(self, product_id: int) -> None: pass
 
-# ==========================================
-# 2. IMPLEMENTACIÓN SQLITE
-# ==========================================
 class SQLiteProductRepository(ProductRepository):
-    # DRY: Centralizamos la consulta base para evitar olvidar columnas en el futuro
     _SELECT_BASE = """
         SELECT id, name, sku, price, stock, category, supplier, expiration_date, attributes, min_stock 
         FROM products
     """
 
     def __init__(self, db_manager: DatabaseManager):
-        # Inyección de dependencias: Recibimos el gestor, no lo creamos aquí.
         self.db_manager = db_manager
 
     def _map_row_to_product(self, row: tuple) -> Product:

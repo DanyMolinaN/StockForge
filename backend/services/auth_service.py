@@ -8,7 +8,6 @@ from backend.repositories.user_repo import UserRepository
 class AuthService:
     """Servicio encargado de la lógica de autenticación y sesión."""
     def __init__(self, user_repo: UserRepository):
-        # Inyección de dependencias
         self.user_repo = user_repo
         self.current_user: Optional[User] = None
 
@@ -16,8 +15,7 @@ class AuthService:
         user = self.user_repo.get_by_username(username)
         if not user:
             return False
-        
-        # Verificación de Hash (SHA-256 para este ejemplo)
+
         input_hash = self._hash_password(password)
         if input_hash == user.password_hash:
             self.current_user = user

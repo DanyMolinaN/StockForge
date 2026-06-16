@@ -16,7 +16,7 @@ class Product:
     stock: int
     category: str
     supplier: str
-    attributes: str  # Representación serializada de los atributos dinámicos
+    attributes: str
     expiration_date: Optional[str] = None
     min_stock: int = 0
     id: Optional[int] = None

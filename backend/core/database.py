@@ -14,14 +14,12 @@ class DatabaseManager:
     def get_connection(self) -> sqlite3.Connection:
         """Retorna una nueva conexión lista para usar con soporte de claves foráneas."""
         conn = sqlite3.connect(self.db_path)
-        # Asegura que las restricciones de claves foráneas estén activas en SQLite
         conn.execute("PRAGMA foreign_keys = ON;")
         return conn
 
     def initialize_schema(self) -> None:
         """Crea todas las tablas del sistema si no existen y aplica la configuración inicial."""
         with self.get_connection() as conn:
-            # 1. Tabla de Usuarios
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +30,6 @@ class DatabaseManager:
                 )
             ''')
 
-            # 2. Tabla de Productos
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS products (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +45,6 @@ class DatabaseManager:
                 )
             ''')
 
-            # 3. Tabla de Ventas
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS sales (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +60,6 @@ class DatabaseManager:
                 )
             ''')
 
-            # 4. Tabla de Detalle de Ventas (Sale Items)
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS sale_items (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,7 +73,6 @@ class DatabaseManager:
                 )
             ''')
             
-            # Inicialización de datos semilla (Seeders)
             self._seed_default_admin(conn)
 
     def _seed_default_admin(self, conn: sqlite3.Connection) -> None:

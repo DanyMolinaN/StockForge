@@ -5,9 +5,6 @@ from typing import List, Optional
 from backend.models.user_model import User
 from backend.core.database import DatabaseManager
 
-# ==========================================
-# 1. INTERFAZ ABSTRACTA (Dependency Inversion)
-# ==========================================
 class UserRepository(ABC):
     @abstractmethod
     def add(self, user: User) -> User: pass
@@ -18,9 +15,6 @@ class UserRepository(ABC):
     @abstractmethod
     def get_all(self) -> List[User]: pass
 
-# ==========================================
-# 2. IMPLEMENTACIÓN SQLITE
-# ==========================================
 class SQLiteUserRepository(UserRepository):
     def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager

@@ -5,9 +5,6 @@ from typing import List, Tuple
 from backend.models.sale_model import Sale, SaleItem
 from backend.core.database import DatabaseManager
 
-# ==========================================
-# 1. INTERFAZ ABSTRACTA (Dependency Inversion)
-# ==========================================
 class SalesRepository(ABC):
     @abstractmethod
     def save_sale(self, sale: Sale) -> Sale: pass
@@ -18,12 +15,9 @@ class SalesRepository(ABC):
     @abstractmethod
     def get_sales_history_raw(self) -> List[Tuple[str, float]]: pass
 
-# ==========================================
-# 2. IMPLEMENTACIÓN SQLITE
-# ==========================================
+
 class SQLiteSalesRepository(SalesRepository):
     def __init__(self, db_manager: DatabaseManager):
-        # Inyección de dependencias
         self.db_manager = db_manager
 
     def save_sale(self, sale: Sale) -> Sale:
