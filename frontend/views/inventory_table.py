@@ -21,7 +21,7 @@ class InventoryTableTab(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(LAYOUT["space_01"])
 
         filter_bar = QHBoxLayout()

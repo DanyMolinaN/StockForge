@@ -18,7 +18,7 @@ class KPICard(QFrame):
         self.setProperty("role", "card")
         
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         
         icon_lbl = QLabel()
         icon_pixmap = get_icon_colored(icon_name, color, 36).pixmap(36, 36)
@@ -52,7 +52,7 @@ class DashboardView(QWidget):
     def setup_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(16)
+        main_layout.setSpacing(12)
         
         main_layout.addWidget(self._build_header())
         main_layout.addWidget(self._build_kpi_section())
@@ -74,8 +74,8 @@ class DashboardView(QWidget):
     def _build_kpi_section(self) -> QWidget:
         kpi_container = QWidget()
         layout = QHBoxLayout(kpi_container)
-        layout.setContentsMargins(16, 0, 16, 0)
-        layout.setSpacing(16)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(12)
 
         self.kpi_products = KPICard("Total Productos", "box.svg", Palette.Primary)
         self.kpi_alerts = KPICard("Alertas de Stock", "warning.svg", Palette.Danger)
@@ -92,7 +92,7 @@ class DashboardView(QWidget):
         panel.setProperty("role", "card")
         
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         
         lbl_section = QLabel("Productos que requieren reabastecimiento")
         lbl_section.setProperty("role", "section")
@@ -124,7 +124,7 @@ class DashboardView(QWidget):
         panel.setProperty("role", "card")
         
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         
         lbl_section = QLabel("Ventas de los Últimos 7 Días")
         lbl_section.setProperty("role", "section")

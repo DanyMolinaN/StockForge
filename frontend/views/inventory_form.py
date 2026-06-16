@@ -22,7 +22,7 @@ class InventoryFormTab(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
 
         form_container = QFrame()
         form_container.setProperty("role", "card")

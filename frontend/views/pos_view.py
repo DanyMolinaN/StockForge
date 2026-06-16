@@ -34,7 +34,7 @@ class POSView(QWidget):
         panel.setProperty("role", "card")
         
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(LAYOUT["space_01"])
 
         lbl_title = QLabel("Punto de Venta")
@@ -91,7 +91,7 @@ class POSView(QWidget):
         panel.setProperty("role", "card")
         
         layout = QVBoxLayout(panel)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(LAYOUT["space_01"])
 
         lbl_title = QLabel("Carrito de Compras")

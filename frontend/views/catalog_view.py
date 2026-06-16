@@ -27,7 +27,7 @@ class CatalogView(QWidget):
         panel.setProperty("role", "card")
         
         panel_layout = QVBoxLayout(panel)
-        panel_layout.setContentsMargins(16, 16, 16, 16)
+        panel_layout.setContentsMargins(12, 12, 12, 12)
         
         header_layout = QHBoxLayout()
         

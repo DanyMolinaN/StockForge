@@ -54,7 +54,10 @@ class MainWindow(QWidget):
         app_layout.setContentsMargins(0, 0, 0, 0)
         app_layout.setSpacing(0)
 
-        self.sidebar = Sidebar()
+        self.sidebar = Sidebar(self.auth_service)
+        self.sidebar.view_selected.connect(self._handle_navigation)
+        self.sidebar.logout_requested.connect(self._handle_logout)
+
         app_layout.addWidget(self.sidebar)
 
         self.views_container = QStackedWidget()
@@ -81,7 +84,9 @@ class MainWindow(QWidget):
         if user.role.lower() != "admin":
             pass
 
-        self.sidebar.view_changed.connect(self.views_container.setCurrentIndex)
+        self.sidebar.view_selected.connect(self._handle_navigation)
+        self.sidebar.logout_requested.connect(self._handle_logout)
+        self.views_container.currentChanged.connect(self.on_view_changed)
         self.views_container.currentChanged.connect(self.on_view_changed)
 
         self.stack.addWidget(app_widget)
@@ -95,3 +100,22 @@ class MainWindow(QWidget):
             self.dashboard_view.refresh_data()
         elif index == 1:
             self.inventory_view.reload_inventory()
+
+
+    def _handle_navigation(self, view_name: str):
+        """Enruta la vista basándose en el nombre emitido por el Sidebar."""
+        mapping = {
+            "Dashboard": 0,
+            "Inventario": 1,
+            "Punto de Venta": 2,
+            "Catálogo": 3
+        }
+        
+        target_index = mapping.get(view_name)
+        if target_index is not None:
+            self.views_container.setCurrentIndex(target_index)
+
+    def _handle_logout(self):
+        """Limpia el estado y regresa a la pantalla de Login."""
+        self.auth_service.logout()
+        self.stack.setCurrentIndex(0)
