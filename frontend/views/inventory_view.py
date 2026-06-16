@@ -16,40 +16,25 @@ class InventoryView(QWidget):
         outer_layout = QVBoxLayout(self)
         outer_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Header
         header_layout = QHBoxLayout()
         header_layout.setContentsMargins(16, 16, 16, 0)
         
-        # Aplicación del nuevo rol de tema para el título principal
         lbl_title = QLabel("Gestión de Inventario")
         lbl_title.setProperty("role", "title")
         header_layout.addWidget(lbl_title)
         
         header_layout.addStretch()
         outer_layout.addLayout(header_layout)
-
-        # Contenedor de Pestañas
         self.tabs = QTabWidget()
         
-        # Instanciamos los componentes inyectándoles el mismo servicio (Dependency Inversion)
         self.tab_table = InventoryTableTab(self.service)
         self.tab_form = InventoryFormTab(self.service)
 
         self.tabs.addTab(self.tab_table, "Lista de Productos")
         self.tabs.addTab(self.tab_form, "Administración (Registrar/Editar)")
         outer_layout.addWidget(self.tabs)
-
-        # ========================================================
-        # ORQUESTACIÓN DE SEÑALES (El "Pegamento" de la arquitectura)
-        # ========================================================
-        
-        # 1. Cuando la tabla pide editar un producto -> Cargamos el form y cambiamos de pestaña
         self.tab_table.edit_requested.connect(self._handle_edit_request)
-        
-        # 2. Cuando el form guarda un producto -> Recargamos la tabla y volvemos a la pestaña 0
         self.tab_form.product_saved.connect(self._handle_product_saved)
-
-        # Forzar carga inicial
         self.tab_table.reload_data()
 
     def _handle_edit_request(self, product_id: int):

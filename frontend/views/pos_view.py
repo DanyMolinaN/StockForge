@@ -5,13 +5,11 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QFrame, QLabel, QLineEdit, QPushButton,
     QTableWidget, QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
-# Eliminamos STYLES, solo conservamos LAYOUT para los márgenes
 from frontend.styles import LAYOUT
 from frontend.components.toast_alert import ToastNotification
 from frontend.utils import get_icon_colored
 
 class POSView(QWidget):
-    # Inyectamos el servicio directamente para respetar Dependency Inversion
     def __init__(self, pos_service):
         super().__init__()
         self.service = pos_service
@@ -25,19 +23,15 @@ class POSView(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(LAYOUT["space_01"])
 
-        # Separación de responsabilidades: Paneles independientes
         left_panel = self._build_search_panel()
         right_panel = self._build_cart_panel()
 
-        main_layout.addWidget(left_panel, 5) # Proporción 5:4 para dar buen espacio
+        main_layout.addWidget(left_panel, 5)
         main_layout.addWidget(right_panel, 4)
 
-    # ==========================================
-    # CONSTRUCCIÓN DE INTERFAZ (Modularizada)
-    # ==========================================
     def _build_search_panel(self) -> QFrame:
         panel = QFrame()
-        panel.setProperty("role", "card") # Nuevo sistema de roles
+        panel.setProperty("role", "card")
         
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(16, 16, 16, 16)
@@ -51,7 +45,6 @@ class POSView(QWidget):
         lbl_desc.setProperty("role", "body")
         layout.addWidget(lbl_desc)
 
-        # Barra de búsqueda
         search_bar = QHBoxLayout()
         self.input_search = QLineEdit(placeholderText="Buscar producto por nombre, SKU o código...")
         self.input_search.textChanged.connect(self.update_search_results)
@@ -66,22 +59,18 @@ class POSView(QWidget):
         search_bar.addWidget(self.btn_search)
         layout.addLayout(search_bar)
 
-        # Tabla de resultados
         self.results_table = self._create_standard_table(["Código", "SKU", "Nombre", "Precio", "Stock", "Acción"])
         
-        # Ajuste de distribución de columnas para mejor legibilidad
         header = self.results_table.horizontalHeader()
-        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents) # Código
-        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # SKU
-        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)          # Nombre
-        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # Precio
-        header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # Stock
-        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)            # Acción
+        header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        header.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
         self.results_table.setColumnWidth(5, 130)
         
         layout.addWidget(self.results_table)
-
-        # Controles de cantidad
         qty_layout = QHBoxLayout()
         self.qty_label = QLabel("Cantidad por agregar:")
         self.qty_label.setProperty("role", "body")
@@ -109,21 +98,18 @@ class POSView(QWidget):
         lbl_title.setProperty("role", "title")
         layout.addWidget(lbl_title)
 
-        # Tabla de carrito
         self.cart_table = self._create_standard_table(["Nombre", "SKU", "Cant.", "Precio", "Subtotal", "Eliminar"])
         
         header_cart = self.cart_table.horizontalHeader()
-        header_cart.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)          # Nombre
-        header_cart.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents) # SKU
-        header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents) # Cant.
-        header_cart.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents) # Precio
-        header_cart.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents) # Subtotal
-        header_cart.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)            # Eliminar
+        header_cart.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)         
+        header_cart.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        header_cart.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header_cart.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        header_cart.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        header_cart.setSectionResizeMode(5, QHeaderView.ResizeMode.Fixed)
         self.cart_table.setColumnWidth(5, 120)
         
         layout.addWidget(self.cart_table)
-
-        # Resumen financiero
         self.lbl_subtotal = QLabel("Subtotal: $0.00")
         self.lbl_subtotal.setProperty("role", "body")
         
@@ -134,7 +120,7 @@ class POSView(QWidget):
         self.lbl_tax.setProperty("role", "body")
         
         self.lbl_total = QLabel("Total: $0.00")
-        self.lbl_total.setProperty("role", "section") # Resalta el total
+        self.lbl_total.setProperty("role", "section")
 
         summary_layout = QVBoxLayout()
         summary_layout.addWidget(self.lbl_subtotal)
@@ -143,7 +129,6 @@ class POSView(QWidget):
         summary_layout.addWidget(self.lbl_total)
         layout.addLayout(summary_layout)
 
-        # Método de pago
         payment_layout = QHBoxLayout()
         lbl_metodo = QLabel("Método de pago:")
         lbl_metodo.setProperty("role", "body")
@@ -155,7 +140,6 @@ class POSView(QWidget):
         payment_layout.addWidget(self.payment_method)
         layout.addLayout(payment_layout)
 
-        # Botones de acción
         buttons_layout = QHBoxLayout()
         
         self.btn_cancel = QPushButton("Cancelar Carrito")
@@ -178,7 +162,7 @@ class POSView(QWidget):
         table.setHorizontalHeaderLabels(headers)
         
         table.verticalHeader().setVisible(False)
-        table.verticalHeader().setDefaultSectionSize(44) # Respiro vertical para botones
+        table.verticalHeader().setDefaultSectionSize(44)
         
         table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -186,10 +170,6 @@ class POSView(QWidget):
         table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         table.setMinimumHeight(250) 
         return table
-
-    # ==========================================
-    # LÓGICA DE NEGOCIO Y EVENTOS
-    # ==========================================
 
     def update_search_results(self):
         query = self.input_search.text().strip()
@@ -206,7 +186,6 @@ class POSView(QWidget):
 
             btn_add = QPushButton(" Agregar")
             btn_add.setIcon(get_icon_colored("plus.svg", "#ffffff", size=16)) 
-            # Cambiado a action_accent para que el ícono blanco contraste y resalte la acción
             btn_add.setProperty("role", "action_accent") 
             btn_add.clicked.connect(lambda _, pid=product.id: self.add_product_to_cart(pid))
             self.results_table.setCellWidget(row_index, 5, btn_add)
@@ -245,7 +224,6 @@ class POSView(QWidget):
             self.cart_table.setItem(row_index, 4, QTableWidgetItem(f"${item.subtotal:.2f}"))
 
             btn_remove = QPushButton(" Eliminar")
-            # Reemplazo de btn_danger_outlined por el nuevo rol action_danger
             btn_remove.setProperty("role", "action_danger")
             btn_remove.clicked.connect(lambda _, pid=item.producto_id: self.remove_cart_item(pid))
             self.cart_table.setCellWidget(row_index, 5, btn_remove)
@@ -272,21 +250,15 @@ class POSView(QWidget):
     def confirm_sale(self):
         try:
             metodo_pago = self.payment_method.currentText()
-            
-            # 1. Guardamos qué productos se van a vender antes de limpiar el carrito
             items_vendidos = list(self.service.cart.items())
-            
-            # 2. Confirmamos la venta (esto descuenta el stock en la base de datos)
             receipt = self.service.confirm_sale(usuario_id=1, metodo_pago=metodo_pago)
             self.show_message(f"Venta {receipt.numero_venta} registrada correctamente.", "success")
-            
-            # 3. NUEVA LÓGICA DE ALERTA: Evaluamos cómo quedó el stock tras la venta
+
             for item in items_vendidos:
                 product = self.service.product_repo.get_by_id(item.producto_id)
-                # Si el stock remanente es menor o igual al mínimo configurado, disparamos alerta
                 if product and product.stock <= product.min_stock:
                     ToastNotification(
-                        self.window(), # Ajustado a self.window() para que se superponga correctamente
+                        self.window(),
                         "⚠️ Alerta de Stock", 
                         f"El producto '{product.name}' alcanzó su stock mínimo (Quedan: {product.stock}).", 
                         "warning"

@@ -29,25 +29,19 @@ class LoginView(QWidget):
         self.start_animations()
 
     def setup_ui(self):
-        # Layout Principal Horizontal (Split Screen)
         self.main_layout = QHBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
-        
-        # ==========================================
-        # 1. PANEL BRANDING (IZQUIERDA)
-        # ==========================================
+
         self.branding_panel = QFrame()
         self.branding_panel.setObjectName("LoginBrandingPanel")
         
         left_layout = QVBoxLayout(self.branding_panel)
         left_layout.setContentsMargins(60, 60, 60, 80)
         
-        # Logo Superior
         logo_layout = QHBoxLayout()
         logo_icon = QLabel()
         try:
-            # Usando un SVG de tu paquete de iconos
             pixmap = get_icon_colored("box.svg", "#FFFFFF", 28).pixmap(28, 28)
             logo_icon.setPixmap(pixmap)
         except Exception:
@@ -61,9 +55,8 @@ class LoginView(QWidget):
         logo_layout.addStretch()
         left_layout.addLayout(logo_layout)
         
-        left_layout.addStretch() # Empuja el texto principal hacia abajo
+        left_layout.addStretch()
         
-        # Textos Inferiores (Igual a la imagen)
         brand_title = QLabel("Optimiza tu Flujo.")
         brand_title.setProperty("role", "login_brand_title")
         left_layout.addWidget(brand_title)
@@ -75,24 +68,19 @@ class LoginView(QWidget):
         desc.setWordWrap(True)
         left_layout.addWidget(desc)
 
-        # ==========================================
-        # 2. PANEL FORMULARIO (DERECHA)
-        # ==========================================
         self.login_area = QFrame()
         self.login_area.setObjectName("LoginArea")
         right_layout = QVBoxLayout(self.login_area)
         right_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        # Usamos QFrame en lugar de QWidget para mejor soporte del motor QSS
         form_container = QFrame()
-        form_container.setObjectName("LoginFormContainer") # Se enlaza con styles.py
+        form_container.setObjectName("LoginFormContainer")
         form_container.setFixedWidth(400)
         
         form_layout = QVBoxLayout(form_container)
         form_layout.setContentsMargins(0, 0, 0, 0)
         form_layout.setSpacing(24)
         
-        # --- Cabecera del Formulario ---
         header_layout = QVBoxLayout()
         header_layout.setSpacing(8)
         
@@ -105,25 +93,21 @@ class LoginView(QWidget):
         header_layout.addWidget(subtitle)
         form_layout.addLayout(header_layout)
         
-        # --- Campos de Input ---
         inputs_layout = QVBoxLayout()
         inputs_layout.setSpacing(16)
-        
-        # Rol (Agregado para mantener tu lógica de backend)
+
         self.combo_role = QComboBox()
         self.combo_role.setProperty("role", "login_input")
         self.combo_role.addItems(["Administrador", "Cajero", "Dueño"])
         inputs_layout.addWidget(self._wrap_field("Role", self.combo_role))
         
-        # Usuario / Email
         self.input_user = QLineEdit()
         self.input_user.setProperty("role", "login_input")
         self.input_user.setPlaceholderText("Enter your username or email")
         inputs_layout.addWidget(self._wrap_field("Username", self.input_user))
         
-        # Contraseña con Toggle (Ensamblado visualmente)
-        pass_container = QFrame()  # Cambiar de QWidget a QFrame
-        pass_container.setProperty("role", "login_field_wrapper") # Añadir rol
+        pass_container = QFrame()
+        pass_container.setProperty("role", "login_field_wrapper")
         pass_h_layout = QHBoxLayout(pass_container)
         pass_h_layout.setContentsMargins(0, 0, 0, 0)
         pass_h_layout.setSpacing(0)
@@ -137,7 +121,7 @@ class LoginView(QWidget):
         
         self.btn_toggle = QPushButton()
         self.btn_toggle.setObjectName("TogglePassBtn")
-        self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20)) # SVG Ojo cerrado
+        self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20))
         self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle.clicked.connect(self.toggle_pass)
         
@@ -147,7 +131,6 @@ class LoginView(QWidget):
         inputs_layout.addWidget(self._wrap_field("Password", pass_container))
         form_layout.addLayout(inputs_layout)
         
-        # --- Opciones Extras (Remember me & Forgot password) ---
         options_layout = QHBoxLayout()
         
         self.check_remember = QCheckBox("Remember me")
@@ -163,14 +146,12 @@ class LoginView(QWidget):
         
         form_layout.addLayout(options_layout)
         
-        # --- Botón de Login ---
         self.btn_login = QPushButton("Log In")
         self.btn_login.setProperty("role", "login_btn")
         self.btn_login.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_login.clicked.connect(self.handle_login)
         form_layout.addWidget(self.btn_login)
         
-        # Estado de Error
         self.status_lbl = QLabel("")
         self.status_lbl.setStyleSheet("color: #EF4444; font-size: 13px; font-weight: bold; background: transparent;")
         self.status_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -179,16 +160,12 @@ class LoginView(QWidget):
 
         right_layout.addWidget(form_container)
 
-        # Ensamble final asimétrico
-        self.main_layout.addWidget(self.branding_panel, 50) # Mitad y mitad, o puedes ajustar a 55/45
+        self.main_layout.addWidget(self.branding_panel, 50)
         self.main_layout.addWidget(self.login_area, 50)
 
-    # ==========================================
-    # UTILERÍAS DRY PARA FORMULARIOS
-    # ==========================================
     def _wrap_field(self, title: str, widget: QWidget) -> QWidget:
-        container = QFrame()  # Cambiar de QWidget a QFrame
-        container.setProperty("role", "login_field_wrapper") # Añadir rol
+        container = QFrame()
+        container.setProperty("role", "login_field_wrapper")
         vbox = QVBoxLayout(container)
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.setSpacing(6)
@@ -200,16 +177,13 @@ class LoginView(QWidget):
         vbox.addWidget(widget)
         return container
 
-    # ==========================================
-    # LÓGICA DE INTERFAZ Y SESIÓN
-    # ==========================================
     def toggle_pass(self):
         if self.input_pass.echoMode() == QLineEdit.EchoMode.Password:
             self.input_pass.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.btn_toggle.setIcon(get_icon_colored("eye-off.svg", "#475569", 20)) # SVG Ojo Abierto / Tachado
+            self.btn_toggle.setIcon(get_icon_colored("eye-off.svg", "#475569", 20))
         else:
             self.input_pass.setEchoMode(QLineEdit.EchoMode.Password)
-            self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20)) # SVG Ojo Cerrado
+            self.btn_toggle.setIcon(get_icon_colored("eye.svg", "#475569", 20))
 
     def start_animations(self):
         self.setWindowOpacity(0)
@@ -233,19 +207,14 @@ class LoginView(QWidget):
             
         if self.auth_service.login(user_val, pass_val):
             user = self.auth_service.current_user
-            
-            # Validación de Rol en UI
             role_map = {"administrador": "admin", "cajero": "cajero", "dueño": "dueño"}
             expected_role = role_map.get(role_val.lower(), role_val.lower())
             
             if user.role.lower() != expected_role:
                 ToastNotification(self.window(), "Rol Incorrecto", f"No tiene acceso como {role_val}.", "error").show_toast()
                 return
-            
-            # Transición exitosa
             self.login_success.emit(user)
         else:
-            # Penalización por fallo
             self.login_attempts += 1
             if self.login_attempts >= self.max_attempts:
                 self.locked = True

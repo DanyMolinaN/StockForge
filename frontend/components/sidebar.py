@@ -15,7 +15,7 @@ class Sidebar(QFrame):
         self.setObjectName("Sidebar")
         self.is_collapsed = False
         self.expanded_width = 240
-        self.collapsed_width = 72
+        self.collapsed_width = 60
 
         self.setFixedWidth(self.expanded_width)
         
@@ -30,20 +30,16 @@ class Sidebar(QFrame):
 
     def setup_ui(self):
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(12, 24, 12, 24)
+        self.layout.setContentsMargins(12, 20, 12, 20)
         self.layout.setSpacing(8)
 
         self._build_header()
-        self.layout.addSpacing(24)
+        self.layout.addSpacing(20)
         
         self._build_menu()
         self.layout.addStretch()
         
         self._build_footer()
-
-    # ==========================================
-    # CONSTRUCCIÓN DE INTERFAZ (Alta Cohesión)
-    # ==========================================
 
     def _build_header(self):
         self.header_layout = QHBoxLayout()
@@ -55,7 +51,7 @@ class Sidebar(QFrame):
         self.btn_toggle = QPushButton()
         self.btn_toggle.setFixedSize(28, 28)
         self.btn_toggle.setIcon(get_icon_colored("chevron-left.svg", "#a3a3a3", 18))
-        self.btn_toggle.setProperty("role", "action_ghost") # QSS: QPushButton[role="action_ghost"]
+        self.btn_toggle.setProperty("role", "action_ghost")
         self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle.clicked.connect(self.toggle_sidebar)
 
@@ -72,7 +68,7 @@ class Sidebar(QFrame):
             btn.setObjectName("NavButton")
             btn.setProperty("collapsed", False)
             
-            btn.setIcon(get_icon_colored(icon_name, "#8e8e93", 22))
+            btn.setIcon(get_icon_colored(icon_name, "#8e8e93", 28))
             btn.setCheckable(True)
             btn.setCursor(Qt.CursorShape.PointingHandCursor)
             

@@ -21,8 +21,7 @@ def get_icon_colored(name, color_str, size=24):
     """
     full_path = resource_path(os.path.join("assets", "icons", name))
     pixmap = QPixmap(full_path)
-    
-    # Manejo de error para ícono faltante
+
     if pixmap.isNull():
         logging.warning(f"Ícono faltante: No se pudo cargar '{name}' desde {full_path}")
         

@@ -5,16 +5,14 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import (Qt, QPropertyAnimation, Property, 
                           QRectF, QPoint, QEvent, QEasingCurve)
 from PySide6.QtGui import QColor, QPainter, QPainterPath
-
-# Eliminamos STYLES, solo mantenemos LAYOUT y Palette
 from frontend.styles import LAYOUT, Palette
 from frontend.utils import get_icon_colored
 
 TOAST_CONFIG = {
     "global": {
-        "background": Palette.Surface, # Fondo blanco
-        "text_title": Palette.Text,    # Texto oscuro
-        "text_body":  Palette.Muted,   # Texto gris
+        "background": Palette.Surface,
+        "text_title": Palette.Text,
+        "text_body":  Palette.Muted,
         "border_radius": 12
     },
     "types": {
@@ -93,8 +91,6 @@ class ToastNotification(QWidget):
         btn_close = QPushButton("✕")
         btn_close.setFixedSize(20, 20)
         btn_close.setCursor(Qt.CursorShape.PointingHandCursor)
-        
-        # Aplicación estricta de SoR mediante sistema de roles
         btn_close.setProperty("role", "action_ghost")
         
         btn_close.clicked.connect(self.close_toast)
@@ -135,15 +131,10 @@ class ToastNotification(QWidget):
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         path = QPainterPath()
         path.addRoundedRect(rect, self.radius, self.radius)
-        
-        # 1. Dibujar el fondo
         painter.fillPath(path, self.bg_color)
-        
-        # 2. Dibujar el borde
         painter.setPen(QColor(Palette.Border))
         painter.drawPath(path)
 
-        # 3. Dibujar la barra de progreso
         if self._progress > 0:
             painter.setClipPath(path)
             bar_height = 4

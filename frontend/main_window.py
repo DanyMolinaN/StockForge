@@ -2,17 +2,13 @@
 
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from backend.repositories.product_repo import ProductRepository
-
-# 1. Importamos las dependencias necesarias para ensamblar el servicio
 from backend.repositories.sale_repo import SQLiteSalesRepository
-
 from backend.services.pos_service import POSService
 from frontend.styles import get_sheet
 from frontend.components.sidebar import Sidebar
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
 from frontend.views.pos_view import POSView
-# Importamos el DashboardView para mostrar las alertas de stock mínimo
 from frontend.views.dashboard_view import DashboardView
 
 class MainWindow(QWidget):
@@ -23,33 +19,26 @@ class MainWindow(QWidget):
         self.setWindowTitle("StockForge - Sistema POS")
         self.resize(1200, 700)
         self.setStyleSheet(get_sheet())
-        
-        # Inicialmente mostramos el Login
+
         self.setup_initial_view()
 
     def setup_initial_view(self):
         print("DEBUG: Iniciando setup_initial_view...")
         self.main_container = QVBoxLayout(self)
         self.main_container.setContentsMargins(0, 0, 0, 0)
-        print("DEBUG: Layout creado")
-        
+        print("DEBUG: Layout creado") 
         self.stack = QStackedWidget()
         self.main_container.addWidget(self.stack)
         print("DEBUG: QStackedWidget creado")
-        
-        # Vista de Login
         print("DEBUG: Importando LoginView...")
         from frontend.views.login_view import LoginView
-        print("DEBUG: LoginView importado")
-        
+        print("DEBUG: LoginView importado") 
         print("DEBUG: Creando LoginView...")
         self.login_view = LoginView(self.auth_service)
         print("DEBUG: LoginView creado")
-        
         print("DEBUG: Conectando signal...")
         self.login_view.login_success.connect(self.on_login_success)
         print("DEBUG: Signal conectado")
-        
         print("DEBUG: Añadiendo LoginView al stack...")
         self.stack.addWidget(self.login_view)
         self.stack.setCurrentWidget(self.login_view)
@@ -60,7 +49,6 @@ class MainWindow(QWidget):
         self.setup_app_ui(user)
 
     def setup_app_ui(self, user):
-        # Limpiar el widget actual para reconstruir con el Sidebar
         app_widget = QWidget()
         app_layout = QHBoxLayout(app_widget)
         app_layout.setContentsMargins(0, 0, 0, 0)

@@ -7,8 +7,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
-
-# Importamos solo Palette, STYLES ya no existe
 from frontend.styles import Palette
 from backend.services.inventory_service import InventoryService
 from frontend.utils import get_icon_colored
@@ -17,24 +15,20 @@ class KPICard(QFrame):
     """Componente reutilizable para métricas clave (Aplicación de DRY y Alta Cohesión)"""
     def __init__(self, title: str, icon_name: str, color: str):
         super().__init__()
-        # 1. Aplicamos el rol de tarjeta
         self.setProperty("role", "card")
         
         layout = QHBoxLayout(self)
         layout.setContentsMargins(16, 16, 16, 16)
         
-        # Icono lateral
         icon_lbl = QLabel()
         icon_pixmap = get_icon_colored(icon_name, color, 36).pixmap(36, 36)
         icon_lbl.setPixmap(icon_pixmap)
         layout.addWidget(icon_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
         
-        # Textos (Valor y Título)
         text_layout = QVBoxLayout()
         text_layout.setSpacing(2)
         
         self.lbl_value = QLabel("0")
-        # Estilo en línea justificado aquí porque el color depende del parámetro dinámico
         self.lbl_value.setStyleSheet(f"color: {color}; font-size: 28px; font-weight: bold;") 
         
         lbl_title = QLabel(title)
@@ -49,7 +43,6 @@ class KPICard(QFrame):
         self.lbl_value.setText(value)
 
 class DashboardView(QWidget):
-    # Inversión de Dependencias: Recibimos repositorios para mantener el desacoplamiento
     def __init__(self, product_repo, sales_repo=None):
         super().__init__()
         self.inventory_service = InventoryService(product_repo)
@@ -147,7 +140,6 @@ class DashboardView(QWidget):
         return panel
 
     def refresh_data(self):
-        # 1. Poblar Tabla de Alertas
         self.table.setRowCount(0)
         alerts = self.inventory_service.get_low_stock_alerts()
         if alerts is None: alerts = []
@@ -162,7 +154,6 @@ class DashboardView(QWidget):
             self.table.setItem(row, 3, stock_item)
             self.table.setItem(row, 4, QTableWidgetItem(str(prod.min_stock)))
 
-        # 2. Poblar Tarjetas KPI
         products_list = self.inventory_service.list_products()
         self.kpi_products.set_value(str(len(products_list) if products_list else 0))
         self.kpi_alerts.set_value(str(len(alerts)))
@@ -173,7 +164,6 @@ class DashboardView(QWidget):
             self._update_sales_chart()
 
     def _update_sales_chart(self):
-        # 2. CORRECCIÓN ARQUITECTÓNICA: Ajuste al nuevo método del repositorio (get_sales_history_raw)
         if not hasattr(self.sales_repo, 'get_sales_history_raw'): return
         
         history = self.sales_repo.get_sales_history_raw()
@@ -186,7 +176,6 @@ class DashboardView(QWidget):
         categories = []
         max_value = 0
         
-        # Ahora el historial desempaqueta las tuplas directamente
         for fecha, total in history:
             categories.append(fecha)
             val = float(total)

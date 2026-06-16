@@ -7,14 +7,11 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
-
-# Eliminamos STYLES, solo importamos LAYOUT y Palette
 from frontend.styles import LAYOUT, Palette
 from frontend.utils import get_icon_colored
 from frontend.components.toast_alert import ToastNotification
 
 class InventoryTableTab(QWidget):
-    # Desacoplamiento: Emitimos un evento en lugar de llamar al formulario directamente
     edit_requested = Signal(int) 
 
     def __init__(self, service):
@@ -60,8 +57,6 @@ class InventoryTableTab(QWidget):
     def reload_data(self):
         self.table.setRowCount(0)
         products = self.service.list_products()
-        
-        # Pipeline de filtrado (Misma lógica anterior)
         search_query = self.input_search.text().strip().lower()
         if search_query:
             products = [p for p in products if search_query in p.name.lower() or search_query in p.sku.lower() or search_query in p.supplier.lower()]
@@ -88,7 +83,6 @@ class InventoryTableTab(QWidget):
             self.table.setItem(row, 7, QTableWidgetItem(prod.supplier))
             self.table.setItem(row, 8, QTableWidgetItem(prod.expiration_date or "N/A"))
             
-            # --- NUEVA COLUMNA DE ACCIONES ---
             actions_widget = QWidget()
             actions_widget.setStyleSheet("background-color: transparent;")
             
@@ -99,14 +93,12 @@ class InventoryTableTab(QWidget):
             btn_edit = QPushButton()
             btn_edit.setIcon(get_icon_colored("edit.svg", Palette.Warning, 18))
             btn_edit.setToolTip("Editar Producto")
-            # Aplicamos el nuevo rol transparente ("ghost")
             btn_edit.setProperty("role", "action_ghost")
             btn_edit.clicked.connect(lambda _, pid=prod.id: self.edit_requested.emit(pid))
 
             btn_delete = QPushButton()
             btn_delete.setIcon(get_icon_colored("trash.svg", Palette.Danger, 18))
             btn_delete.setToolTip("Eliminar Producto")
-            # Aplicamos el nuevo rol transparente ("ghost")
             btn_delete.setProperty("role", "action_ghost")
             btn_delete.clicked.connect(lambda _, pid=prod.id, pname=prod.name: self.confirm_delete(pid, pname))
 

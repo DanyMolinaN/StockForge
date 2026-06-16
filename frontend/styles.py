@@ -2,10 +2,6 @@
 
 import os
 from .utils import resource_path
-
-# ============================================================================
-# 1. TOKENS DE DISEÑO (Compatibilidad hacia atrás con tus vistas actuales)
-# ============================================================================
 class Palette:
     """Paleta StockForge - Consistencia entre componentes."""
     Bg              = "#F7F8FB"
@@ -33,14 +29,12 @@ class LoginPalette:
     Btn_Primary     = "#2F4C9B"
     Btn_Hover       = "#233A7A"
     Link            = "#60A5FA"
-# ============================================================================
-# 2. CONSTANTES DE TEMA (Estilo theme.py)
-# ============================================================================
+
 COLOR_BG_BASE       = Palette.Bg
 COLOR_BG_SURFACE    = Palette.Surface
 COLOR_BG_INPUT      = Palette.Surface_Strong
-COLOR_BG_HOVER      = "#E2E8F0"   # Un gris sutil para hover
-COLOR_BG_CONSOLE    = "#0F172A"   # Oscuro para logs
+COLOR_BG_HOVER      = "#E2E8F0"
+COLOR_BG_CONSOLE    = "#0F172A"
 
 COLOR_BORDER_SVELTE = Palette.Border
 COLOR_BORDER_ACTIVE = Palette.Primary
@@ -72,20 +66,14 @@ RADIUS_XL = 26
 PADDING_INPUT   = "8px 12px"
 PADDING_BUTTON  = "8px 16px"
 
-# ============================================================================
-# 3. UTILIDADES Y EXPORTACIONES DE DISEÑO
-# ============================================================================
 def asset_url(filename: str) -> str:
     path = resource_path(os.path.join("assets", "icons", filename))
     return path.replace("\\", "/")
 
-# Exportaciones para mantener compatibilidad con main_window.py y componentes
 LAYOUT = {"level_01": (10,10,10,10), "level_02": (16,16,16,16), "level_03": (20,20,20,20), "space_01": 12}
 RADIUS = {"card": f"{RADIUS_LG}px", "input": f"{RADIUS_MD}px", "btn": f"{RADIUS_MD}px", "scroll": "4px"}
 
-# ============================================================================
-# 4. HOJA DE ESTILOS GLOBAL (QSS MAESTRO)
-# ============================================================================
+
 def get_sheet() -> str:
     return f"""
 /* ============================================================================

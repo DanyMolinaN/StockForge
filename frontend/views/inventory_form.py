@@ -25,13 +25,11 @@ class InventoryFormTab(QWidget):
         layout.setContentsMargins(16, 16, 16, 16)
 
         form_container = QFrame()
-        # 1. Aplicación de rol para contenedores
         form_container.setProperty("role", "card")
         
         admin_layout = QVBoxLayout(form_container)
         admin_layout.setSpacing(LAYOUT["space_01"])
 
-        # Identificación y Categoría
         group_id = QGroupBox("Identificación y Categoría")
         id_layout = QVBoxLayout(group_id)
         
@@ -39,7 +37,6 @@ class InventoryFormTab(QWidget):
         self.input_category.setEditable(True)
         self.btn_add_category = QPushButton("Agregar categoría")
         
-        # 2. Aplicación de roles para botones secundarios
         self.btn_add_category.setProperty("role", "action_outlined")
         self.btn_add_category.clicked.connect(self.add_category)
         
@@ -63,7 +60,6 @@ class InventoryFormTab(QWidget):
         id_layout.addLayout(sku_row)
         admin_layout.addWidget(group_id)
 
-        # Logística y Proveedores
         group_log = QGroupBox("Logística y Proveedores")
         log_layout = QVBoxLayout(group_log)
         
@@ -89,7 +85,6 @@ class InventoryFormTab(QWidget):
         log_layout.addLayout(exp_layout)
         admin_layout.addWidget(group_log)
 
-        # Valores y Personalización
         group_custom = QGroupBox("Valores y Personalización")
         custom_layout = QVBoxLayout(group_custom)
         val_row = QHBoxLayout()
@@ -111,11 +106,9 @@ class InventoryFormTab(QWidget):
         custom_layout.addWidget(self.input_attr)
         admin_layout.addWidget(group_custom)
 
-        # Acciones
         action_row = QHBoxLayout()
         self.btn_save = QPushButton("Registrar en Inventario")
         
-        # 3. Aplicación de roles para botones principales de acción
         self.btn_save.setProperty("role", "action_accent")
         self.btn_save.clicked.connect(self.save_product)
         
