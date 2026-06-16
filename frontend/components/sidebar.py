@@ -12,10 +12,7 @@ class Sidebar(QFrame):
 
     def __init__(self):
         super().__init__()
-        # Asignamos el ID para que la hoja de estilos global aplique el CSS de "#Sidebar"
         self.setObjectName("Sidebar")
-        
-        # Configuración de estado y dimensiones
         self.is_collapsed = False
         self.expanded_width = 240
         self.collapsed_width = 72
@@ -53,7 +50,7 @@ class Sidebar(QFrame):
         self.header_layout.setContentsMargins(0, 0, 0, 0)
         
         self.lbl_logo = QLabel("StockForge")
-        self.lbl_logo.setObjectName("SidebarTitle") # QSS: QLabel#SidebarTitle
+        self.lbl_logo.setObjectName("eyebrow")
         
         self.btn_toggle = QPushButton()
         self.btn_toggle.setFixedSize(28, 28)
@@ -71,9 +68,9 @@ class Sidebar(QFrame):
         self.btn_group.setExclusive(True)
 
         for i, (text, icon_name) in enumerate(self.menu_items):
-            btn = QPushButton(f"  {text}")
-            btn.setObjectName("NavButton") # QSS: QPushButton#NavButton
-            btn.setProperty("collapsed", False) # Propiedad dinámica inicial
+            btn = QPushButton(f"{text}")
+            btn.setObjectName("NavButton")
+            btn.setProperty("collapsed", False)
             
             btn.setIcon(get_icon_colored(icon_name, "#8e8e93", 22))
             btn.setCheckable(True)
@@ -90,16 +87,12 @@ class Sidebar(QFrame):
             self.btn_group.button(0).setChecked(True)
 
     def _build_footer(self):
-        self.company_btn = QPushButton("  NovaForge Systems")
+        self.company_btn = QPushButton("NovaForge Systems")
         self.company_btn.setObjectName("NavButton")
         self.company_btn.setProperty("collapsed", False)
-        self.company_btn.setIcon(get_icon_colored("company-logo.svg", "#3b82f6", 24))
+        self.company_btn.setIcon(get_icon_colored("company-logo.svg", "#3b82f6", 32))
         self.company_btn.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.layout.addWidget(self.company_btn)
-
-    # ==========================================
-    # LÓGICA DE ESTADO Y ANIMACIONES
-    # ==========================================
 
     def _update_active_icon(self, btn, icon_name, is_checked):
         color = "#ffffff" if is_checked else "#8e8e93"
@@ -135,16 +128,13 @@ class Sidebar(QFrame):
         self.anim_group.addAnimation(self.anim_max)
         self.anim_group.start()
 
-    # --- Aplicación de Principio SoR (Separación de Responsabilidades) ---
-    # Ya no inyectamos CSS manual. Cambiamos la propiedad 'collapsed' y refrescamos.
-
     def _apply_collapsed_ui(self):
         self.lbl_logo.hide()
         self.header_layout.setAlignment(self.btn_toggle, Qt.AlignmentFlag.AlignCenter)
         
         self.company_btn.setText("")
         self.company_btn.setProperty("collapsed", True)
-        self.company_btn.style().polish(self.company_btn) # Obliga a Qt a recalcular el estilo
+        self.company_btn.style().polish(self.company_btn)
         
         for btn in self.menu_btns: 
             btn.setText("")

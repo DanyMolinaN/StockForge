@@ -40,3 +40,8 @@ class AuthService:
             full_name=full_name
         )
         return self.user_repo.add(new_user)
+    
+    def has_permission(self, module_name: str) -> bool:
+        if not self.current_user:
+            return False
+        return self.current_user.can_access(module_name)

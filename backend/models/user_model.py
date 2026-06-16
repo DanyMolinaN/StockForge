@@ -18,3 +18,12 @@ class User:
     def is_admin(self) -> bool:
         """Determina si el usuario tiene privilegios de administrador."""
         return self.role.lower() == "admin"
+    
+    def can_access(self, module_name: str) -> bool:
+        """Define la matriz de permisos simple."""
+        permissions = {
+            "admin": ["Dashboard", "Inventario", "Punto de Venta", "Gestión de Usuarios"],
+            "cajero": ["Punto de Venta"],
+            "dueño": ["Dashboard", "Inventario", "Punto de Venta"]
+        }
+        return module_name in permissions.get(self.role.lower(), [])
