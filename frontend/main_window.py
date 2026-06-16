@@ -67,27 +67,23 @@ class MainWindow(QWidget):
         sales_repo = SQLiteSalesRepository(self.repository.db_manager)
 
         self.dashboard_view = DashboardView(self.repository, sales_repo)
-        self.views_container.addWidget(self.dashboard_view) # Índice 0
+        self.views_container.addWidget(self.dashboard_view)
         
         self.inventory_view = InventoryView(self.repository)
-        self.views_container.addWidget(self.inventory_view) # Índice 1
+        self.views_container.addWidget(self.inventory_view)
         
         pos_service = POSService(
             product_repo=self.repository,
             sales_repo=sales_repo,
             tax_rate=0.15
         )
-        self.views_container.addWidget(POSView(pos_service)) # Índice 2
-        self.views_container.addWidget(CatalogView(self.repository)) # Índice 3
+        self.views_container.addWidget(POSView(pos_service))
+        self.views_container.addWidget(CatalogView(self.repository))
 
-        # 2. AGREGAR LA VISTA DE GESTIÓN DE ACCESOS (Índice 4)
-        # Extraemos el permission_repo directamente del auth_service
         self.admin_permissions_view = AdminPermissionsView(self.auth_service.permission_repo)
         self.views_container.addWidget(self.admin_permissions_view)
 
         app_layout.addWidget(self.views_container, 1)
-
-        # Limpieza de conexiones duplicadas que tenías en esta sección:
         self.views_container.currentChanged.connect(self.on_view_changed)
 
         self.stack.addWidget(app_widget)
@@ -110,7 +106,7 @@ class MainWindow(QWidget):
             "Inventario": 1,
             "Punto de Venta": 2,
             "Catálogo": 3,
-            "Gestión de Accesos": 4  # 3. AGREGAR EL MAPEO EXACTO DEL BOTÓN
+            "Gestión de Accesos": 4
         }
         
         target_index = mapping.get(view_name)

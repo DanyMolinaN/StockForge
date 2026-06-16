@@ -21,7 +21,6 @@ class SQLitePermissionRepository(PermissionRepository):
 
     def _init_db(self):
         with self._get_connection() as conn:
-            # Creamos la tabla relacional
             conn.execute('''
                 CREATE TABLE IF NOT EXISTS roles_permissions (
                     role TEXT NOT NULL,
@@ -30,7 +29,6 @@ class SQLitePermissionRepository(PermissionRepository):
                 )
             ''')
             
-            # Seed: Si la tabla está vacía, insertamos los permisos por defecto
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM roles_permissions")
             if cursor.fetchone()[0] == 0:
@@ -57,8 +55,6 @@ class SQLitePermissionRepository(PermissionRepository):
     def update_permissions(self, role: str, modules: List[str]) -> None:
         """Sobrescribe los permisos de un rol específico."""
         with self._get_connection() as conn:
-            # Eliminamos los permisos anteriores del rol
             conn.execute("DELETE FROM roles_permissions WHERE role = ?", (role,))
-            # Insertamos los nuevos
             for mod in modules:
                 conn.execute("INSERT INTO roles_permissions (role, module) VALUES (?, ?)", (role, mod))

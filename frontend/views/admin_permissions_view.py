@@ -25,7 +25,6 @@ class AdminPermissionsView(QWidget):
         panel_layout.setContentsMargins(24, 24, 24, 24)
         panel_layout.setSpacing(16)
         
-        # Cabecera
         lbl_title = QLabel("Gestión de Accesos y Roles")
         lbl_title.setProperty("role", "title")
         panel_layout.addWidget(lbl_title)
@@ -34,19 +33,16 @@ class AdminPermissionsView(QWidget):
         lbl_desc.setProperty("role", "subtitle")
         panel_layout.addWidget(lbl_desc)
         
-        # Matriz de Permisos (Tabla)
         self.table = QTableWidget(len(self.roles), len(self.modules))
         self.table.setHorizontalHeaderLabels(self.modules)
         self.table.setVerticalHeaderLabels([r.capitalize() for r in self.roles])
         
-        # Ajuste visual de la tabla
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.table.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         panel_layout.addWidget(self.table)
         
-        # Botón Guardar
         btn_layout = QHBoxLayout()
         btn_layout.addStretch()
         self.btn_save = QPushButton("Guardar Permisos")
@@ -69,13 +65,10 @@ class AdminPermissionsView(QWidget):
                 cb = QCheckBox()
                 if mod in allowed_modules:
                     cb.setChecked(True)
-                    
-                # Regla de Negocio Crítica: El Admin NO puede perder acceso a la Gestión de Accesos
                 if role == "admin" and mod == "Gestión de Accesos":
                     cb.setChecked(True)
                     cb.setEnabled(False)
-                    
-                # Centramos el checkbox dentro de la celda de la tabla
+
                 container = QWidget()
                 container.setStyleSheet("background: transparent;")
                 cb_layout = QHBoxLayout(container)
@@ -95,8 +88,6 @@ class AdminPermissionsView(QWidget):
                     cb = container.findChild(QCheckBox)
                     if cb.isChecked():
                         selected_modules.append(mod)
-                
-                # Actualiza el rol en la base de datos
                 self.permission_repo.update_permissions(role, selected_modules)
                 
             ToastNotification(self.window(), "Éxito", "Permisos actualizados. Los usuarios verán los cambios en su próximo inicio de sesión.", "success").show_toast()

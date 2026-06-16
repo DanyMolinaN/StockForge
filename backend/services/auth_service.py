@@ -8,7 +8,7 @@ from backend.repositories.user_repo import UserRepository
 
 class AuthService:
     """Servicio encargado de la lógica de autenticación y sesión."""
-    def __init__(self, user_repo: UserRepository, permission_repo: PermissionRepository): # Inyectamos el nuevo repo
+    def __init__(self, user_repo: UserRepository, permission_repo: PermissionRepository):
         self.user_repo = user_repo
         self.permission_repo = permission_repo
         self.current_user: Optional[User] = None
@@ -49,8 +49,6 @@ class AuthService:
             return False
             
         role = self.current_user.role.lower()
-        
-        # Obtenemos el diccionario de permisos desde la base de datos
         all_permissions = self.permission_repo.get_permissions()
         allowed_modules = all_permissions.get(role, [])
         

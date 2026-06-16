@@ -37,7 +37,6 @@ class Sidebar(QFrame):
         self.main_layout.setContentsMargins(12, 18, 12, 18)
         self.main_layout.setSpacing(8)
 
-        # --- HEADER ---
         self.header_container = QWidget()
         self.header_container.setStyleSheet("background-color: transparent;")
         self.header_layout = QHBoxLayout(self.header_container)
@@ -70,12 +69,11 @@ class Sidebar(QFrame):
         
         self.main_layout.addSpacing(24)
         
-        # --- ZONAS DE NAVEGACIÓN ---
         self.top_nav_layout = QVBoxLayout()
         self.top_nav_layout.setSpacing(4)
         self.main_layout.addLayout(self.top_nav_layout)
         
-        self.main_layout.addStretch() # Empuja el resto hacia abajo
+        self.main_layout.addStretch()
 
         self.bottom_nav_layout = QVBoxLayout()
         self.bottom_nav_layout.setSpacing(4)
@@ -83,7 +81,6 @@ class Sidebar(QFrame):
 
     def _build_menu(self):
         """Construye el menú dinámicamente evaluando permisos (RBAC)."""
-        # Definición de todos los módulos posibles
         menu_items = [
             ("Dashboard", "dashboard.svg", "top"),
             ("Inventario", "box.svg", "top"),
@@ -92,10 +89,7 @@ class Sidebar(QFrame):
         ]
 
         first_button = None
-
-        # 1. Módulos dinámicos
         for text, icon_name, position in menu_items:
-            # Validación RBAC: Solo lo crea si el rol tiene permiso
             if self.auth_service.has_permission(text):
                 btn = self._create_nav_button(text, icon_name)
                 self.button_group.addButton(btn)
@@ -108,14 +102,12 @@ class Sidebar(QFrame):
                 if not first_button:
                     first_button = btn
 
-        # 2. Botón estático de Cerrar Sesión (Siempre al final)
         self.bottom_nav_layout.addSpacing(16)
         self.btn_logout = self._create_nav_button("Cerrar Sesión", "logout.svg", is_checkable=False)
         self.btn_logout.setIcon(get_icon_colored("logout.svg", Palette.Danger, 22))
         self.btn_logout.clicked.connect(self.logout_requested.emit)
         self.bottom_nav_layout.addWidget(self.btn_logout)
 
-        # Seleccionar el primer botón por defecto si existe
         if first_button:
             first_button.setChecked(True)
             self._on_tab_clicked(first_button)
@@ -136,9 +128,6 @@ class Sidebar(QFrame):
         self.nav_buttons.append(btn)
         return btn
 
-    # ==========================================
-    # LÓGICA DE ANIMACIÓN (Heredada y Adaptada)
-    # ==========================================
     def toggle_sidebar(self):
         self.is_expanded = not self.is_expanded
         target_width = self.expanded_width if self.is_expanded else self.collapsed_width
