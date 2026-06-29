@@ -4,32 +4,32 @@ from frontend.common.utils import get_assets_path
 PATH_ICON_CHEVRON_DOWN = get_assets_path("icons/chevron-down.svg").replace('\\', '/')
 PATH_ICON_CHEVRON_UP = get_assets_path("icons/chevron-up.svg").replace('\\', '/')
 
-COLOR_BG_BASE       = "#F4F4F5"
-COLOR_BG_SURFACE    = "#FFFFFF"
-COLOR_BG_INPUT      = "#FFFFFF"
-COLOR_BG_HOVER      = "#E4E4E7"
+COLOR_BG_BASE       = "#0A0A0A"
+COLOR_BG_SURFACE    = "#121212" 
+COLOR_BG_INPUT      = "#18181B"
+COLOR_BG_HOVER      = "#27272A"
 
-COLOR_BORDER_SVELTE = "#E4E4E7"
-COLOR_BORDER_HOVER  = "#D4D4D8"
+COLOR_BORDER_SVELTE = "#1E1E1F"
+COLOR_BORDER_HOVER  = "#27272A"
 
-COLOR_ACCENT        = "#3C5D94"
-COLOR_ACCENT_HOVER  = "#607FF3"   
+COLOR_ACCENT        = "#4D89DA"
+COLOR_ACCENT_HOVER  = "#5E9BEB"
 
 COLOR_DANGER        = "#EF4444"
 COLOR_WARNING       = "#F59E0B"
 COLOR_INFO          = "#3B82F6"
 
-COLOR_BG_TOAST      = "#FFFFFF"
-COLOR_ACCENT_GLOW   = "rgba(250, 90, 21, 0.1)"
-COLOR_DANGER_GLOW   = "rgba(239, 68, 68, 0.1)"
-COLOR_WARNING_GLOW  = "rgba(245, 158, 11, 0.1)"
-COLOR_INFO_GLOW     = "rgba(59, 130, 246, 0.1)"
+COLOR_BG_TOAST      = "#18181B"
+COLOR_ACCENT_GLOW   = "rgba(250, 90, 21, 0.05)"
+COLOR_DANGER_GLOW   = "rgba(239, 68, 68, 0.15)"
+COLOR_WARNING_GLOW  = "rgba(245, 158, 11, 0.15)"
+COLOR_INFO_GLOW     = "rgba(59, 130, 246, 0.15)"
 
-COLOR_TEXT_PRIMARY   = "#18181B"
-COLOR_TEXT_SECONDARY = "#52525B"
-COLOR_TEXT_MUTED     = "#909098"
-COLOR_BLACK          = "#000000"
-COLOR_WHITE          = "#FFFFFF"
+COLOR_TEXT_PRIMARY   = "#FAFAFA"
+COLOR_TEXT_SECONDARY = "#A1A1AA"
+COLOR_TEXT_MUTED     = "#71717A"
+COLOR_BLACK          = "#0A0A0A"
+COLOR_WHITE          = "#FAFAFA"
 
 FONT_FAMILY = "'Geist', '-apple-system', 'Segoe UI', sans-serif"
 
@@ -95,7 +95,18 @@ QFrame#CanvasContainer {{ background-color: {COLOR_BG_BASE}; border: 2px solid {
 QFrame[role="step_indicator"] {{ background-color: {COLOR_BORDER_SVELTE}; border-radius: 2px; }}
 QFrame[role="step_indicator"][state="active"] {{ background-color: {COLOR_ACCENT}; }}
 QFrame[role="divider"] {{ background-color: {COLOR_BORDER_SVELTE}; margin: 4px 0px; }}
-QFrame#Sidebar {{ background-color: {COLOR_BG_SURFACE}; border-right: 1px solid {COLOR_BORDER_SVELTE}; }}
+QFrame#Sidebar {{ background-color: #0A0A0A; border-right: 1px solid {COLOR_BORDER_SVELTE}; }}
+QFrame#SidebarLogoRing {{ background-color: transparent; border: 2px solid #FAFAFA; border-radius: 10px; }}
+QLabel#SidebarBrandTitle {{ font-size: 14px; font-weight: 700; color: #FAFAFA; background-color: transparent; }}
+QLabel#SidebarBrandSubtitle {{ font-size: 11px; font-weight: 400; color: #71717A; background-color: transparent; }}
+QLabel#SidebarNavSectionHeader {{ font-size: 10px; font-weight: 700; color: #52525B; text-transform: uppercase; background-color: transparent; padding-left: 6px; margin-top: 15px; margin-bottom: 4px; }}
+QFrame#SidebarProfileCard {{ background-color: transparent; border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: 8px; padding: 8px; }}
+QFrame#SidebarProfileCard:hover {{ background-color: #18181B; border-color: #27272A; }}
+QLabel#SidebarProfileAvatar {{ background-color: #27272A; color: #FAFAFA; border-radius: 12px; font-weight: 700; font-size: 11px; }}
+QLabel#SidebarProfileName {{ font-size: 12px; font-weight: 600; color: #FAFAFA; background-color: transparent; }}
+QLabel#SidebarProfileRole {{ font-size: 10px; font-weight: 400; color: #71717A; background-color: transparent; }}
+QPushButton[role="btn_feedback"] {{ background-color: transparent; border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: 8px; color: #A1A1AA; padding: 8px 12px; text-align: left; }}
+QPushButton[role="btn_feedback"]:hover {{ background-color: #27272A; color: #FAFAFA; border-color: #27272A; }}
 QFrame[role="bot_tag"] {{ background-color: {COLOR_BG_INPUT}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; }}
 QFrame[role="bot_tag"]:hover {{ border-color: {COLOR_DANGER}; }}
 QFrame[role="bot_tag"] QLabel {{ color: {COLOR_TEXT_PRIMARY}; padding-right: 4px; font-size: {btn_txt}px; }}
@@ -127,9 +138,13 @@ QComboBox:focus::drop-down, QComboBox:hover::drop-down {{ border-color: {COLOR_B
 QComboBox::drop-down:hover {{ background-color: {COLOR_BG_HOVER}; }}
 QComboBox::down-arrow {{ image: url("{PATH_ICON_CHEVRON_DOWN}"); width: 15px; height: 15px; }}
 QComboBox::down-arrow:on {{ top: 1px; left: 1px; }}
-QComboBox QAbstractItemView, QMenu {{ font-size: {base_pt}pt; background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; outline: none; padding: 2px; selection-background-color: {COLOR_BG_HOVER}; selection-color: {COLOR_ACCENT}; }}
-QComboBox QAbstractItemView::item, QMenu::item {{ border-radius: {RADIUS_SM}px; padding: 2px; margin: 2px; }}
-QComboBox QAbstractItemView::item:selected, QComboBox QAbstractItemView::item:hover, QComboBox QListView::item:selected, QComboBox QListView::item:hover, QMenu::item:selected, QMenu::item:hover {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_ACCENT}; }}
+QComboBox QAbstractItemView {{ font-size: {base_pt}pt; background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; outline: none; padding: 2px; selection-background-color: {COLOR_BG_HOVER}; selection-color: {COLOR_ACCENT}; }}
+QComboBox QAbstractItemView::item {{ border-radius: {RADIUS_SM}px; padding: 2px; margin: 2px; }}
+QComboBox QAbstractItemView::item:selected, QComboBox QAbstractItemView::item:hover, QComboBox QListView::item:selected, QComboBox QListView::item:hover {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_ACCENT}; }}
+
+QMenu {{ background-color: {COLOR_BG_SURFACE}; border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: 8px; padding: 4px; }}
+QMenu::item {{ padding: 6px 12px; border-radius: 4px; color: {COLOR_TEXT_SECONDARY}; font-size: {base}px; }}
+QMenu::item:selected {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_ACCENT}; }}
 
 QSpinBox, QDoubleSpinBox {{ background-color: {COLOR_BG_INPUT}; color: {COLOR_TEXT_PRIMARY}; font-size: {base}px; font-weight: 400; border-radius: {RADIUS_MD}px; padding: 3px 20px 3px 8px; border: 1.5px solid transparent; }}
 QSpinBox:focus, QDoubleSpinBox:focus, QSpinBox:hover, QDoubleSpinBox:hover {{ border-color: transparent; background-color: {COLOR_BG_HOVER}; }}
@@ -234,124 +249,55 @@ QLabel[role="role_badge"][user_role="dueño"] {{ background-color: rgba(34, 197,
 QLabel[role="role_badge"][user_role="cajero"] {{ background-color: rgba(156, 163, 175, 0.15); color: #9CA3AF; }}
  
 /* --- 9. LOGIN VIEW CUSTOMS --- */
-QFrame#LoginBrandingPanel {{
-    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {COLOR_ACCENT}, stop:1 {COLOR_ACCENT_HOVER});
-    border: none;
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
-}}
-QFrame#LoginArea {{
-    background-color: {COLOR_BG_SURFACE};
-    border: none;
-    border-top-right-radius: 12px;
-    border-bottom-right-radius: 12px;
-}}
-QLabel[role="login_brand_title"] {{
-    font-size: 30px;
-    font-weight: 800;
-    color: #FFFFFF;
-}}
-QLabel[role="login_brand_desc"] {{
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.85);
-    line-height: 1.6;
-}}
-QLabel[role="login_title"] {{
-    font-size: 32px;
-    font-weight: 700;
-    color: {COLOR_TEXT_PRIMARY};
-}}
-QLabel[role="login_subtitle"] {{
-    font-size: 13px;
-    color: {COLOR_TEXT_SECONDARY};
-}}
-QFrame[role="login_field_container"] {{
-    border-bottom: 1.5px solid {COLOR_BORDER_SVELTE};
-    background-color: transparent;
-    padding: 2px 0px;
-}}
-QFrame[role="login_field_container"]:focus-within {{
-    border-bottom: 2px solid {COLOR_ACCENT};
-}}
-QLineEdit[role="login_input_field"] {{
-    background-color: transparent;
-    border: none;
-    padding: 6px 0px;
-    font-size: 14px;
-    color: {COLOR_TEXT_PRIMARY};
-}}
-QLineEdit[role="login_input_field"]:focus {{
-    border: none;
-    background-color: transparent;
-}}
-QLabel[role="login_field_label"] {{
-    font-size: 11px;
-    font-weight: 700;
-    color: {COLOR_TEXT_MUTED};
-    text-transform: uppercase;
-}}
-QLabel[role="login_logo_text"] {{
-    font-size: {h2}px;
-    font-weight: 800;
-    color: #FFFFFF;
-}}
-QLabel[role="login_dot"] {{
-    background-color: rgba(255, 255, 255, 0.4);
-    border-radius: 4px;
-}}
-QLabel[role="login_dot"][state="active"] {{
-    background-color: #FFFFFF;
-}}
+QFrame#LoginBrandingPanel {{ background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1E1E24, stop:1 #0A0A0C); border: none; border-top-left-radius: 12px; border-bottom-left-radius: 12px; }}
+QFrame#LoginArea {{ background-color: {COLOR_BG_SURFACE}; border: none; border-top-right-radius: 12px; border-bottom-right-radius: 12px; }}
+QLabel[role="login_brand_title"] {{ font-size: 30px; font-weight: 800; color: #FFFFFF; }}
+QLabel[role="login_brand_desc"] {{ font-size: 14px; color: rgba(255, 255, 255, 0.85); line-height: 1.6; }}
+QLabel[role="login_title"] {{ font-size: 32px; font-weight: 700; color: {COLOR_TEXT_PRIMARY}; }}
+QLabel[role="login_subtitle"] {{ font-size: 13px; color: {COLOR_TEXT_SECONDARY}; }}
+QFrame[role="login_field_container"] {{ border-bottom: 1.5px solid {COLOR_BORDER_SVELTE}; background-color: transparent; padding: 2px 0px; }}
+QFrame[role="login_field_container"]:focus-within {{ border-bottom: 2px solid {COLOR_ACCENT}; }}
+QLineEdit[role="login_input_field"] {{ background-color: transparent; border: none; padding: 6px 0px; font-size: 14px; color: {COLOR_TEXT_PRIMARY}; }}
+QLineEdit[role="login_input_field"]:focus {{ border: none; background-color: transparent; }}
+QLabel[role="login_field_label"] {{ font-size: 11px; font-weight: 700; color: {COLOR_TEXT_MUTED}; text-transform: uppercase; }}
+QLabel[role="login_logo_text"] {{ font-size: {h2}px; font-weight: 800; color: #FFFFFF; }}
+QLabel[role="login_dot"] {{ background-color: rgba(255, 255, 255, 0.4); border-radius: 4px; }}
+QLabel[role="login_dot"][state="active"] {{ background-color: #FFFFFF; }}
 
 /* --- 10. CONTROLES ADICIONALES (QDateEdit, QCalendarWidget, QChartView) --- */
-QDateEdit::drop-down {{
-    subcontrol-origin: padding;
-    subcontrol-position: top right;
-    width: 23px;
-    border-left: 1.5px solid {COLOR_BORDER_SVELTE};
-    border-top-right-radius: {RADIUS_MD}px;
-    border-bottom-right-radius: {RADIUS_MD}px;
-}}
-QDateEdit::down-arrow {{
-    image: url("{PATH_ICON_CHEVRON_DOWN}");
-    width: 15px;
-    height: 15px;
-}}
-QDateEdit::drop-down:hover {{
-    background-color: {COLOR_BG_HOVER};
-}}
-QCalendarWidget QWidget {{
-    background-color: {COLOR_BG_SURFACE};
-    color: {COLOR_TEXT_PRIMARY};
-}}
-QCalendarWidget QAbstractItemView:enabled {{
-    color: {COLOR_TEXT_PRIMARY};
-    background-color: {COLOR_BG_SURFACE};
-    selection-background-color: {COLOR_ACCENT};
-    selection-color: {COLOR_WHITE};
-}}
-QCalendarWidget QAbstractItemView:disabled {{
-    color: {COLOR_TEXT_MUTED};
-}}
-QCalendarWidget QMenu {{
-    background-color: {COLOR_BG_SURFACE};
-    color: {COLOR_TEXT_PRIMARY};
-}}
-QCalendarWidget QToolButton {{
-    background-color: transparent;
-    color: {COLOR_TEXT_PRIMARY};
-    border: none;
-    font-weight: 600;
-}}
-QCalendarWidget QToolButton:hover {{
-    background-color: {COLOR_BG_HOVER};
-    border-radius: 4px;
-}}
-QChartView, QGraphicsView {{
-    background: transparent;
-    background-color: transparent;
-    border: none;
-}}
+QDateEdit::drop-down {{ subcontrol-origin: padding; subcontrol-position: top right; width: 23px; border-left: 1.5px solid {COLOR_BORDER_SVELTE}; border-top-right-radius: {RADIUS_MD}px; border-bottom-right-radius: {RADIUS_MD}px; }}
+QDateEdit::down-arrow {{ image: url("{PATH_ICON_CHEVRON_DOWN}"); width: 15px; height: 15px; }}
+QDateEdit::drop-down:hover {{ background-color: {COLOR_BG_HOVER}; }}
+QCalendarWidget QWidget {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; }}
+QCalendarWidget QAbstractItemView:enabled {{ color: {COLOR_TEXT_PRIMARY}; background-color: {COLOR_BG_SURFACE}; selection-background-color: {COLOR_ACCENT}; selection-color: {COLOR_WHITE}; }}
+QCalendarWidget QAbstractItemView:disabled {{ color: {COLOR_TEXT_MUTED}; }}
+QCalendarWidget QMenu {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; }}
+QCalendarWidget QToolButton {{ background-color: transparent; color: {COLOR_TEXT_PRIMARY}; border: none; font-weight: 600; }}
+QCalendarWidget QToolButton:hover {{ background-color: {COLOR_BG_HOVER}; border-radius: 4px; }}
+QChartView, QGraphicsView {{ background: transparent; background-color: transparent; border: none; }}
+
+/* --- 11. DETALLES DE DIÁLOGO, KPI, PILLS DE ESTADO Y BOTONES DE TABLA (TEMA OSCURO COMPARTIDO) --- */
+QFrame#StatusPill[state="success"] {{ background-color: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 10px; }}
+QFrame#StatusPill[state="success"] QLabel#StatusPillDot {{ background-color: #22C55E; border-radius: 3px; border: none; }}
+QFrame#StatusPill[state="success"] QLabel#StatusPillText {{ color: #4ADE80; font-size: 11px; font-weight: 600; background-color: transparent; border: none; }}
+QFrame#StatusPill[state="warning"] {{ background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; }}
+QFrame#StatusPill[state="warning"] QLabel#StatusPillDot {{ background-color: #F59E0B; border-radius: 3px; border: none; }}
+QFrame#StatusPill[state="warning"] QLabel#StatusPillText {{ color: #FBBF24; font-size: 11px; font-weight: 600; background-color: transparent; border: none; }}
+QFrame#StatusPill[state="danger"] {{ background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; }}
+QFrame#StatusPill[state="danger"] QLabel#StatusPillDot {{ background-color: #EF4444; border-radius: 3px; border: none; }}
+QFrame#StatusPill[state="danger"] QLabel#StatusPillText {{ color: #F87171; font-size: 11px; font-weight: 600; background-color: transparent; border: none; }}
+QLabel#KPICardTitle {{ color: #71717A; font-size: 11px; font-weight: 500; background-color: transparent; }}
+QLabel#KPICardValue {{ color: #FAFAFA; font-size: 32px; font-weight: 700; margin: 4px 0px; background-color: transparent; }}
+QLabel#KPICardSubtext {{ color: #71717A; font-size: 11px; font-weight: 400; background-color: transparent; }}
+QLabel#TablePageIndicator {{ color: #FAFAFA; font-weight: 600; font-size: 11px; padding: 2px 6px; border: 1px solid #27272A; border-radius: 4px; background-color: #18181B; }}
+QPushButton[role="btn_action_table"] {{ background-color: #27272A; color: #FAFAFA; font-size: 11px; font-weight: 600; border: 1px solid #3F3F46; border-radius: 4px; padding: 4px 8px; }}
+QPushButton[role="btn_action_table"]:hover {{ background-color: #3F3F46; border-color: #52525B; }}
+QDialog {{ background-color: #121212; border: 1.5px solid #1E1E1F; border-radius: 12px; }}
+QDialog QLabel {{ font-size: 13px; color: #FAFAFA; }}
+QDialog QLabel[role="dialog_title"] {{ font-size: 16px; font-weight: bold; color: #FAFAFA; }}
+QDialog QLabel[role="dialog_label"] {{ color: #71717A; font-weight: 500; }}
+QDialog QPushButton {{ background-color: #FAFAFA; color: #0A0A0A; font-size: 12px; font-weight: bold; border-radius: 6px; padding: 6px 12px; border: none; }}
+QDialog QPushButton:hover {{ background-color: #E4E4E7; }}
 """
 
 GLOBAL_QSS = get_global_qss(13)

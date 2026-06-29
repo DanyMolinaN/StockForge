@@ -1,73 +1,16 @@
 # frontend/views/user_management_view.py
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QPushButton, QFrame, QScrollArea,
-                             QCheckBox, QMessageBox, QInputDialog, QDialog)
+                             QPushButton, QFrame, QMessageBox, QInputDialog, QDialog,
+                             QTableWidgetItem, QHeaderView)
 from PySide6.QtCore import Qt
 from backend.services.auth_service import AuthService
 from backend.models.user_model import User
 from frontend.dialogs.user_dialog import CreateUserDialog
 from frontend.navigation.toast_component import ToastNotification
-
-class UserRowWidget(QFrame):
-    def __init__(self, user: User, permissions: list[str], edit_cb, revoke_cb):
-        super().__init__()
-        self.user = user
-        self.edit_cb = edit_cb
-        self.revoke_cb = revoke_cb
-        
-        self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setProperty("role", "card")
-        self.setup_ui(permissions)
-
-    def setup_ui(self, permissions: list[str]):
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 12, 12, 12)
-
-        info_layout = QVBoxLayout()
-        lbl_name = QLabel(self.user.full_name)
-        lbl_name.setProperty("role", "h3")
-        lbl_email = QLabel(self.user.email)
-        lbl_email.setProperty("role", "caption")
-        info_layout.addWidget(lbl_name)
-        info_layout.addWidget(lbl_email)
-        layout.addLayout(info_layout, stretch=2)
-
-        lbl_role = QLabel(self.user.role.capitalize())
-        lbl_role.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lbl_role.setFixedSize(80, 28)
-        self._apply_role_style(lbl_role, self.user.role)
-        layout.addWidget(lbl_role, stretch=1)
-
-        perms_layout = QHBoxLayout()
-        all_modules = ["Dashboard", "Inventario", "Punto de Venta", "Gestión de Accesos"]
-        for mod in all_modules:
-            cb = QCheckBox(mod)
-            cb.setChecked(mod in permissions)
-            cb.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-            cb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-            perms_layout.addWidget(cb)
-        layout.addLayout(perms_layout, stretch=3)
-
-        actions_layout = QHBoxLayout()
-        btn_edit = QPushButton("Editar Rol")
-        btn_edit.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_edit.setProperty("role", "action_outlined")
-        btn_edit.clicked.connect(lambda: self.edit_cb(self.user))
-        
-        btn_revoke = QPushButton("Revocar")
-        btn_revoke.setCursor(Qt.CursorShape.PointingHandCursor)
-        btn_revoke.setProperty("role", "action_danger")
-        btn_revoke.clicked.connect(lambda: self.revoke_cb(self.user))
-        
-        actions_layout.addWidget(btn_edit)
-        actions_layout.addWidget(btn_revoke)
-        layout.addLayout(actions_layout, stretch=1)
-
-    def _apply_role_style(self, label: QLabel, role: str):
-        label.setProperty("role", "role_badge")
-        label.setProperty("user_role", role.lower())
-
+from frontend.common.utils import get_icon_colored
+from frontend.common.theme import COLOR_DANGER, COLOR_WARNING
+from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
 
 class UserManagementView(QWidget):
     def __init__(self, auth_service: AuthService):
@@ -81,51 +24,128 @@ class UserManagementView(QWidget):
         layout.setContentsMargins(12, 12, 12, 12)
         layout.setSpacing(10)
 
-        header_layout = QHBoxLayout()
-        lbl_title = QLabel("Gestión de Accesos y Usuarios")
-        lbl_title.setProperty("role", "h1")
-        
+        header = PageHeader("Gestión de Accesos y Usuarios", "Administra las cuentas y roles del personal.")
         self.btn_new_user = QPushButton("+ Nuevo Usuario")
         self.btn_new_user.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_new_user.setProperty("role", "action_accent")
         self.btn_new_user.clicked.connect(self.handle_create_user)
-        
-        header_layout.addWidget(lbl_title)
-        header_layout.addStretch()
-        header_layout.addWidget(self.btn_new_user)
-        layout.addLayout(header_layout)
+        header.add_action(self.btn_new_user)
+        layout.addWidget(header)
 
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QScrollArea.Shape.NoFrame)
+        self.table_card = CardPanel()
         
-        self.list_container = QWidget()
-        self.list_layout = QVBoxLayout(self.list_container)
-        self.list_layout.setContentsMargins(0, 0, 0, 0)
-        self.list_layout.setSpacing(0)
-        self.list_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        headers = ["Usuario", "Email / Contacto", "Rol", "Módulos Autorizados", "Acciones"]
+        self.table = StandardTable(headers)
         
-        scroll.setWidget(self.list_container)
-        layout.addWidget(scroll)
+        header_view = self.table.horizontalHeader()
+        header_view.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        header_view.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        header_view.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        header_view.setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
+        header_view.setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        
+        self.table_card.add_widget(self.table)
+        layout.addWidget(self.table_card)
 
     def load_data(self):
-        for i in reversed(range(self.list_layout.count())): 
-            widget = self.list_layout.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
-
+        self.table.setRowCount(0)
         users = self.auth_service.user_repo.get_all()
         permissions_matrix = self.auth_service.permission_repo.get_permissions()
 
-        for user in users:
+        for row_idx, user in enumerate(users):
+            self.table.insertRow(row_idx)
+            
+            user_widget = QWidget()
+            user_layout = QHBoxLayout(user_widget)
+            user_layout.setContentsMargins(8, 4, 8, 4)
+            user_layout.setSpacing(12)
+            
+            initials = "".join([part[0] for part in user.full_name.split() if part])[:2].upper()
+            avatar = QLabel(initials)
+            avatar.setFixedSize(36, 36)
+            avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            avatar.setProperty("role", "user_avatar")
+            
+            text_layout = QVBoxLayout()
+            text_layout.setSpacing(2)
+            
+            lbl_name = QLabel(user.full_name)
+            lbl_name.setProperty("role", "user_name_link")
+            
+            lbl_uname = QLabel(f"@{user.username}")
+            lbl_uname.setProperty("role", "caption")
+            
+            text_layout.addWidget(lbl_name)
+            text_layout.addWidget(lbl_uname)
+            
+            user_layout.addWidget(avatar)
+            user_layout.addLayout(text_layout, 1)
+            self.table.setCellWidget(row_idx, 0, user_widget)
+            
+            email_widget = QWidget()
+            email_layout = QHBoxLayout(email_widget)
+            email_layout.setContentsMargins(8, 4, 8, 4)
+            email_layout.setSpacing(6)
+            
+            lbl_email = QLabel(user.email)
+            lbl_email.setProperty("role", "body")
+            email_layout.addWidget(lbl_email)
+            self.table.setCellWidget(row_idx, 1, email_widget)
+            
+            badge_widget = QWidget()
+            badge_layout = QHBoxLayout(badge_widget)
+            badge_layout.setContentsMargins(8, 4, 8, 4)
+            badge_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            lbl_role = QLabel(user.role.capitalize())
+            lbl_role.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            lbl_role.setFixedSize(80, 24)
+            lbl_role.setProperty("role", "role_badge")
+            lbl_role.setProperty("user_role", user.role.lower())
+            
+            badge_layout.addWidget(lbl_role)
+            self.table.setCellWidget(row_idx, 2, badge_widget)
+            
+            perms_widget = QWidget()
+            perms_layout = QHBoxLayout(perms_widget)
+            perms_layout.setContentsMargins(8, 4, 8, 4)
+            perms_layout.setSpacing(6)
+            perms_layout.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            
             user_perms = permissions_matrix.get(user.role.lower(), [])
-            row = UserRowWidget(
-                user=user, 
-                permissions=user_perms, 
-                edit_cb=self.handle_edit_role, 
-                revoke_cb=self.handle_revoke_access
-            )
-            self.list_layout.addWidget(row)
+            for mod in user_perms:
+                tag = QLabel(mod)
+                tag.setProperty("role", "tag_permission")
+                perms_layout.addWidget(tag)
+            
+            perms_layout.addStretch()
+            self.table.setCellWidget(row_idx, 3, perms_widget)
+            
+            actions_widget = QWidget()
+            actions_layout = QHBoxLayout(actions_widget)
+            actions_layout.setContentsMargins(8, 4, 8, 4)
+            actions_layout.setSpacing(8)
+            actions_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            btn_edit = QPushButton()
+            btn_edit.setIcon(get_icon_colored("edit.svg", COLOR_WARNING, 18))
+            btn_edit.setToolTip("Editar Rol de Usuario")
+            btn_edit.setProperty("role", "btn_ghost")
+            btn_edit.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn_edit.clicked.connect(lambda _, u=user: self.handle_edit_role(u))
+            
+            btn_revoke = QPushButton()
+            btn_revoke.setIcon(get_icon_colored("trash.svg", COLOR_DANGER, 18))
+            btn_revoke.setToolTip("Revocar Acceso")
+            btn_revoke.setProperty("role", "btn_ghost")
+            btn_revoke.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn_revoke.clicked.connect(lambda _, u=user: self.handle_revoke_access(u))
+            
+            actions_layout.addWidget(btn_edit)
+            actions_layout.addWidget(btn_revoke)
+            self.table.setCellWidget(row_idx, 4, actions_widget)
+            
+            self.table.setRowHeight(row_idx, 52)
 
     def handle_create_user(self):
         dialog = CreateUserDialog(self)
@@ -152,6 +172,7 @@ class UserManagementView(QWidget):
         if ok and new_role and new_role != user.role:
             self.auth_service.update_user_role(user.id, new_role)
             self.load_data() 
+            ToastNotification(self.window(), "Éxito", "Rol actualizado correctamente.", "success").show_toast()
 
     def handle_revoke_access(self, user: User):
         if user.username == "admin":
@@ -164,3 +185,4 @@ class UserManagementView(QWidget):
         if reply == QMessageBox.StandardButton.Yes:
             self.auth_service.revoke_access(user.id)
             self.load_data()
+            ToastNotification(self.window(), "Éxito", "Acceso revocado correctamente.", "success").show_toast()

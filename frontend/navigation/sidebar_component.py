@@ -1,12 +1,26 @@
-# frontend/components/sidebar.py
+# frontend/navigation/sidebar_component.py
 
 from PySide6.QtWidgets import (
     QFrame, QVBoxLayout, QHBoxLayout, QPushButton, 
-    QLabel, QSizePolicy, QWidget, QButtonGroup
+    QLabel, QSizePolicy, QWidget, QButtonGroup, QMenu
 )
-from PySide6.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, Signal, QEasingCurve
+from PySide6.QtCore import Qt, Signal, QPoint
+from PySide6.QtGui import QAction
 from frontend.common.utils import get_icon_colored
 from frontend.common.theme import COLOR_ACCENT, COLOR_TEXT_SECONDARY, COLOR_DANGER
+
+class ProfileWidget(QFrame):
+    def __init__(self, parent=None, click_callback=None):
+        super().__init__(parent)
+        self.setObjectName("SidebarProfileCard")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.click_callback = click_callback
+        
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton and self.click_callback:
+            self.click_callback()
+        super().mouseReleaseEvent(event)
+
 
 class Sidebar(QFrame):
     view_selected = Signal(str)
@@ -18,9 +32,7 @@ class Sidebar(QFrame):
         self.app_version = app_version
         
         self.setObjectName("Sidebar")
-        self.is_expanded = True
         self.expanded_width = 240
-        self.collapsed_width = 60
         self.setFixedWidth(self.expanded_width)
         
         self.button_group = QButtonGroup(self)
@@ -34,77 +46,123 @@ class Sidebar(QFrame):
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(10, 10, 10, 10)
-        self.main_layout.setSpacing(8)
+        self.main_layout.setContentsMargins(14, 20, 14, 20)
+        self.main_layout.setSpacing(6)
 
         self.header_container = QWidget()
         self.header_layout = QHBoxLayout(self.header_container)
-        self.header_layout.setContentsMargins(0, 0, 0, 0) 
-        self.header_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
+        self.header_layout.setContentsMargins(4, 0, 4, 0)
+        self.header_layout.setSpacing(10)
         
-        self.logo_btn = QPushButton()
-        self.logo_btn.setIcon(get_icon_colored("box.svg", COLOR_ACCENT, 30))
-        self.logo_btn.setProperty("role", "btn_ghost")
-
+        self.logo_frame = QFrame()
+        self.logo_frame.setObjectName("SidebarLogoRing")
+        self.logo_frame.setFixedSize(20, 20)
+        
+        brand_text_layout = QVBoxLayout()
+        brand_text_layout.setContentsMargins(0, 0, 0, 0)
+        brand_text_layout.setSpacing(1)
+        
         self.title_label = QLabel("StockForge")
-        self.title_label.setObjectName("SidebarTitle")
+        self.title_label.setObjectName("SidebarBrandTitle")
         
+        self.subtitle_label = QLabel("Balipark Pro")
+        self.subtitle_label.setObjectName("SidebarBrandSubtitle")
         
-        self.expanded_spacer = QWidget()
-        self.expanded_spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        brand_text_layout.addWidget(self.title_label)
+        brand_text_layout.addWidget(self.subtitle_label)
         
-        self.btn_toggle = QPushButton()
-        self.btn_toggle.setProperty("role", "btn_ghost")
-        self.btn_toggle.setIcon(get_icon_colored("chevron-left.svg", COLOR_TEXT_SECONDARY, 20)) 
-        self.btn_toggle.setFixedSize(36, 36)
-        self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_toggle.clicked.connect(self.toggle_sidebar)
+        self.header_layout.addWidget(self.logo_frame)
+        self.header_layout.addLayout(brand_text_layout)
+        self.header_layout.addStretch()
         
-        self.header_layout.addWidget(self.logo_btn)
-        self.header_layout.addWidget(self.title_label)
-        self.header_layout.addWidget(self.expanded_spacer) 
-        self.header_layout.addWidget(self.btn_toggle)
         self.main_layout.addWidget(self.header_container)
         
-        self.main_layout.addSpacing(20)
+        self.section_header = QLabel("Navigation")
+        self.section_header.setObjectName("SidebarNavSectionHeader")
+        self.main_layout.addWidget(self.section_header)
         
         self.top_nav_layout = QVBoxLayout()
         self.top_nav_layout.setSpacing(4)
+        self.top_nav_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.addLayout(self.top_nav_layout)
         
         self.main_layout.addStretch()
 
-        self.bottom_nav_layout = QVBoxLayout()
-        self.bottom_nav_layout.setSpacing(4)
-        self.main_layout.addLayout(self.bottom_nav_layout)
+        self.btn_feedback = QPushButton(" Got feedback?")
+        self.btn_feedback.setProperty("role", "btn_feedback")
+        self.btn_feedback.setIcon(get_icon_colored("info.svg", COLOR_TEXT_SECONDARY, 15))
+        self.btn_feedback.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_feedback.setFixedSize(self.expanded_width - 28, 36)
+        self.main_layout.addWidget(self.btn_feedback)
+        
+        self.main_layout.addSpacing(6)
+
+        user = self.auth_service.current_user
+        full_name = user.full_name if user else "Administrador"
+        role = user.role if user else "admin"
+        
+        parts = full_name.split()
+        if len(parts) >= 2:
+            initials = parts[0][0].upper() + parts[1][0].upper()
+        elif len(parts) == 1:
+            initials = parts[0][:2].upper()
+        else:
+            initials = "AD"
+
+        display_name = full_name
+        if len(display_name) > 16:
+            display_name = display_name[:14] + ".."
+
+        self.profile_container = ProfileWidget(self, self._show_profile_menu)
+        self.profile_layout = QHBoxLayout(self.profile_container)
+        self.profile_layout.setContentsMargins(8, 8, 8, 8)
+        self.profile_layout.setSpacing(10)
+        
+        self.avatar_lbl = QLabel(initials)
+        self.avatar_lbl.setObjectName("SidebarProfileAvatar")
+        self.avatar_lbl.setFixedSize(28, 28)
+        self.avatar_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        text_layout = QVBoxLayout()
+        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_layout.setSpacing(0)
+        
+        self.name_lbl = QLabel(display_name)
+        self.name_lbl.setObjectName("SidebarProfileName")
+        
+        self.role_lbl = QLabel(role.upper())
+        self.role_lbl.setObjectName("SidebarProfileRole")
+        
+        text_layout.addWidget(self.name_lbl)
+        text_layout.addWidget(self.role_lbl)
+        
+        self.chevron_lbl = QLabel()
+        self.chevron_lbl.setFixedSize(14, 14)
+        chevron_pix = get_icon_colored("chevron-down.svg", COLOR_TEXT_SECONDARY, 14).pixmap(14, 14)
+        self.chevron_lbl.setPixmap(chevron_pix)
+        
+        self.profile_layout.addWidget(self.avatar_lbl)
+        self.profile_layout.addLayout(text_layout, 1)
+        self.profile_layout.addWidget(self.chevron_lbl)
+        
+        self.main_layout.addWidget(self.profile_container)
 
     def _build_menu(self):
         menu_items = [
-            ("Dashboard", "dashboard.svg", "top"),
-            ("Inventario", "box.svg", "top"),
-            ("Punto de Venta", "shopping-cart.svg", "top"),
-            ("Gestión de Accesos", "users.svg", "bottom")
+            ("Dashboard", "dashboard.svg"),
+            ("Inventario", "box.svg"),
+            ("Punto de Venta", "shopping-cart.svg")
         ]
 
         first_button = None
-        for text, icon_name, position in menu_items:
+        for text, icon_name in menu_items:
             if self.auth_service.has_permission(text):
                 btn = self._create_nav_button(text, icon_name)
                 self.button_group.addButton(btn)
-                
-                if position == "bottom":
-                    self.bottom_nav_layout.addWidget(btn)
-                else:
-                    self.top_nav_layout.addWidget(btn)
+                self.top_nav_layout.addWidget(btn)
                 
                 if not first_button:
                     first_button = btn
-
-        self.bottom_nav_layout.addSpacing(16)
-        self.btn_logout = self._create_nav_button("Cerrar Sesión", "logout.svg", is_checkable=False)
-        self.btn_logout.setIcon(get_icon_colored("logout.svg", COLOR_DANGER, 22))
-        self.btn_logout.clicked.connect(self.logout_requested.emit)
-        self.bottom_nav_layout.addWidget(self.btn_logout)
 
         if first_button:
             first_button.setChecked(True)
@@ -120,61 +178,29 @@ class Sidebar(QFrame):
         
         btn.setCheckable(is_checkable)
         btn.setCursor(Qt.CursorShape.PointingHandCursor)       
-        btn.setIcon(get_icon_colored(icon_name, COLOR_TEXT_SECONDARY, 22))
+        btn.setIcon(get_icon_colored(icon_name, COLOR_TEXT_SECONDARY, 20))
+        btn.setFixedSize(self.expanded_width - 28, 40)
         
         self.nav_buttons.append(btn)
         return btn
 
-    def toggle_sidebar(self):
-        self.is_expanded = not self.is_expanded
-        target_width = self.expanded_width if self.is_expanded else self.collapsed_width
-        
-        toggle_icon = "chevron-left.svg" if self.is_expanded else "chevron-right.svg"
-        self.btn_toggle.setIcon(get_icon_colored(toggle_icon, COLOR_TEXT_SECONDARY, 20))
-        
-        self.anim_group = QParallelAnimationGroup()
-        for prop in [b"minimumWidth", b"maximumWidth"]:
-            anim = QPropertyAnimation(self, prop)
-            anim.setDuration(250)
-            anim.setStartValue(self.width())
-            anim.setEndValue(target_width)
-            anim.setEasingCurve(QEasingCurve.Type.InOutQuad)
-            self.anim_group.addAnimation(anim)
-        
-        if not self.is_expanded:
-            self.logo_btn.hide()
-            self.title_label.hide()
-            self.expanded_spacer.hide()
-            self.header_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self._update_texts_and_styles(show=False)
-        else:
-            self.anim_group.finished.connect(self._on_expand_finished)
-            
-        self.anim_group.start()
-
-    def _update_texts_and_styles(self, show: bool):
-        for btn in self.nav_buttons:
-            btn.setText(btn.property("original_text") if show else "")
-            btn.setProperty("collapsed", not show)
-            btn.style().unpolish(btn)
-            btn.style().polish(btn)
-
-    def _on_expand_finished(self):
-        if self.is_expanded:
-            self.header_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
-            self.logo_btn.show()
-            self.title_label.show()
-            self.expanded_spacer.show()
-            self._update_texts_and_styles(show=True)
-            
-            try:
-                self.anim_group.finished.disconnect(self._on_expand_finished)
-            except RuntimeError:
-                pass
-
     def _on_tab_clicked(self, btn):
         for b in self.button_group.buttons():
             color = COLOR_ACCENT if b.isChecked() else COLOR_TEXT_SECONDARY
-            b.setIcon(get_icon_colored(b.property("icon_name"), color, 22))
+            b.setIcon(get_icon_colored(b.property("icon_name"), color, 20))
         
         self.view_selected.emit(btn.property("view_name"))
+
+    def _show_profile_menu(self):
+        menu = QMenu(self)
+        
+        if self.auth_service.has_permission("Gestión de Accesos"):
+            action_access = QAction("Gestión de Accesos", self)
+            action_access.triggered.connect(lambda: self.view_selected.emit("Gestión de Accesos"))
+            menu.addAction(action_access)
+            
+        action_logout = QAction("Cerrar Sesión", self)
+        action_logout.triggered.connect(self.logout_requested.emit)
+        menu.addAction(action_logout)
+        pos = self.profile_container.mapToGlobal(self.profile_container.rect().topLeft())
+        menu.exec(pos - QPoint(0, menu.sizeHint().height() + 5))
