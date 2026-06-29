@@ -8,20 +8,26 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
 
-from frontend.styles import Palette
+from frontend.common.theme import Palette
 from backend.services.inventory_service import InventoryService
-from frontend.utils import get_icon_colored
+from frontend.common.utils import get_icon_colored
 from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
 
 class KPICard(CardPanel):
-    def __init__(self, title: str, icon_name: str, color: str):
+    def __init__(self, title: str, icon_name: str, color_role: str):
         super().__init__(margins=12, spacing=0)
         QWidget().setLayout(self.content_layout)
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
         
         icon_lbl = QLabel()
-        icon_pixmap = get_icon_colored(icon_name, color, 36).pixmap(36, 36)
+        color_map = {
+            "accent": Palette.Primary,
+            "danger": Palette.Danger,
+            "success": Palette.Success
+        }
+        color_hex = color_map.get(color_role, Palette.Primary)
+        icon_pixmap = get_icon_colored(icon_name, color_hex, 36).pixmap(36, 36)
         icon_lbl.setPixmap(icon_pixmap)
         layout.addWidget(icon_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
         
@@ -29,7 +35,8 @@ class KPICard(CardPanel):
         text_layout.setSpacing(2)
         
         self.lbl_value = QLabel("0")
-        self.lbl_value.setStyleSheet(f"color: {color}; font-size: 28px; font-weight: bold;") 
+        self.lbl_value.setProperty("role", "stat_value")
+        self.lbl_value.setProperty("color", color_role)
         
         lbl_title = QLabel(title)
         lbl_title.setProperty("role", "subtitle")
@@ -56,14 +63,12 @@ class DashboardView(QWidget):
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
-        scroll_area.setStyleSheet("background: transparent;") 
 
         content_widget = QWidget()
-        content_widget.setStyleSheet("background: transparent;")
         
         main_layout = QVBoxLayout(content_widget)
-        main_layout.setContentsMargins(24, 24, 24, 24) 
-        main_layout.setSpacing(20) 
+        main_layout.setContentsMargins(12, 12, 12, 12) 
+        main_layout.setSpacing(10) 
 
         header = PageHeader("Dashboard Principal", "Resumen general de operaciones")
         main_layout.addWidget(header)
@@ -84,9 +89,9 @@ class DashboardView(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(12)
 
-        self.kpi_products = KPICard("Total Productos", "box.svg", Palette.Primary)
-        self.kpi_alerts = KPICard("Alertas de Stock", "warning.svg", Palette.Danger)
-        self.kpi_sales = KPICard("Ventas Históricas", "shopping-cart.svg", Palette.Success)
+        self.kpi_products = KPICard("Total Productos", "box.svg", "accent")
+        self.kpi_alerts = KPICard("Alertas de Stock", "warning.svg", "danger")
+        self.kpi_sales = KPICard("Ventas Históricas", "shopping-cart.svg", "success")
 
         layout.addWidget(self.kpi_products)
         layout.addWidget(self.kpi_alerts)
@@ -124,7 +129,6 @@ class DashboardView(QWidget):
         
         self.chart_view = QChartView()
         self.chart_view.setRenderHint(QPainter.RenderHint.Antialiasing)
-        self.chart_view.setStyleSheet("background: transparent;") 
         
         panel.add_widget(self.chart_view)
         return panel

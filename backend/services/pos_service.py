@@ -11,10 +11,6 @@ from backend.repositories.product_repo import ProductRepository
 from backend.repositories.sale_repo import SalesRepository
 
 class POSService:
-    """
-    Servicio de dominio que orquesta las operaciones del Punto de Venta (POS).
-    Coordina el estado del carrito, las validaciones de inventario y el registro de ventas.
-    """
     def __init__(self, product_repo: ProductRepository, sales_repo: SalesRepository, tax_rate: float = 0.15):
         self.product_repo = product_repo
         self.sales_repo = sales_repo
@@ -22,7 +18,6 @@ class POSService:
         self.cart = ShoppingCart()
 
     def search_products(self, term: str) -> List[Product]:
-        """Delega la búsqueda al repositorio de productos."""
         return self.product_repo.search_products(term) if term.strip() else []
 
     def add_to_cart(self, product_id: int, quantity: int = 1) -> None:

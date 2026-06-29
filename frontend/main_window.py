@@ -4,8 +4,8 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from backend.repositories.product_repo import ProductRepository
 from backend.repositories.sale_repo import SQLiteSalesRepository
 from backend.services.pos_service import POSService
-from frontend.styles import get_sheet
-from frontend.components.sidebar import Sidebar
+from frontend.common.theme import GLOBAL_QSS
+from frontend.navigation.sidebar_component import Sidebar
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
 from frontend.views.pos_view import POSView
@@ -19,7 +19,7 @@ class MainWindow(QWidget):
         self.auth_service = auth_service
         self.setWindowTitle("StockForge - Sistema POS")
         self.resize(1200, 700)
-        self.setStyleSheet(get_sheet())
+        self.setStyleSheet(GLOBAL_QSS)
 
         self.setup_initial_view()
 
@@ -46,7 +46,6 @@ class MainWindow(QWidget):
         print("DEBUG: setup_initial_view completado")
 
     def on_login_success(self, user):
-        """Transición del Login a la App principal."""
         self.setup_app_ui(user)
 
     def setup_app_ui(self, user):
@@ -91,7 +90,6 @@ class MainWindow(QWidget):
         self.on_view_changed(0)
 
     def on_view_changed(self, index: int):
-        """Disparador inteligente para refrescar datos según la vista activa."""
         if index == 0:
             self.dashboard_view.refresh_data()
         elif index == 1:
@@ -101,7 +99,6 @@ class MainWindow(QWidget):
 
 
     def _handle_navigation(self, view_name: str):
-        """Enruta la vista basándose en el nombre emitido por el Sidebar."""
         mapping = {
             "Dashboard": 0,
             "Inventario": 1,
@@ -115,6 +112,5 @@ class MainWindow(QWidget):
             self.views_container.setCurrentIndex(target_index)
 
     def _handle_logout(self):
-        """Limpia el estado y regresa a la pantalla de Login."""
         self.auth_service.logout()
         self.stack.setCurrentIndex(0)

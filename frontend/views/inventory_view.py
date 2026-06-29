@@ -17,7 +17,7 @@ class InventoryView(QWidget):
         outer_layout.setContentsMargins(0, 0, 0, 0)
 
         header_layout = QHBoxLayout()
-        header_layout.setContentsMargins(16, 16, 16, 0)
+        header_layout.setContentsMargins(12, 12, 12, 12)
         
         lbl_title = QLabel("Gestión de Inventario")
         lbl_title.setProperty("role", "title")
@@ -46,5 +46,4 @@ class InventoryView(QWidget):
         self.tabs.setCurrentIndex(0)
         
     def reload_inventory(self):
-        """Punto de entrada externo (ej. llamado desde main_window al cambiar vistas)"""
         self.tab_table.reload_data()

@@ -5,9 +5,9 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
-from frontend.styles import LAYOUT
-from frontend.components.toast_alert import ToastNotification
-from frontend.utils import get_icon_colored
+from frontend.common.theme import LAYOUT
+from frontend.navigation.toast_component import ToastNotification
+from frontend.common.utils import get_icon_colored
 from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
 
 class POSView(QWidget):
@@ -27,7 +27,6 @@ class POSView(QWidget):
         left_panel = self._build_search_panel()
         right_panel = self._build_cart_panel()
 
-        # Ajuste de proporción: 60% Búsqueda, 40% Carrito
         main_layout.addWidget(left_panel, 6)
         main_layout.addWidget(right_panel, 4)
 
@@ -50,7 +49,6 @@ class POSView(QWidget):
         search_bar.addWidget(self.btn_search)
         panel.add_layout(search_bar)
 
-        # Reducción de columnas (YAGNI): Eliminamos "Código" redundante
         self.results_table = StandardTable(["SKU", "Nombre", "Precio", "Stock", "Acción"])
         self.results_table.verticalHeader().setDefaultSectionSize(44)
         self.results_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -87,7 +85,6 @@ class POSView(QWidget):
         header = PageHeader("Carrito")
         panel.add_widget(header)
 
-        # Reducción de columnas (YAGNI): Eliminamos SKU y Precio Unitario, dejamos lo esencial
         self.cart_table = StandardTable(["Nombre", "Cant.", "Subtotal", "Acción"])
         self.cart_table.verticalHeader().setDefaultSectionSize(44)
         self.cart_table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
@@ -151,7 +148,6 @@ class POSView(QWidget):
 
         for row_index, product in enumerate(products):
             self.results_table.insertRow(row_index)
-            # Mapeo actualizado de columnas
             self.results_table.setItem(row_index, 0, QTableWidgetItem(product.sku))
             self.results_table.setItem(row_index, 1, QTableWidgetItem(product.name))
             self.results_table.setItem(row_index, 2, QTableWidgetItem(f"${product.price:.2f}"))
@@ -182,7 +178,6 @@ class POSView(QWidget):
         self.cart_table.setRowCount(0)
         for row_index, item in enumerate(self.service.cart.items()):
             self.cart_table.insertRow(row_index)
-            # Mapeo actualizado de columnas
             self.cart_table.setItem(row_index, 0, QTableWidgetItem(item.nombre))
 
             qty_widget = QSpinBox()

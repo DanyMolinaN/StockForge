@@ -5,11 +5,6 @@ from typing import Optional
 
 @dataclass
 class Product:
-    """
-    Entidad de dominio que representa un producto dentro del sistema de inventario.
-    Esta clase es una estructura de datos pura y no contiene lógica de persistencia
-    ni dependencias con la base de datos o la interfaz visual.
-    """
     name: str
     sku: str
     price: float

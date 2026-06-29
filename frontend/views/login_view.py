@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
     QPushButton, QFrame, QComboBox, QCheckBox
 )
 from PySide6.QtCore import Qt, Signal, QPropertyAnimation, QEasingCurve
-from frontend.components.toast_alert import ToastNotification
-from frontend.utils import get_icon_colored
+from frontend.navigation.toast_component import ToastNotification
+from frontend.common.utils import get_icon_colored
 
 class LoginView(QWidget):
     login_success = Signal(object)
@@ -30,18 +30,18 @@ class LoginView(QWidget):
         self.branding_panel.setObjectName("LoginBrandingPanel")
         
         left_layout = QVBoxLayout(self.branding_panel)
-        left_layout.setContentsMargins(60, 60, 60, 80)
+        left_layout.setContentsMargins(60, 60, 60, 60)
         
         logo_layout = QHBoxLayout()
         logo_icon = QLabel()
         try:
-            pixmap = get_icon_colored("box.svg", "#FFFFFF", 28).pixmap(28, 28)
+            pixmap = get_icon_colored("box.svg", "#FFFFFF", 48).pixmap(48, 48)
             logo_icon.setPixmap(pixmap)
         except Exception:
             pass
             
         logo_text = QLabel(" STOCKFORGE")
-        logo_text.setStyleSheet("color: white; font-weight: bold; font-size: 18px; letter-spacing: 2px;")
+        logo_text.setProperty("role", "h2")
         
         logo_layout.addWidget(logo_icon)
         logo_layout.addWidget(logo_text)
@@ -146,7 +146,7 @@ class LoginView(QWidget):
         form_layout.addWidget(self.btn_login)
         
         self.status_lbl = QLabel("")
-        self.status_lbl.setStyleSheet("color: #EF4444; font-size: 13px; font-weight: bold; background: transparent;")
+        self.status_lbl.setProperty("role", "text_danger")
         self.status_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_lbl.hide()
         form_layout.addWidget(self.status_lbl)

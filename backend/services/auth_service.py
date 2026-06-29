@@ -7,7 +7,6 @@ from backend.repositories.permission_repo import PermissionRepository
 from backend.repositories.user_repo import UserRepository
 
 class AuthService:
-    """Servicio encargado de la lógica de autenticación y sesión."""
     def __init__(self, user_repo: UserRepository, permission_repo: PermissionRepository):
         self.user_repo = user_repo
         self.permission_repo = permission_repo
@@ -44,7 +43,6 @@ class AuthService:
         return self.user_repo.add(new_user)
         
     def update_user_role(self, user_id: int, new_role: str) -> None:
-        """Soporte para el botón 'Edit Role' de la UI."""
         users = self.user_repo.get_all()
         user_to_update = next((u for u in users if u.id == user_id), None)
         if user_to_update:
@@ -52,7 +50,6 @@ class AuthService:
             self.user_repo.update(user_to_update)
             
     def revoke_access(self, user_id: int) -> None:
-        """Soporte para el botón 'Revoke Access' de la UI."""
         self.user_repo.delete(user_id)
     
     def has_permission(self, module_name: str) -> bool:

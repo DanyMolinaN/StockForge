@@ -43,7 +43,6 @@ class SQLiteProductRepository(ProductRepository):
         self.db_manager = db_manager
 
     def _map_row_to_product(self, row: tuple) -> Product:
-        """DRY: Centraliza la conversión de Fila SQL a Objeto Product."""
         return Product(
             id=row[0], name=row[1], sku=row[2], price=row[3], stock=row[4],
             category=row[5], supplier=row[6], expiration_date=row[7], attributes=row[8],

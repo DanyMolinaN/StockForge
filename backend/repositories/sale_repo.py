@@ -70,10 +70,6 @@ class SQLiteSalesRepository(SalesRepository):
         return sales
     
     def get_sales_history_raw(self) -> List[Tuple[str, float]]:
-        """
-        Obtiene el histórico agrupado por día (Últimos 7 días activos).
-        Devuelve tuplas puras de datos (fecha, total_venta).
-        """
         with self.db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute('''

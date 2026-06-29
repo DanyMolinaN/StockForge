@@ -7,9 +7,9 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
-from frontend.styles import LAYOUT, Palette
-from frontend.utils import get_icon_colored
-from frontend.components.toast_alert import ToastNotification
+from frontend.common.theme import LAYOUT, Palette
+from frontend.common.utils import get_icon_colored
+from frontend.navigation.toast_component import ToastNotification
 
 class InventoryTableTab(QWidget):
     edit_requested = Signal(int) 
@@ -84,10 +84,9 @@ class InventoryTableTab(QWidget):
             self.table.setItem(row, 8, QTableWidgetItem(prod.expiration_date or "N/A"))
             
             actions_widget = QWidget()
-            actions_widget.setStyleSheet("background-color: transparent;")
             
             actions_layout = QHBoxLayout(actions_widget)
-            actions_layout.setContentsMargins(4, 0, 4, 0)
+            actions_layout.setContentsMargins(0, 0, 0, 0)
             actions_layout.setSpacing(8)
 
             btn_edit = QPushButton()

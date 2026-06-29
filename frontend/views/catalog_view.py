@@ -3,8 +3,8 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTableWidgetItem, QPushButton
 from PySide6.QtCore import Qt
 from backend.repositories.product_repo import ProductRepository
-from frontend.utils import get_icon_colored
-from frontend.components.ui_core import CardPanel, PageHeader, StandardTable # Inyectamos los componentes
+from frontend.common.utils import get_icon_colored
+from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
 
 class CatalogView(QWidget):
     def __init__(self, repository: ProductRepository):
@@ -36,7 +36,6 @@ class CatalogView(QWidget):
         layout.addWidget(panel)
 
     def load_data(self):
-        """Extrae los datos del repositorio y mapea el Modelo a la Vista."""
         self.table.setRowCount(0)
         for row, prod in enumerate(self.repository.get_all()):
             self.table.insertRow(row)

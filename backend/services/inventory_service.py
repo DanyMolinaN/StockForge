@@ -8,10 +8,6 @@ DEFAULT_CATEGORIES = ["Electrónica", "Ropa", "Medicina", "Alimentos", "Ferreter
 DEFAULT_SUPPLIERS = ["Distribuidor Local", "Importación Directa", "Logitech", "Pfizer"]
 
 class InventoryService:
-    """
-    Servicio de dominio para la gestión de inventario.
-    Orquesta las reglas de negocio y delegaciones al repositorio.
-    """
     def __init__(self, repository: ProductRepository):
         self.repository = repository
 
@@ -41,7 +37,6 @@ class InventoryService:
         return self.repository.update(product)
 
     def _validate_product(self, product: Product) -> None:
-        """Validaciones de integridad de negocio puras."""
         if not product.name.strip():
             raise ValueError("El nombre del producto es obligatorio.")
         if not product.sku.strip():
@@ -72,7 +67,6 @@ class InventoryService:
         return sorted(suppliers)
     
     def get_low_stock_alerts(self) -> List[Product]:
-        """Delega la búsqueda de productos críticos al repositorio."""
         return self.repository.get_low_stock_products()
     
     def delete_product(self, product_id: int) -> None:

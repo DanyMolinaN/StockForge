@@ -5,8 +5,8 @@ from PySide6.QtWidgets import (
     QLabel, QSizePolicy, QWidget, QButtonGroup
 )
 from PySide6.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, Signal, QEasingCurve
-from frontend.utils import get_icon_colored
-from frontend.styles import Palette
+from frontend.common.utils import get_icon_colored
+from frontend.common.theme import Palette
 
 class Sidebar(QFrame):
     view_selected = Signal(str)
@@ -34,22 +34,21 @@ class Sidebar(QFrame):
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(12, 18, 12, 18)
-        self.main_layout.setSpacing(8)
+        self.main_layout.setContentsMargins(12, 12, 12, 12)
+        self.main_layout.setSpacing(10)
 
         self.header_container = QWidget()
-        self.header_container.setStyleSheet("background-color: transparent;")
         self.header_layout = QHBoxLayout(self.header_container)
         self.header_layout.setContentsMargins(0, 0, 0, 0) 
         self.header_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
         
         self.logo_btn = QPushButton()
         self.logo_btn.setIcon(get_icon_colored("box.svg", Palette.Primary, 30))
-        self.logo_btn.setStyleSheet("background-color: transparent; border: none;")
+        self.logo_btn.setProperty("role", "btn_ghost")
 
         self.title_label = QLabel("StockForge")
         self.title_label.setObjectName("SidebarTitle")
-        self.title_label.setStyleSheet(f"color: {Palette.Surface}; font-size: 18px; font-weight: 800; border: none;")
+        
         
         self.expanded_spacer = QWidget()
         self.expanded_spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -80,7 +79,6 @@ class Sidebar(QFrame):
         self.main_layout.addLayout(self.bottom_nav_layout)
 
     def _build_menu(self):
-        """Construye el menú dinámicamente evaluando permisos (RBAC)."""
         menu_items = [
             ("Dashboard", "dashboard.svg", "top"),
             ("Inventario", "box.svg", "top"),
@@ -113,7 +111,6 @@ class Sidebar(QFrame):
             self._on_tab_clicked(first_button)
 
     def _create_nav_button(self, name: str, icon_name: str, is_checkable: bool = True) -> QPushButton:
-        """Fábrica (DRY) para generar los botones del sidebar."""
         btn = QPushButton(f"  {name}")
         btn.setObjectName("NavButton")
         btn.setProperty("collapsed", False)
@@ -156,7 +153,6 @@ class Sidebar(QFrame):
         self.anim_group.start()
 
     def _update_texts_and_styles(self, show: bool):
-        """Oculta/Muestra el texto y fuerza al motor QSS a recalcular padding."""
         for btn in self.nav_buttons:
             btn.setText(btn.property("original_text") if show else "")
             btn.setProperty("collapsed", not show)
@@ -177,7 +173,6 @@ class Sidebar(QFrame):
                 pass
 
     def _on_tab_clicked(self, btn):
-        """Cambia los colores de los íconos dinámicamente."""
         for b in self.button_group.buttons():
             color = Palette.Primary if b.isChecked() else Palette.Muted
             b.setIcon(get_icon_colored(b.property("icon_name"), color, 22))

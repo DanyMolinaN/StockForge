@@ -5,10 +5,6 @@ from typing import List, Optional
 
 @dataclass
 class SaleItem:
-    """
-    Objeto de valor que representa una línea de detalle específica 
-    dentro de una transacción de venta.
-    """
     producto_id: int
     nombre: str
     sku: str
@@ -18,10 +14,6 @@ class SaleItem:
 
 @dataclass
 class Sale:
-    """
-    Entidad principal (Agregado) que representa una venta consolidada 
-    en el Punto de Venta.
-    """
     numero_venta: str
     fecha: str
     usuario_id: int

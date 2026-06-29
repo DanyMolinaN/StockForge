@@ -8,8 +8,8 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QDate, Qt, Signal
 import random
 from backend.models.product_model import Product
-from frontend.styles import LAYOUT
-from frontend.components.toast_alert import ToastNotification
+from frontend.common.theme import LAYOUT
+from frontend.navigation.toast_component import ToastNotification
 
 class InventoryFormTab(QWidget):
     product_saved = Signal()
