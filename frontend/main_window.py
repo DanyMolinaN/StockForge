@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QStackedWidget
 from backend.repositories.product_repo import ProductRepository
 from backend.repositories.sale_repo import SQLiteSalesRepository
 from backend.services.pos_service import POSService
-from frontend.common.theme import GLOBAL_QSS
+from frontend.common.theme import GLOBAL_QSS, get_global_qss, LIGHT_THEME, DARK_THEME
 from frontend.navigation.sidebar_component import Sidebar
 from frontend.views.inventory_view import InventoryView
 from frontend.views.catalog_view import CatalogView
@@ -19,9 +19,22 @@ class MainWindow(QWidget):
         self.auth_service = auth_service
         self.setWindowTitle("StockForge - Sistema POS")
         self.resize(1200, 700)
+        
+        self.current_theme = "dark"
         self.setStyleSheet(GLOBAL_QSS)
 
         self.setup_initial_view()
+
+    def toggle_theme(self):
+        self.current_theme = "light" if self.current_theme == "dark" else "dark"
+        theme_dict = LIGHT_THEME if self.current_theme == "light" else DARK_THEME
+        new_qss = get_global_qss(theme_dict)
+        self.setStyleSheet(new_qss)
+        
+        if hasattr(self, 'sidebar'):
+            self.sidebar.update_theme_icons()
+        if hasattr(self, 'dashboard_view'):
+            self.dashboard_view.refresh_data()
 
     def setup_initial_view(self):
         print("DEBUG: Iniciando setup_initial_view...")
@@ -39,6 +52,7 @@ class MainWindow(QWidget):
         print("DEBUG: LoginView creado")
         print("DEBUG: Conectando signal...")
         self.login_view.login_success.connect(self.on_login_success)
+        self.login_view.theme_toggled.connect(self.toggle_theme)
         print("DEBUG: Signal conectado")
         print("DEBUG: Añadiendo LoginView al stack...")
         self.stack.addWidget(self.login_view)
@@ -57,6 +71,7 @@ class MainWindow(QWidget):
         self.sidebar = Sidebar(self.auth_service)
         self.sidebar.view_selected.connect(self._handle_navigation)
         self.sidebar.logout_requested.connect(self._handle_logout)
+        self.sidebar.theme_toggled.connect(self.toggle_theme)
 
         app_layout.addWidget(self.sidebar)
 

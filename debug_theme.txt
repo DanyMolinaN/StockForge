@@ -1,0 +1,1 @@
+update_theme_icon - is_dark: True, icon_name: sun.svg, color: #FAFAFA, active_bg: #0A0A0A

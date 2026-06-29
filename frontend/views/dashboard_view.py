@@ -4,13 +4,14 @@ from PySide6.QtWidgets import (
     QScrollArea, QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
     QTableWidgetItem, QHeaderView, QDialog, QFormLayout, QLineEdit, QComboBox, QPushButton, QFrame, QTableWidget
 )
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
 
 from backend.services.inventory_service import InventoryService
 from frontend.common.utils import get_icon_colored
 from frontend.components.ui_core import CardPanel
+from frontend.common.theme import get_current_theme_color
 
 class ProductDetailsDialog(QDialog):
     def __init__(self, parent, prod):
@@ -175,7 +176,7 @@ class DashboardView(QWidget):
         lbl_section.setProperty("role", "section")
         
         self.input_search = QLineEdit()
-        self.input_search.setPlaceholderText("🔍 Buscar productos...")
+        self.input_search.setPlaceholderText("Buscar productos...")
         self.input_search.setFixedWidth(220)
         self.input_search.textChanged.connect(self.refresh_data)
         
@@ -288,7 +289,6 @@ class DashboardView(QWidget):
             self.table.insertRow(row)
             
             prod_item = QTableWidgetItem(f"{prod.sku} - {prod.name}")
-            prod_item.setForeground(QColor("#FAFAFA"))
             self.table.setItem(row, 0, prod_item)
             if prod.stock == 0:
                 pill = create_status_pill("Sin Stock", "danger")
@@ -299,12 +299,11 @@ class DashboardView(QWidget):
             self.table.setCellWidget(row, 1, pill)
             
             price_item = QTableWidgetItem(f"${prod.price:.2f}")
-            price_item.setForeground(QColor("#FAFAFA"))
             self.table.setItem(row, 2, price_item)
             
             stock_str = f"{prod.stock} / {prod.min_stock}"
             stock_item = QTableWidgetItem(stock_str)
-            stock_item.setForeground(QColor("#A1A1AA"))
+            stock_item.setForeground(QColor(get_current_theme_color("COLOR_TEXT_SECONDARY")))
             self.table.setItem(row, 3, stock_item)
             
             btn_details = QPushButton("Ver Detalles")
@@ -330,7 +329,7 @@ class DashboardView(QWidget):
         
         series = QBarSeries()
         bar_set = QBarSet("Ingresos ($)")
-        bar_set.setColor(QColor("#FAFAFA"))
+        bar_set.setColor(QColor(get_current_theme_color("COLOR_ACCENT")))
         
         categories = []
         max_value = 0
@@ -351,16 +350,16 @@ class DashboardView(QWidget):
         
         axisX = QBarCategoryAxis()
         axisX.append(categories)
-        axisX.setLabelsColor(QColor("#A1A1AA"))
-        axisX.setGridLineColor(QColor("#1E1E1F"))
+        axisX.setLabelsColor(QColor(get_current_theme_color("COLOR_TEXT_SECONDARY")))
+        axisX.setGridLineColor(QColor(get_current_theme_color("COLOR_BORDER_SVELTE")))
         chart.addAxis(axisX, Qt.AlignmentFlag.AlignBottom)
         series.attachAxis(axisX)
         
         axisY = QValueAxis()
         axisY.setRange(0, max_value * 1.2) 
         axisY.setLabelFormat("$%.0f")
-        axisY.setLabelsColor(QColor("#A1A1AA"))
-        axisY.setGridLineColor(QColor("#1E1E1F"))
+        axisY.setLabelsColor(QColor(get_current_theme_color("COLOR_TEXT_SECONDARY")))
+        axisY.setGridLineColor(QColor(get_current_theme_color("COLOR_BORDER_SVELTE")))
         chart.addAxis(axisY, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(axisY)
         

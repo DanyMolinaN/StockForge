@@ -25,6 +25,7 @@ class ProfileWidget(QFrame):
 class Sidebar(QFrame):
     view_selected = Signal(str)
     logout_requested = Signal()
+    theme_toggled = Signal()
 
     def __init__(self, auth_service, app_version: str = "v1.0.0"):
         super().__init__()
@@ -74,6 +75,13 @@ class Sidebar(QFrame):
         self.header_layout.addWidget(self.logo_frame)
         self.header_layout.addLayout(brand_text_layout)
         self.header_layout.addStretch()
+        
+        self.btn_theme = QPushButton()
+        self.btn_theme.setProperty("role", "btn_ghost")
+        self.btn_theme.setFixedSize(28, 28)
+        self.btn_theme.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_theme.clicked.connect(self.theme_toggled.emit)
+        self.header_layout.addWidget(self.btn_theme)
         
         self.main_layout.addWidget(self.header_container)
         
@@ -146,6 +154,7 @@ class Sidebar(QFrame):
         self.profile_layout.addWidget(self.chevron_lbl)
         
         self.main_layout.addWidget(self.profile_container)
+        self.update_theme_icons()
 
     def _build_menu(self):
         menu_items = [
@@ -169,6 +178,7 @@ class Sidebar(QFrame):
             self._on_tab_clicked(first_button)
 
     def _create_nav_button(self, name: str, icon_name: str, is_checkable: bool = True) -> QPushButton:
+        from frontend.common.theme import get_current_theme_color
         btn = QPushButton(f"  {name}")
         btn.setObjectName("NavButton")
         btn.setProperty("collapsed", False)
@@ -178,18 +188,43 @@ class Sidebar(QFrame):
         
         btn.setCheckable(is_checkable)
         btn.setCursor(Qt.CursorShape.PointingHandCursor)       
-        btn.setIcon(get_icon_colored(icon_name, COLOR_TEXT_SECONDARY, 20))
+        btn.setIcon(get_icon_colored(icon_name, get_current_theme_color("COLOR_TEXT_SECONDARY"), 20))
         btn.setFixedSize(self.expanded_width - 28, 40)
         
         self.nav_buttons.append(btn)
         return btn
 
     def _on_tab_clicked(self, btn):
+        from frontend.common.theme import get_current_theme_color
         for b in self.button_group.buttons():
-            color = COLOR_ACCENT if b.isChecked() else COLOR_TEXT_SECONDARY
+            color_name = "COLOR_ACCENT" if b.isChecked() else "COLOR_TEXT_SECONDARY"
+            color = get_current_theme_color(color_name)
             b.setIcon(get_icon_colored(b.property("icon_name"), color, 20))
         
         self.view_selected.emit(btn.property("view_name"))
+
+    def update_theme_icons(self):
+        from frontend.common.theme import get_current_theme_color
+        # Update nav buttons
+        for b in self.button_group.buttons():
+            color_name = "COLOR_ACCENT" if b.isChecked() else "COLOR_TEXT_SECONDARY"
+            color = get_current_theme_color(color_name)
+            b.setIcon(get_icon_colored(b.property("icon_name"), color, 20))
+            
+        # Update feedback button icon
+        color_sec = get_current_theme_color("COLOR_TEXT_SECONDARY")
+        self.btn_feedback.setIcon(get_icon_colored("info.svg", color_sec, 15))
+        
+        # Update chevron icon
+        chevron_pix = get_icon_colored("chevron-down.svg", color_sec, 14).pixmap(14, 14)
+        self.chevron_lbl.setPixmap(chevron_pix)
+        
+        # Update theme toggle button icon
+        import frontend.common.theme as theme
+        is_dark = (theme.current_active_theme is theme.DARK_THEME)
+        theme_icon = "sun.svg" if is_dark else "moon.svg"
+        theme_color = get_current_theme_color("COLOR_TEXT_PRIMARY")
+        self.btn_theme.setIcon(get_icon_colored(theme_icon, theme_color, 16))
 
     def _show_profile_menu(self):
         menu = QMenu(self)

@@ -43,15 +43,18 @@ def get_icon_colored(name: str, color_str: str, size: int = 24) -> QIcon:
     icon = QIcon(full_path)
     pixmap = icon.pixmap(size, size) if size else icon.pixmap(24, 24)
     
-    colored_pixmap = QPixmap(pixmap.size())
-    colored_pixmap.fill(Qt.GlobalColor.transparent) 
-    painter = QPainter(colored_pixmap)
+    # Use QImage Format_ARGB32 to ensure robust alpha channel support for composition modes
+    image = QImage(pixmap.size(), QImage.Format.Format_ARGB32)
+    image.fill(Qt.GlobalColor.transparent)
+    
+    painter = QPainter(image)
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     painter.drawPixmap(0, 0, pixmap)
     painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-    painter.fillRect(colored_pixmap.rect(), QColor(color_str))
+    painter.fillRect(image.rect(), QColor(color_str))
     painter.end()
-    return QIcon(colored_pixmap)
+    
+    return QIcon(QPixmap.fromImage(image))
 
 def create_circular_pixmap(img_data: QByteArray) -> QPixmap:
     image = QImage.fromData(img_data)   

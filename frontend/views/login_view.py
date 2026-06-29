@@ -11,6 +11,7 @@ from frontend.common.utils import get_icon_colored
 
 class LoginView(QWidget):
     login_success = Signal(object)
+    theme_toggled = Signal()
 
     def __init__(self, auth_service):
         super().__init__()
@@ -93,7 +94,20 @@ class LoginView(QWidget):
         self.login_area = QFrame()
         self.login_area.setObjectName("LoginArea")
         right_layout = QVBoxLayout(self.login_area)
-        right_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        top_bar_layout = QHBoxLayout()
+        top_bar_layout.setContentsMargins(16, 16, 16, 0)
+        top_bar_layout.addStretch()
+        
+        self.btn_theme_login = QPushButton()
+        self.btn_theme_login.setProperty("role", "btn_ghost")
+        self.btn_theme_login.setFixedSize(32, 32)
+        self.btn_theme_login.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_theme_login.clicked.connect(self.theme_toggled.emit)
+        top_bar_layout.addWidget(self.btn_theme_login)
+        
+        right_layout.addLayout(top_bar_layout)
+        right_layout.addStretch()
 
         form_container = QFrame()
         form_container.setObjectName("LoginFormContainer")
@@ -190,10 +204,13 @@ class LoginView(QWidget):
         self.status_lbl.hide()
         form_layout.addWidget(self.status_lbl)
  
-        right_layout.addWidget(form_container)
+        right_layout.addWidget(form_container, 0, Qt.AlignmentFlag.AlignHCenter)
+        right_layout.addStretch()
  
         self.main_layout.addWidget(self.branding_panel, 50)
         self.main_layout.addWidget(self.login_area, 50)
+        
+        self.update_theme_icon()
 
     def _wrap_field(self, title: str, widget: QWidget) -> QWidget:
         container = QFrame()
@@ -208,6 +225,12 @@ class LoginView(QWidget):
         vbox.addWidget(lbl)
         vbox.addWidget(widget)
         return container
+
+    def update_theme_icon(self):
+        from frontend.common.theme import DARK_THEME, current_active_theme
+        icon_name = "sun.svg" if current_active_theme == DARK_THEME else "moon.svg"
+        color = "#FAFAFA" if current_active_theme == DARK_THEME else "#09090B"
+        self.btn_theme_login.setIcon(get_icon_colored(icon_name, color, 18))
 
     def toggle_pass(self):
         if self.input_pass.echoMode() == QLineEdit.EchoMode.Password:
