@@ -5,7 +5,6 @@ from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
     QTableWidgetItem, QHeaderView, QSpinBox, QComboBox, QSizePolicy
 )
-from frontend.common.theme import LAYOUT
 from frontend.navigation.toast_component import ToastNotification
 from frontend.common.utils import get_icon_colored
 from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
@@ -22,7 +21,7 @@ class POSView(QWidget):
     def setup_ui(self):
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(LAYOUT["space_01"])
+        main_layout.setSpacing(12)
 
         left_panel = self._build_search_panel()
         right_panel = self._build_cart_panel()

@@ -97,7 +97,6 @@ class MainWindow(QWidget):
         elif index == 4:
             self.user_management_view.load_data()
 
-
     def _handle_navigation(self, view_name: str):
         mapping = {
             "Dashboard": 0,

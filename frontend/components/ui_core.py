@@ -4,10 +4,9 @@ from PySide6.QtWidgets import (
     QFrame, QVBoxLayout, QHBoxLayout, QLabel, 
     QTableWidget, QHeaderView, QWidget
 )
-from frontend.common.theme import LAYOUT
 
 class CardPanel(QFrame):
-    def __init__(self, margins=12, spacing=LAYOUT.get("space_01", 12)):
+    def __init__(self, margins=12, spacing=12):
         super().__init__()
         self.setProperty("role", "card")
         self.content_layout = QVBoxLayout(self)
@@ -31,7 +30,7 @@ class PageHeader(QWidget):
         text_layout.setSpacing(2)
         
         lbl_title = QLabel(title_text)
-        lbl_title.setProperty("role", "title")
+        lbl_title.setProperty("role", "h1")
         text_layout.addWidget(lbl_title)
         
         if subtitle_text:

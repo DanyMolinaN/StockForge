@@ -8,7 +8,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QPainter
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QBarCategoryAxis, QValueAxis
 
-from frontend.common.theme import Palette
+from frontend.common.theme import COLOR_ACCENT, COLOR_DANGER, COLOR_TEXT_PRIMARY
 from backend.services.inventory_service import InventoryService
 from frontend.common.utils import get_icon_colored
 from frontend.components.ui_core import CardPanel, PageHeader, StandardTable
@@ -18,36 +18,43 @@ class KPICard(CardPanel):
         super().__init__(margins=12, spacing=0)
         QWidget().setLayout(self.content_layout)
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 12, 12, 12)
-        
-        icon_lbl = QLabel()
-        color_map = {
-            "accent": Palette.Primary,
-            "danger": Palette.Danger,
-            "success": Palette.Success
-        }
-        color_hex = color_map.get(color_role, Palette.Primary)
-        icon_pixmap = get_icon_colored(icon_name, color_hex, 36).pixmap(36, 36)
-        icon_lbl.setPixmap(icon_pixmap)
-        layout.addWidget(icon_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
+        layout.setContentsMargins(16, 16, 16, 16)
         
         text_layout = QVBoxLayout()
-        text_layout.setSpacing(2)
+        text_layout.setSpacing(4)
+        
+        lbl_title = QLabel(title.upper())
+        lbl_title.setProperty("role", "caption")
         
         self.lbl_value = QLabel("0")
         self.lbl_value.setProperty("role", "stat_value")
         self.lbl_value.setProperty("color", color_role)
         
-        lbl_title = QLabel(title)
-        lbl_title.setProperty("role", "subtitle")
+        self.lbl_subtext = QLabel("")
+        self.lbl_subtext.setProperty("role", "caption")
         
-        text_layout.addWidget(self.lbl_value)
         text_layout.addWidget(lbl_title)
+        text_layout.addWidget(self.lbl_value)
+        text_layout.addWidget(self.lbl_subtext)
         
         layout.addLayout(text_layout, 1)
+        
+        icon_lbl = QLabel()
+        color_map = {
+            "accent": COLOR_ACCENT,
+            "danger": COLOR_DANGER,
+            "success": "#22C55E"
+        }
+        color_hex = color_map.get(color_role, COLOR_ACCENT)
+        icon_pixmap = get_icon_colored(icon_name, color_hex, 28).pixmap(28, 28)
+        icon_lbl.setPixmap(icon_pixmap)
+        layout.addWidget(icon_lbl, 0, Qt.AlignmentFlag.AlignVCenter)
 
     def set_value(self, value: str):
         self.lbl_value.setText(value)
+
+    def set_subtext(self, text: str):
+        self.lbl_subtext.setText(text)
 
 class DashboardView(QWidget):
     def __init__(self, product_repo, sales_repo=None):
@@ -144,17 +151,20 @@ class DashboardView(QWidget):
             self.table.setItem(row, 1, QTableWidgetItem(prod.name))
             self.table.setItem(row, 2, QTableWidgetItem(prod.category))
             stock_item = QTableWidgetItem(str(prod.stock))
-            stock_item.setForeground(QColor(Palette.Danger))
+            stock_item.setForeground(QColor(COLOR_DANGER))
             self.table.setItem(row, 3, stock_item)
             self.table.setItem(row, 4, QTableWidgetItem(str(prod.min_stock)))
 
         products_list = self.inventory_service.list_products()
         self.kpi_products.set_value(str(len(products_list) if products_list else 0))
+        self.kpi_products.set_subtext("productos activos")
         self.kpi_alerts.set_value(str(len(alerts)))
+        self.kpi_alerts.set_subtext("con bajo stock")
         
         if self.sales_repo:
             sales_list = self.sales_repo.get_sales()
             self.kpi_sales.set_value(str(len(sales_list) if sales_list else 0))
+            self.kpi_sales.set_subtext("ventas realizadas")
             self._update_sales_chart()
 
     def _update_sales_chart(self):
@@ -165,7 +175,7 @@ class DashboardView(QWidget):
         
         series = QBarSeries()
         bar_set = QBarSet("Ingresos ($)")
-        bar_set.setColor(QColor(Palette.Primary))
+        bar_set.setColor(QColor(COLOR_ACCENT))
         
         categories = []
         max_value = 0
@@ -186,12 +196,16 @@ class DashboardView(QWidget):
         
         axisX = QBarCategoryAxis()
         axisX.append(categories)
+        axisX.setLabelsColor(QColor(COLOR_TEXT_PRIMARY))
+        axisX.setGridLineColor(QColor("#E4E4E7"))
         chart.addAxis(axisX, Qt.AlignmentFlag.AlignBottom)
         series.attachAxis(axisX)
         
         axisY = QValueAxis()
         axisY.setRange(0, max_value * 1.2) 
         axisY.setLabelFormat("$%.0f")
+        axisY.setLabelsColor(QColor(COLOR_TEXT_PRIMARY))
+        axisY.setGridLineColor(QColor("#E4E4E7"))
         chart.addAxis(axisY, Qt.AlignmentFlag.AlignLeft)
         series.attachAxis(axisY)
         

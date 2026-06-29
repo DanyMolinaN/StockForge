@@ -11,6 +11,7 @@ from frontend.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
+    app.setStyle("Fusion")
     db_manager = DatabaseManager("stockforge.db")
     user_repo = SQLiteUserRepository(db_manager)
     permission_repo = SQLitePermissionRepository(db_manager) 

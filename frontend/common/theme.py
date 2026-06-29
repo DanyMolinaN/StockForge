@@ -1,35 +1,33 @@
 # frontend\common\theme.py
 
 from frontend.common.utils import get_assets_path
-PATH_ICON_HELP = get_assets_path("icons/help.svg")
-PATH_ICON_UPDATE = get_assets_path("icons/cloud-download.svg")
 PATH_ICON_CHEVRON_DOWN = get_assets_path("icons/chevron-down.svg").replace('\\', '/')
 PATH_ICON_CHEVRON_UP = get_assets_path("icons/chevron-up.svg").replace('\\', '/')
 
-COLOR_BG_BASE       = "#09090B"
-COLOR_BG_SURFACE    = "#121214"
-COLOR_BG_INPUT      = "#18181B"
-COLOR_BG_HOVER      = "#27272A"
+COLOR_BG_BASE       = "#F4F4F5"
+COLOR_BG_SURFACE    = "#FFFFFF"
+COLOR_BG_INPUT      = "#FFFFFF"
+COLOR_BG_HOVER      = "#E4E4E7"
 
-COLOR_BORDER_SVELTE = "#27272A"
-COLOR_BORDER_HOVER  = "#3F3F46"
+COLOR_BORDER_SVELTE = "#E4E4E7"
+COLOR_BORDER_HOVER  = "#D4D4D8"
 
-COLOR_ACCENT        = "#64EB5F"
-COLOR_ACCENT_HOVER  = "#2FBF45"   
+COLOR_ACCENT        = "#3C5D94"
+COLOR_ACCENT_HOVER  = "#607FF3"   
 
 COLOR_DANGER        = "#EF4444"
 COLOR_WARNING       = "#F59E0B"
 COLOR_INFO          = "#3B82F6"
 
-COLOR_BG_TOAST      = "#070707"
-COLOR_ACCENT_GLOW   = "rgba(250, 250, 250, 0.1)"
-COLOR_DANGER_GLOW   = "rgba(239, 68, 68, 0.15)"
-COLOR_WARNING_GLOW  = "rgba(245, 158, 11, 0.15)"
-COLOR_INFO_GLOW     = "rgba(59, 130, 246, 0.15)"
+COLOR_BG_TOAST      = "#FFFFFF"
+COLOR_ACCENT_GLOW   = "rgba(250, 90, 21, 0.1)"
+COLOR_DANGER_GLOW   = "rgba(239, 68, 68, 0.1)"
+COLOR_WARNING_GLOW  = "rgba(245, 158, 11, 0.1)"
+COLOR_INFO_GLOW     = "rgba(59, 130, 246, 0.1)"
 
-COLOR_TEXT_PRIMARY   = "#FAFAFA"
-COLOR_TEXT_SECONDARY = "#A1A1AA"
-COLOR_TEXT_MUTED     = "#71717A"
+COLOR_TEXT_PRIMARY   = "#18181B"
+COLOR_TEXT_SECONDARY = "#52525B"
+COLOR_TEXT_MUTED     = "#909098"
 COLOR_BLACK          = "#000000"
 COLOR_WHITE          = "#FFFFFF"
 
@@ -62,13 +60,16 @@ def get_global_qss(base: int = 13) -> str:
     outline: none;
 }}
 
-QMainWindow, QDialog {{ background-color: {COLOR_BG_BASE}; }}
+QMainWindow, QDialog, QStackedWidget {{ background-color: {COLOR_BG_BASE}; }}
 QLabel {{ background-color: transparent; }}
 
 /* --- 2. SISTEMA DE TIPOGRAFÍA --- */
 QLabel[role="h1"] {{ font-size: {h1}px; font-weight: 800; color: {COLOR_TEXT_PRIMARY}; }}
 QLabel[role="h2"] {{ font-size: {h2}px; font-weight: 700; color: {COLOR_TEXT_PRIMARY}; }}
 QLabel[role="h3"] {{ font-size: {h3}px; font-weight: 700; color: {COLOR_TEXT_PRIMARY}; }}
+QLabel[role="title"] {{ font-size: {h1}px; font-weight: 800; color: {COLOR_TEXT_PRIMARY}; }}
+QLabel[role="section"] {{ font-size: {h2}px; font-weight: 700; color: {COLOR_TEXT_PRIMARY}; }}
+QLabel[role="subtitle"] {{ font-size: {base}px; font-weight: 700; color: {COLOR_TEXT_SECONDARY}; }}
 QLabel[role="body"] {{ font-size: {base}px; font-weight: 400; color: {COLOR_TEXT_SECONDARY}; line-height: 1.5; }}
 QLabel[role="caption"] {{ font-size: {caption}px; font-weight: 400; color: {COLOR_TEXT_MUTED}; }}
 QLabel[role="wizard_step_num"] {{ font-size: {caption}px; font-weight: 400; color: {COLOR_TEXT_SECONDARY}; }}
@@ -82,10 +83,10 @@ QLabel[role="tag_permission"] {{ background-color: {COLOR_ACCENT}; color: {COLOR
 QLabel[role="stat_value"] {{ font-size: {stat}px; font-weight: 800; color: {COLOR_TEXT_PRIMARY}; }}
 
 /* --- 3. CONTENEDORES --- */
-QFrame[role="card"] {{ background-color: {COLOR_BG_SURFACE}; border: none; border-radius: {RADIUS_LG}px; }}
-QFrame[role="dialog"] {{ background-color: {COLOR_BG_BASE}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: 16px; }}
-QFrame[role="dialog"][state="accent"] {{ border-color: rgba(83, 252, 24, 0.4); }}
-QFrame[role="dialog"][state="danger"] {{ border-color: rgba(239, 68, 68, 0.4); }}
+QFrame[role="card"] {{ background-color: {COLOR_BG_SURFACE}; border: 1px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_LG}px; }}
+QFrame[role="dialog"] {{ background-color: {COLOR_BG_SURFACE}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: 16px; }}
+QFrame[role="dialog"][state="accent"] {{ border-color: {COLOR_ACCENT}; }}
+QFrame[role="dialog"][state="danger"] {{ border-color: {COLOR_DANGER}; }}
 QFrame[role="banner_danger"] {{ background-color: {COLOR_DANGER_GLOW}; border: 1px solid {COLOR_DANGER}; border-radius: {RADIUS_MD}px; }}
 QFrame[role="banner_danger"] QLabel {{ color: {COLOR_TEXT_PRIMARY}; }}
 QFrame[dialog_role="danger_icon"] {{ background-color: {COLOR_DANGER}; border-radius: 26px; }}
@@ -93,34 +94,34 @@ QFrame[dialog_role="accent_icon"] {{ background-color: {COLOR_ACCENT}; border-ra
 QFrame#CanvasContainer {{ background-color: {COLOR_BG_BASE}; border: 2px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; }}
 QFrame[role="step_indicator"] {{ background-color: {COLOR_BORDER_SVELTE}; border-radius: 2px; }}
 QFrame[role="step_indicator"][state="active"] {{ background-color: {COLOR_ACCENT}; }}
-QFrame[role="divider"] {{ background-color: rgba(255, 255, 255, 0.05); margin: 4px 0px; }}
+QFrame[role="divider"] {{ background-color: {COLOR_BORDER_SVELTE}; margin: 4px 0px; }}
 QFrame#Sidebar {{ background-color: {COLOR_BG_SURFACE}; border-right: 1px solid {COLOR_BORDER_SVELTE}; }}
 QFrame[role="bot_tag"] {{ background-color: {COLOR_BG_INPUT}; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; }}
 QFrame[role="bot_tag"]:hover {{ border-color: {COLOR_DANGER}; }}
 QFrame[role="bot_tag"] QLabel {{ color: {COLOR_TEXT_PRIMARY}; padding-right: 4px; font-size: {btn_txt}px; }}
-
+ 
 /* --- 4. BOTONES --- */
-QPushButton[role="action_accent"] {{ background-color: {COLOR_ACCENT}; color: {COLOR_BG_BASE}; font-size: {btn_txt}px; font-weight: 700; border: none; border-radius: {RADIUS_MD}px; padding: 7px 16px; }}
+QPushButton[role="action_accent"] {{ background-color: {COLOR_ACCENT}; color: {COLOR_WHITE}; font-size: 14px; font-weight: 700; border: none; border-radius: {RADIUS_MD}px; padding: 7px 16px; }}
 QPushButton[role="action_accent"]:hover {{ background-color: {COLOR_ACCENT_HOVER}; }}
-QPushButton[role="action_outlined"] {{ background-color: {COLOR_BG_INPUT}; color: {COLOR_TEXT_PRIMARY}; font-size: {btn_txt}px; font-weight: 700; border: none; border-radius: {RADIUS_MD}px; padding: 7px 16px; }}
-QPushButton[role="action_outlined"]:hover {{ background-color: {COLOR_BG_HOVER}; }}
+QPushButton[role="action_outlined"] {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; font-size: {btn_txt}px; font-weight: 700; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; padding: 7px 16px; }}
+QPushButton[role="action_outlined"]:hover {{ background-color: {COLOR_BG_HOVER}; border-color: {COLOR_BORDER_HOVER}; }}
 QPushButton[role="action_danger"] {{ background-color: transparent; color: {COLOR_DANGER}; font-size: {btn_txt}px; font-weight: 700; border: 1.5px solid {COLOR_DANGER}; border-radius: {RADIUS_MD}px; padding: 7px 16px; }}
 QPushButton[role="action_danger"]:hover {{ background-color: {COLOR_DANGER_GLOW}; }}
 QPushButton[role="btn_ghost"] {{ background-color: transparent; border: none; border-radius: 4px; padding: 2px; }}
 QPushButton[role="btn_ghost"]:hover {{ background-color: {COLOR_BG_HOVER}; }}
 QPushButton#NavButton {{ background: transparent; border-radius: {RADIUS_MD}px; padding: 10px; text-align: left; color: {COLOR_TEXT_SECONDARY}; font-weight: 500; }}
 QPushButton#NavButton:hover {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_TEXT_PRIMARY};}}
-QPushButton#NavButton:checked {{ background-color: {COLOR_ACCENT_GLOW}; color: {COLOR_ACCENT}; font-weight: 700;}}
+QPushButton#NavButton:checked {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_ACCENT}; font-weight: 700;}}
 QPushButton#NavButton[collapsed="false"] {{ text-align: left; padding-left: 12px; }}
 QPushButton#NavButton[collapsed="true"] {{ text-align: center; padding: 10px; }}
-
+ 
 /* --- 5. CONTROLES DE FORMULARIO Y TABLAS --- */
-QLineEdit, QTextEdit {{ background-color: {COLOR_BG_INPUT}; color: {COLOR_TEXT_PRIMARY}; font-size: {base}px; font-weight: 400; border: none; border-radius: {RADIUS_MD}px; padding: 6px 10px; }}
+QLineEdit, QTextEdit, QDateEdit {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; font-size: {base}px; font-weight: 400; border: 1.5px solid {COLOR_BORDER_SVELTE}; border-radius: {RADIUS_MD}px; padding: 6px 10px; }}
 QTextEdit {{ background-color: {COLOR_BG_SURFACE}; border: 1.5px solid {COLOR_BORDER_SVELTE}; }}
-QLineEdit:focus, QTextEdit:focus {{ border: 1.5px solid {COLOR_ACCENT}; background-color: {COLOR_BG_HOVER}; }}
-
-QComboBox {{ background-color: {COLOR_BG_INPUT}; color: {COLOR_TEXT_PRIMARY}; font-size: {base}px; font-weight: 400; border-radius: {RADIUS_MD}px; padding: 5px 28px 5px 10px; border: 1.5px solid transparent; combobox-popup: 0; }}
-QComboBox:focus, QComboBox:hover {{ border-color: transparent; background-color: {COLOR_BG_HOVER}; }}
+QLineEdit:focus, QTextEdit:focus, QDateEdit:focus {{ border: 1.5px solid {COLOR_ACCENT}; background-color: {COLOR_BG_SURFACE}; }}
+ 
+QComboBox {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_PRIMARY}; font-size: {base}px; font-weight: 400; border-radius: {RADIUS_MD}px; padding: 5px 28px 5px 10px; border: 1.5px solid {COLOR_BORDER_SVELTE}; combobox-popup: 0; }}
+QComboBox:focus, QComboBox:hover {{ border-color: {COLOR_ACCENT}; background-color: {COLOR_BG_SURFACE}; }}
 QComboBox::drop-down {{ subcontrol-origin: padding; subcontrol-position: top right; width: 23px; border-left: 1.5px solid {COLOR_BORDER_SVELTE}; border-top-right-radius: {RADIUS_MD}px; border-bottom-right-radius: {RADIUS_MD}px; }}
 QComboBox:focus::drop-down, QComboBox:hover::drop-down {{ border-color: {COLOR_BORDER_HOVER}; }}
 QComboBox::drop-down:hover {{ background-color: {COLOR_BG_HOVER}; }}
@@ -146,8 +147,8 @@ QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{ image: url("{PATH_ICON_CHEVR
 QTableWidget {{ background-color: {COLOR_BG_SURFACE}; border: none; gridline-color: transparent; outline: none; }}
 QTableWidget::item {{ padding: 4px; border-bottom: 1px solid {COLOR_BORDER_SVELTE}; }}
 QTableWidget::item:selected {{ background-color: {COLOR_BG_HOVER}; color: {COLOR_ACCENT}; }}
-QHeaderView::section {{ background-color: transparent; color: {COLOR_TEXT_SECONDARY}; font-weight: 700; padding: 6px 8px; border: none; border-bottom: 2px solid {COLOR_BORDER_SVELTE}; text-align: left; }}
-QHeaderView {{ background-color: transparent; border: none; }}
+QHeaderView::section {{ background-color: {COLOR_BG_SURFACE}; color: {COLOR_TEXT_SECONDARY}; font-weight: 700; padding: 6px 8px; border: none; border-bottom: 2px solid {COLOR_BORDER_SVELTE}; text-align: left; }}
+QHeaderView {{ background-color: {COLOR_BG_SURFACE}; border: none; }}
 
 /* --- 6. SCROLLS Y TABS --- */
 QScrollBar:vertical {{ border: none; background: transparent; width: 14px; margin: 2px 4px 2px 0px; }}
@@ -231,23 +232,126 @@ QLabel[role="role_badge"] {{ font-weight: bold; border-radius: 12px; border: non
 QLabel[role="role_badge"][user_role="admin"] {{ background-color: rgba(99, 102, 241, 0.15); color: #818CF8; }}
 QLabel[role="role_badge"][user_role="dueño"] {{ background-color: rgba(34, 197, 94, 0.15); color: #4ADE80; }}
 QLabel[role="role_badge"][user_role="cajero"] {{ background-color: rgba(156, 163, 175, 0.15); color: #9CA3AF; }}
+ 
+/* --- 9. LOGIN VIEW CUSTOMS --- */
+QFrame#LoginBrandingPanel {{
+    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {COLOR_ACCENT}, stop:1 {COLOR_ACCENT_HOVER});
+    border: none;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}}
+QFrame#LoginArea {{
+    background-color: {COLOR_BG_SURFACE};
+    border: none;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}}
+QLabel[role="login_brand_title"] {{
+    font-size: 30px;
+    font-weight: 800;
+    color: #FFFFFF;
+}}
+QLabel[role="login_brand_desc"] {{
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+}}
+QLabel[role="login_title"] {{
+    font-size: 32px;
+    font-weight: 700;
+    color: {COLOR_TEXT_PRIMARY};
+}}
+QLabel[role="login_subtitle"] {{
+    font-size: 13px;
+    color: {COLOR_TEXT_SECONDARY};
+}}
+QFrame[role="login_field_container"] {{
+    border-bottom: 1.5px solid {COLOR_BORDER_SVELTE};
+    background-color: transparent;
+    padding: 2px 0px;
+}}
+QFrame[role="login_field_container"]:focus-within {{
+    border-bottom: 2px solid {COLOR_ACCENT};
+}}
+QLineEdit[role="login_input_field"] {{
+    background-color: transparent;
+    border: none;
+    padding: 6px 0px;
+    font-size: 14px;
+    color: {COLOR_TEXT_PRIMARY};
+}}
+QLineEdit[role="login_input_field"]:focus {{
+    border: none;
+    background-color: transparent;
+}}
+QLabel[role="login_field_label"] {{
+    font-size: 11px;
+    font-weight: 700;
+    color: {COLOR_TEXT_MUTED};
+    text-transform: uppercase;
+}}
+QLabel[role="login_logo_text"] {{
+    font-size: {h2}px;
+    font-weight: 800;
+    color: #FFFFFF;
+}}
+QLabel[role="login_dot"] {{
+    background-color: rgba(255, 255, 255, 0.4);
+    border-radius: 4px;
+}}
+QLabel[role="login_dot"][state="active"] {{
+    background-color: #FFFFFF;
+}}
+
+/* --- 10. CONTROLES ADICIONALES (QDateEdit, QCalendarWidget, QChartView) --- */
+QDateEdit::drop-down {{
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 23px;
+    border-left: 1.5px solid {COLOR_BORDER_SVELTE};
+    border-top-right-radius: {RADIUS_MD}px;
+    border-bottom-right-radius: {RADIUS_MD}px;
+}}
+QDateEdit::down-arrow {{
+    image: url("{PATH_ICON_CHEVRON_DOWN}");
+    width: 15px;
+    height: 15px;
+}}
+QDateEdit::drop-down:hover {{
+    background-color: {COLOR_BG_HOVER};
+}}
+QCalendarWidget QWidget {{
+    background-color: {COLOR_BG_SURFACE};
+    color: {COLOR_TEXT_PRIMARY};
+}}
+QCalendarWidget QAbstractItemView:enabled {{
+    color: {COLOR_TEXT_PRIMARY};
+    background-color: {COLOR_BG_SURFACE};
+    selection-background-color: {COLOR_ACCENT};
+    selection-color: {COLOR_WHITE};
+}}
+QCalendarWidget QAbstractItemView:disabled {{
+    color: {COLOR_TEXT_MUTED};
+}}
+QCalendarWidget QMenu {{
+    background-color: {COLOR_BG_SURFACE};
+    color: {COLOR_TEXT_PRIMARY};
+}}
+QCalendarWidget QToolButton {{
+    background-color: transparent;
+    color: {COLOR_TEXT_PRIMARY};
+    border: none;
+    font-weight: 600;
+}}
+QCalendarWidget QToolButton:hover {{
+    background-color: {COLOR_BG_HOVER};
+    border-radius: 4px;
+}}
+QChartView, QGraphicsView {{
+    background: transparent;
+    background-color: transparent;
+    border: none;
+}}
 """
 
 GLOBAL_QSS = get_global_qss(13)
-
-class Palette:
-    Bg              = COLOR_BG_BASE
-    Surface         = COLOR_BG_SURFACE
-    Text            = COLOR_TEXT_PRIMARY
-    Muted           = COLOR_TEXT_SECONDARY
-    Primary         = COLOR_ACCENT
-    Danger          = COLOR_DANGER
-    Success         = "#22C55E"
-    Warning         = COLOR_WARNING
-
-LAYOUT = {
-    "level_01": (10, 10, 10, 10),
-    "level_02": (16, 16, 16, 16),
-    "level_03": (20, 20, 20, 20),
-    "space_01": 12
-}

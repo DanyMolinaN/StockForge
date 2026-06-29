@@ -20,7 +20,7 @@ class InventoryView(QWidget):
         header_layout.setContentsMargins(12, 12, 12, 12)
         
         lbl_title = QLabel("Gestión de Inventario")
-        lbl_title.setProperty("role", "title")
+        lbl_title.setProperty("role", "h1")
         header_layout.addWidget(lbl_title)
         
         header_layout.addStretch()

@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QDate, Qt, Signal
 import random
 from backend.models.product_model import Product
-from frontend.common.theme import LAYOUT
 from frontend.navigation.toast_component import ToastNotification
 
 class InventoryFormTab(QWidget):
@@ -28,7 +27,7 @@ class InventoryFormTab(QWidget):
         form_container.setProperty("role", "card")
         
         admin_layout = QVBoxLayout(form_container)
-        admin_layout.setSpacing(LAYOUT["space_01"])
+        admin_layout.setSpacing(12)
 
         group_id = QGroupBox("Identificación y Categoría")
         id_layout = QVBoxLayout(group_id)

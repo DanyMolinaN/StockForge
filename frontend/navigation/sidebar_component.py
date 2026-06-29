@@ -6,7 +6,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QPropertyAnimation, QParallelAnimationGroup, Signal, QEasingCurve
 from frontend.common.utils import get_icon_colored
-from frontend.common.theme import Palette
+from frontend.common.theme import COLOR_ACCENT, COLOR_TEXT_SECONDARY, COLOR_DANGER
 
 class Sidebar(QFrame):
     view_selected = Signal(str)
@@ -34,8 +34,8 @@ class Sidebar(QFrame):
 
     def _setup_ui(self):
         self.main_layout = QVBoxLayout(self)
-        self.main_layout.setContentsMargins(12, 12, 12, 12)
-        self.main_layout.setSpacing(10)
+        self.main_layout.setContentsMargins(10, 10, 10, 10)
+        self.main_layout.setSpacing(8)
 
         self.header_container = QWidget()
         self.header_layout = QHBoxLayout(self.header_container)
@@ -43,7 +43,7 @@ class Sidebar(QFrame):
         self.header_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft)
         
         self.logo_btn = QPushButton()
-        self.logo_btn.setIcon(get_icon_colored("box.svg", Palette.Primary, 30))
+        self.logo_btn.setIcon(get_icon_colored("box.svg", COLOR_ACCENT, 30))
         self.logo_btn.setProperty("role", "btn_ghost")
 
         self.title_label = QLabel("StockForge")
@@ -54,8 +54,8 @@ class Sidebar(QFrame):
         self.expanded_spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         
         self.btn_toggle = QPushButton()
-        self.btn_toggle.setProperty("role", "action_ghost")
-        self.btn_toggle.setIcon(get_icon_colored("chevron-left.svg", Palette.Muted, 20)) 
+        self.btn_toggle.setProperty("role", "btn_ghost")
+        self.btn_toggle.setIcon(get_icon_colored("chevron-left.svg", COLOR_TEXT_SECONDARY, 20)) 
         self.btn_toggle.setFixedSize(36, 36)
         self.btn_toggle.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_toggle.clicked.connect(self.toggle_sidebar)
@@ -66,7 +66,7 @@ class Sidebar(QFrame):
         self.header_layout.addWidget(self.btn_toggle)
         self.main_layout.addWidget(self.header_container)
         
-        self.main_layout.addSpacing(24)
+        self.main_layout.addSpacing(20)
         
         self.top_nav_layout = QVBoxLayout()
         self.top_nav_layout.setSpacing(4)
@@ -102,7 +102,7 @@ class Sidebar(QFrame):
 
         self.bottom_nav_layout.addSpacing(16)
         self.btn_logout = self._create_nav_button("Cerrar Sesión", "logout.svg", is_checkable=False)
-        self.btn_logout.setIcon(get_icon_colored("logout.svg", Palette.Danger, 22))
+        self.btn_logout.setIcon(get_icon_colored("logout.svg", COLOR_DANGER, 22))
         self.btn_logout.clicked.connect(self.logout_requested.emit)
         self.bottom_nav_layout.addWidget(self.btn_logout)
 
@@ -120,7 +120,7 @@ class Sidebar(QFrame):
         
         btn.setCheckable(is_checkable)
         btn.setCursor(Qt.CursorShape.PointingHandCursor)       
-        btn.setIcon(get_icon_colored(icon_name, Palette.Muted, 22))
+        btn.setIcon(get_icon_colored(icon_name, COLOR_TEXT_SECONDARY, 22))
         
         self.nav_buttons.append(btn)
         return btn
@@ -130,7 +130,7 @@ class Sidebar(QFrame):
         target_width = self.expanded_width if self.is_expanded else self.collapsed_width
         
         toggle_icon = "chevron-left.svg" if self.is_expanded else "chevron-right.svg"
-        self.btn_toggle.setIcon(get_icon_colored(toggle_icon, Palette.Muted, 20))
+        self.btn_toggle.setIcon(get_icon_colored(toggle_icon, COLOR_TEXT_SECONDARY, 20))
         
         self.anim_group = QParallelAnimationGroup()
         for prop in [b"minimumWidth", b"maximumWidth"]:
@@ -174,7 +174,7 @@ class Sidebar(QFrame):
 
     def _on_tab_clicked(self, btn):
         for b in self.button_group.buttons():
-            color = Palette.Primary if b.isChecked() else Palette.Muted
+            color = COLOR_ACCENT if b.isChecked() else COLOR_TEXT_SECONDARY
             b.setIcon(get_icon_colored(b.property("icon_name"), color, 22))
         
         self.view_selected.emit(btn.property("view_name"))

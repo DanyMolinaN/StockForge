@@ -18,7 +18,7 @@ class CreateUserDialog(QDialog):
         layout.setSpacing(10)
 
         lbl_title = QLabel("Detalles del Usuario")
-        lbl_title.setProperty("role", "title")
+        lbl_title.setProperty("role", "h2")
         layout.addWidget(lbl_title)
 
         self.input_fullname = self._create_input("Nombre Completo", "Ej: Jane Doe")
@@ -53,7 +53,7 @@ class CreateUserDialog(QDialog):
         btn_layout = QHBoxLayout()
         
         self.btn_cancel = QPushButton("Cancelar")
-        self.btn_cancel.setProperty("role", "action_ghost")
+        self.btn_cancel.setProperty("role", "btn_ghost")
         self.btn_cancel.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_cancel.clicked.connect(self.reject)
         

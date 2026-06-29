@@ -7,7 +7,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QColor
-from frontend.common.theme import LAYOUT, Palette
+from frontend.common.theme import COLOR_WARNING, COLOR_DANGER
 from frontend.common.utils import get_icon_colored
 from frontend.navigation.toast_component import ToastNotification
 
@@ -22,7 +22,7 @@ class InventoryTableTab(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(LAYOUT["space_01"])
+        layout.setSpacing(12)
 
         filter_bar = QHBoxLayout()
         self.input_search = QLineEdit(placeholderText="Buscar por nombre, SKU o proveedor...")
@@ -90,15 +90,15 @@ class InventoryTableTab(QWidget):
             actions_layout.setSpacing(8)
 
             btn_edit = QPushButton()
-            btn_edit.setIcon(get_icon_colored("edit.svg", Palette.Warning, 18))
+            btn_edit.setIcon(get_icon_colored("edit.svg", COLOR_WARNING, 18))
             btn_edit.setToolTip("Editar Producto")
-            btn_edit.setProperty("role", "action_ghost")
+            btn_edit.setProperty("role", "btn_ghost")
             btn_edit.clicked.connect(lambda _, pid=prod.id: self.edit_requested.emit(pid))
 
             btn_delete = QPushButton()
-            btn_delete.setIcon(get_icon_colored("trash.svg", Palette.Danger, 18))
+            btn_delete.setIcon(get_icon_colored("trash.svg", COLOR_DANGER, 18))
             btn_delete.setToolTip("Eliminar Producto")
-            btn_delete.setProperty("role", "action_ghost")
+            btn_delete.setProperty("role", "btn_ghost")
             btn_delete.clicked.connect(lambda _, pid=prod.id, pname=prod.name: self.confirm_delete(pid, pname))
 
             actions_layout.addWidget(btn_edit)
@@ -108,7 +108,7 @@ class InventoryTableTab(QWidget):
             if prod.stock <= prod.min_stock:
                 for col in range(9):
                     item = self.table.item(row, col)
-                    if item: item.setForeground(QColor(Palette.Danger))
+                    if item: item.setForeground(QColor(COLOR_DANGER))
             
         self.update_categories_combo()
 
